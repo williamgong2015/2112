@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+// hi gong!
 public class test {
 	public static void main(String[] args) throws IOException {
 	String name = "test.txt";
