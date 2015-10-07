@@ -1,6 +1,6 @@
 package ast;
 
-public class Relation implements Condition,Mutable{
+public class Relation implements Condition{
 	private Expr ep1;
 	private Expr ep2;
 	private rel r;
@@ -40,12 +40,5 @@ public class Relation implements Condition,Mutable{
 		private rel (String str) {
 			name = str;
 		}
-	}
-
-	@Override
-	public void beMutated(MutationImpl m) {
-		m.mutate(this);
-		
-	}
-	
+	}	
 }

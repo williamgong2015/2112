@@ -1,5 +1,5 @@
 package ast;
 
 public interface Mutable {
-	public void beMutated(MutationImpl m);
+	public void beMutated(Mutate m);
 }

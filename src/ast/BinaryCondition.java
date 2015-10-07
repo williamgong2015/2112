@@ -5,7 +5,7 @@ package ast;
  *
  */
 // not sure about whether "op" will be in lower case or upper case;
-public class BinaryCondition implements Condition {
+public class BinaryCondition extends MutableNode implements Condition {
 	Condition left;
 	Condition right;
 	Operator o;
