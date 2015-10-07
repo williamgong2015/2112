@@ -16,7 +16,7 @@ public class test {
 		i = t.next();
 		System.out.print(i.getType()+"    ");
 		System.out.println(i.lineNo);
-		
 	}
 	}
 }
+
