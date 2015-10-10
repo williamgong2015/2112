@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-enum TokenType {
+public enum TokenType {
     MEM(OTHER, "mem"),
     WAIT(ACTION, "wait"),
     FORWARD(ACTION, "forward"),
@@ -83,5 +83,9 @@ enum TokenType {
 
     public static TokenType getTypeFromString(final String rep) {
         return stringToTypeMap.get(rep);
+    }
+    
+    public String toString() {
+    	return stringRep;
     }
 }

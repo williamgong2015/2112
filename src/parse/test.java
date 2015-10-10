@@ -8,15 +8,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 
+import ast.Node;
+
 public class test {
 	public static void main(String[] args) throws IOException {
-	String s = "a";
-	s+="\n";
-	s+="b";
-	FileWriter f  = new FileWriter ("test.txt");
-	f.write(s);
-	f.flush();
-	System.out.println(s);
+	FileReader f = new FileReader("test.txt");
+	ParserImpl p = new ParserImpl();
+	Node t =p.parse(f);
+	System.out.println(t.toString());
+//	Tokenizer t = new Tokenizer(f);
+//	while(t.hasNext()) {
+//		Token temp = t.next();
+//		System.out.println(temp);
+//	}
 	}
 }
 

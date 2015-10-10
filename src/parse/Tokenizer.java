@@ -419,6 +419,7 @@ class Tokenizer implements Iterator<Token> {
             super(cause);
         }
     }
+    
     private boolean isComment() throws IOException {
     	br.mark(2);
     	if((char)(br.read()) == '/')
@@ -427,9 +428,12 @@ class Tokenizer implements Iterator<Token> {
     		br.reset();
     	return false;
     }
-    private void dealWithComments() throws IOException {
-    	while((char)(br.read()) != '\n')
+    
+    private void dealWithComments() throws IOException, EOFException {
+    	br.readLine();
     	buf.setLength(0);
     	lineNo++;
+    	if(hasNext() == false)
+    		throw new EOFException();
     }
 }
