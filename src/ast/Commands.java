@@ -5,11 +5,11 @@ import java.util.ArrayList;
 public class Commands extends Command{
 
 	private ArrayList<Command> up;
-	private Command act;
 	
-	public Commands(ArrayList<Command> a,Command b) {
+	
+	public Commands(ArrayList<Command> a) {
 		up = a;
-		act = b;
+
 	}
 	
 	@Override
@@ -19,8 +19,6 @@ public class Commands extends Command{
 			for(Command c : up)
 				s += c.size();
 		}
-		if(act != null)
-			s += act.size();
 		return s;
 	}
 
@@ -28,27 +26,25 @@ public class Commands extends Command{
 	public Node nodeAt(int index) {
 		if(index == 0)
 			return this;
-		if(up.size() != 0) {
-			for(Command c : up) {
-				if(index <=c.size() )
-					return c.nodeAt(index - 1);
-				else
-					index -= c.size();
-			}
+		for(Command c : up) {
+			if(index <=c.size() )
+				return c.nodeAt(index - 1);
+			else
+				index -= c.size();
 		}
-		return act.nodeAt(index - 1);
+		return null;
 	}
 
 	@Override
 	public StringBuilder prettyPrint(StringBuilder sb) {
-		if(up.size() != 0) {
-			for(Command c : up) {
-				sb.append(c + " ");
-			}
+		for(Command c : up) {
+			sb.append(c + " ");
 		}
-		if(act != null)
-			sb.append(act + " ");
 		return sb;
+	}
+	
+	public ArrayList<Command> getChild() {
+		return up;
 	}
 
 }

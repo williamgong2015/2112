@@ -2,6 +2,11 @@ package ast;
 
 import java.util.ArrayList;
 
+import parse.Parser;
+import parse.ParserFactory;
+
+import java.io.StringReader;
+
 /**
  * A data structure representing a critter program.
  *
@@ -29,16 +34,19 @@ public class ProgramImpl implements Program {
         	}
         	else
         		index -= r.size();
-        		
         }
         return null;
     }
 
     @Override
     public Program mutate() {
-    	
+    	String s =  this.toString();
+    	StringReader rd = new StringReader(s);
+    	Parser p = ParserFactory.getParser();
+    	Program pro = p.parse(rd);
+    	pro.mutate();
         // TODO Auto-generated method stub
-        return null;
+        return pro;
     }
 
     @Override
@@ -46,7 +54,7 @@ public class ProgramImpl implements Program {
     	String s = this.toString();
     	
         MutableNode n = (MutableNode)this.nodeAt(index);
-        n.beMutated((Mutate)m);
+        n.beMutated((AbstractMutation)m);
         return null;
     }
 
@@ -61,6 +69,10 @@ public class ProgramImpl implements Program {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         return this.prettyPrint(sb).toString();
+    }
+    
+    public ArrayList<Rule> getChild() {
+    	return root;
     }
 
 }

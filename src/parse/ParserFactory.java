@@ -10,7 +10,6 @@ public class ParserFactory {
      * @return A critter program parser
      */
     public static Parser getParser() {
-        //TODO
-        return null;
+        return new ParserImpl();
     }
 }

@@ -34,8 +34,7 @@ class ParserImpl implements Parser {
         try {
 			pro = parseProgram(t);
 		} catch (SyntaxError e) {
-			//TODO
-			e.printStackTrace();
+			System.err.println("Wrong Syntax!");
 		}
         return pro;
     }
@@ -160,7 +159,9 @@ class ParserImpl implements Parser {
         	Token temp = t.next();
         	c = new NullaryCommand(temp.getType());
         }
-        Commands com = new Commands(al,c);
+        if(c != null)
+        	al.add(c);
+        Commands com = new Commands(al);
         if(c != null)
         	c.setParent(com);
         if(al.size() != 0) {
@@ -297,7 +298,6 @@ class ParserImpl implements Parser {
     public static void consume(Tokenizer t, TokenType tt) throws SyntaxError {
     	Token temp = t.next();
         if(!temp.getType().equals(tt)){
-        	System.out.println(temp);
         	throw new SyntaxError();
         }
     }

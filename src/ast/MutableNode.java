@@ -4,7 +4,7 @@ public abstract class MutableNode implements Node ,Mutable {
 	
 	private Node parent;
 	
-	public void beMutated (Mutate m) {
+	public void beMutated (AbstractMutation m) {
 		m.mutate(this);
 	}
 	
