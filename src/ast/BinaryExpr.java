@@ -47,4 +47,9 @@ public class BinaryExpr extends Expr{
 			return name;
 		}
 	}
+	
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 }

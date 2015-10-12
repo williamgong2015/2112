@@ -54,4 +54,25 @@ public class BinaryCondition extends Condition  {
     public enum Operator {
         OR, AND;
     }
+    
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
+	
+	protected Condition getLeft() {
+		return left;
+	}
+	
+	protected Condition getRight() {
+		return right;
+	}
+	
+	protected void setLeft(Condition newLeft) {
+		left = newLeft;
+	}
+	
+	protected void setRight(Condition newRight) {
+		right = newRight;
+	}
 }

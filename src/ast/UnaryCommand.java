@@ -32,4 +32,9 @@ public class UnaryCommand extends Command{
 		serve,
 		tag;
 	}
+	
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 }

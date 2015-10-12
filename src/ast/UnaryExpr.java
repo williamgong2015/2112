@@ -50,4 +50,9 @@ public class UnaryExpr extends Expr{
 		neg,
 		sensor;
 	}
+	
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 }

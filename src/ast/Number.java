@@ -23,4 +23,8 @@ public class Number extends Expr{
 		return sb.append(val);
 	}
 
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 }

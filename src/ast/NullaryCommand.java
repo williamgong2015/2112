@@ -23,4 +23,8 @@ public class NullaryCommand extends Command{
 	public StringBuilder prettyPrint(StringBuilder sb) {
 		return sb.append(a.toString());
 	}
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 }

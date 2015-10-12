@@ -11,7 +11,7 @@ import java.io.StringReader;
  * A data structure representing a critter program.
  *
  */
-public class ProgramImpl implements Program {
+public class ProgramImpl implements Program, Mutable {
 
 	private ArrayList<Rule> root;
 	
@@ -74,5 +74,10 @@ public class ProgramImpl implements Program {
     public ArrayList<Rule> getChild() {
     	return root;
     }
+
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 
 }

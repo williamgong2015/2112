@@ -6,7 +6,6 @@ public class Commands extends Command{
 
 	private ArrayList<Command> up;
 	
-	
 	public Commands(ArrayList<Command> a) {
 		up = a;
 
@@ -45,6 +44,11 @@ public class Commands extends Command{
 	
 	public ArrayList<Command> getChild() {
 		return up;
+	}
+	
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
 	}
 
 }

@@ -29,5 +29,10 @@ public class BinaryCommand extends Command{
 		sb.append("mem[" + e1 + "]:="  + e2);
 		return sb;
 	}
+	
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
 
 }

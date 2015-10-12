@@ -9,18 +9,14 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import ast.Node;
+import ast.Program;
 
 public class test {
 	public static void main(String[] args) throws IOException {
-	FileReader f = new FileReader("test.txt");
-	ParserImpl p = new ParserImpl();
-	Node t =p.parse(f);
-	System.out.println(t.toString());
-//	Tokenizer t = new Tokenizer(f);
-//	while(t.hasNext()) {
-//		Token temp = t.next();
-//		System.out.println(temp);
-//	}
+		FileReader f = new FileReader("test.txt");
+		ParserImpl p = new ParserImpl();
+		Program t = p.parse(f);
+		System.out.println(t.toString());
 	}
 }
 

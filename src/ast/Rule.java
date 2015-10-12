@@ -33,4 +33,17 @@ public class Rule extends MutableNode {
         sb.append(str.trim() +  ";\n");
         return sb;
     }
+    
+	@Override
+	public void beMutated(AbstractMutation m) {
+		m.mutate(this);
+	}
+	
+	protected void setCommand(Command newCom) {
+		com = newCom;
+	}
+	
+	protected void setCondition(Condition newCon) {
+		con = newCon;
+	}
 }
