@@ -4,7 +4,7 @@ package ast;
  * A representation of a binary Boolean condition: 'and' or 'or'
  *
  */
-public class BinaryCondition extends Condition  {
+public class BinaryCondition extends Condition implements BinaryOperation, GenericalOperation {
 	
 	private Condition left;
 	private Condition right;
@@ -39,12 +39,24 @@ public class BinaryCondition extends Condition  {
     
     @Override
     public StringBuilder prettyPrint(StringBuilder sb) {
+    	// print {} if parent is an AND BinaryCondition and 
+    	// this is an OR BinaryCondition
+    	boolean parentIsAnd = false;
+    	Node parent = this.getParent();
+    	if (parent instanceof BinaryCondition) {
+    		if (((BinaryCondition) parent).op.equals(Operator.AND))
+    			parentIsAnd = true;
+    	}
+    	if (parentIsAnd && op.equals(Operator.OR))
+    		sb.append("{ ");
     	sb.append(left.toString());
     	if(op.equals(Operator.AND))
     		sb.append(" and ");
     	else
     		sb.append(" or ");
     	sb.append(right.toString());
+    	if (parentIsAnd && op.equals(Operator.OR))
+    		sb.append(" }");
         return sb;
     }
 
@@ -60,19 +72,66 @@ public class BinaryCondition extends Condition  {
 		m.mutate(this);
 	}
 	
-	protected Condition getLeft() {
+	@Override
+	public Condition getFirChild() {
 		return left;
 	}
 	
-	protected Condition getRight() {
+	@Override
+	public Condition getSecChild() {
 		return right;
 	}
 	
-	protected void setLeft(Condition newLeft) {
-		left = newLeft;
+	@Override
+	public Condition getRandomChild() {
+		if (util.RandomGen.randomNumber(1) == 0)
+			return left;
+		else
+			return right;
 	}
 	
-	protected void setRight(Condition newRight) {
-		right = newRight;
+	@Override
+	public void setFirChild(Node newLeft) {
+		left = (Condition) newLeft;
 	}
+	
+	@Override
+	public void setSecChild(Node newRight) {
+		right = (Condition) newRight;
+	}
+	
+	@Override
+	public void setRandomChild(Node newChild) {
+		if (util.RandomGen.randomNumber(1) == 0)
+			left = (Condition) newChild;
+		else 
+			right = (Condition) newChild;
+	}
+
+	@Override
+	public void replaceChild(Node oldChild, Node newChild) {
+		if (left == oldChild)
+			left = (Condition) newChild;
+		else if (right == oldChild) 
+			right = (Condition) newChild;
+		else 
+			System.out.println("BinaryCondition: can't find oldChild");
+	}
+
+	@Override
+	public Operator getType() {
+		return op;
+	}
+
+	@Override
+	public Object[] getAllPossibleType() {
+		Operator[] r = {Operator.AND, Operator.OR};
+		return r;
+	}
+
+	@Override
+	public void setType(Object newType) {
+		op = (Operator) newType;
+	}
+	
 }

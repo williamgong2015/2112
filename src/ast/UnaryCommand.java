@@ -1,6 +1,7 @@
 package ast;
 
-public class UnaryCommand extends Command{
+public class UnaryCommand extends Command implements UnaryOperation,
+                                                     GenericalOperation {
 	private Expr e;
 	private tp t;
 	
@@ -36,5 +37,31 @@ public class UnaryCommand extends Command{
 	@Override
 	public void beMutated(AbstractMutation m) {
 		m.mutate(this);
+	}
+	
+	@Override
+	public Expr getChild() {
+		return e;
+	}
+	
+	@Override
+	public void setChild(Node newExpr) {
+		e = (Expr) newExpr;
+	}
+
+	@Override
+	public tp getType() {
+		return t;
+	}
+
+	@Override
+	public tp[] getAllPossibleType() {
+		tp[] r = {tp.tag, tp.serve};
+		return r;
+	}
+
+	@Override
+	public void setType(Object newType) {
+		t = (tp) newType;
 	}
 }

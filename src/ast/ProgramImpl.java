@@ -2,8 +2,10 @@ package ast;
 
 import java.util.ArrayList;
 
+import exceptions.SyntaxError;
 import parse.Parser;
 import parse.ParserFactory;
+import parse.Tokenizer;
 
 import java.io.StringReader;
 
@@ -11,7 +13,7 @@ import java.io.StringReader;
  * A data structure representing a critter program.
  *
  */
-public class ProgramImpl implements Program, Mutable {
+public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 
 	private ArrayList<Rule> root;
 	
@@ -21,7 +23,10 @@ public class ProgramImpl implements Program, Mutable {
 	
     @Override
     public int size() {
-        return 1 + root.size();
+    	int r = 1;
+    	for (int i = 0; i < root.size(); ++i)
+    		r += root.get(i).size();
+        return r;
     }
 
     @Override
@@ -51,8 +56,6 @@ public class ProgramImpl implements Program, Mutable {
 
     @Override
     public Program mutate(int index, Mutation m) {
-    	String s = this.toString();
-    	
         MutableNode n = (MutableNode)this.nodeAt(index);
         n.beMutated((AbstractMutation)m);
         return null;
@@ -71,13 +74,49 @@ public class ProgramImpl implements Program, Mutable {
         return this.prettyPrint(sb).toString();
     }
     
-    public ArrayList<Rule> getChild() {
+    @Override
+    public ArrayList<Rule> getChildren() {
     	return root;
     }
 
 	@Override
 	public void beMutated(AbstractMutation m) {
 		m.mutate(this);
+	}
+
+	@Override
+	public int numOfChildren() {
+		return root.size();
+	}
+
+	@Override
+	public void setOneWithAnother(int one, int another) {
+		root.set(one, root.get(another));
+	}
+	
+	@Override 
+	public void setChild(int index, Node newChild) {
+		root.set(index, (Rule) newChild);
+	}
+	
+	@Override 
+	public Rule getChild(int index) {
+		return root.get(index);
+	}
+
+	@Override
+	public int indexOfChild(Node child) {
+		return root.indexOf((Rule) child);
+	}
+
+	@Override
+	public Node parseMyType(Tokenizer t) {
+		try {
+			return parse.ParserImpl.parseProgram(t);
+		} catch (SyntaxError e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

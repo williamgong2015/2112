@@ -2,13 +2,12 @@ package ast;
 
 import java.util.ArrayList;
 
-public class Commands extends Command{
+public class Commands extends Command implements Placeholder {
 
 	private ArrayList<Command> up;
 	
 	public Commands(ArrayList<Command> a) {
 		up = a;
-
 	}
 	
 	@Override
@@ -42,13 +41,43 @@ public class Commands extends Command{
 		return sb;
 	}
 	
-	public ArrayList<Command> getChild() {
+	@Override
+	public ArrayList<Command> getChildren() {
 		return up;
 	}
 	
 	@Override
 	public void beMutated(AbstractMutation m) {
 		m.mutate(this);
+	}
+	
+	protected Command getRandomChild() {
+		return up.get(util.RandomGen.randomNumber(up.size()));
+	}
+
+	@Override
+	public int numOfChildren() {
+		return up.size();
+	}
+
+	@Override
+	public void setOneWithAnother(int one, int another) {
+		up.set(one, up.get(another));
+	}
+	
+	@Override
+	public void setChild(int index, Node newChild) {
+		up.set(index, (Command) newChild);
+	}
+	
+	@Override
+	public Command getChild(int index) {
+		return up.get(index);
+	}
+
+	@Override
+	public int indexOfChild(Node child) {
+		return up.indexOf((Command) child);
 	}
 
 }

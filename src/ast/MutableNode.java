@@ -13,7 +13,6 @@ public abstract class MutableNode implements Node ,Mutable {
 	public void setParent(Node n) {
 		parent = n;
 	}
-	
 	public Node getParent() {
 		return parent;
 	}

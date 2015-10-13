@@ -1,9 +1,14 @@
 package ast;
 
-public class UnaryExpr extends Expr{
+public class UnaryExpr extends Expr implements UnaryOperation,
+                                               GenericalOperation {
 
 	private Expr e;
 	private T t;
+	
+	public UnaryExpr(Expr ep) {
+		e = ep;
+	}
 	
 	public UnaryExpr(Expr ep,T type) {
 		e = ep;
@@ -54,5 +59,32 @@ public class UnaryExpr extends Expr{
 	@Override
 	public void beMutated(AbstractMutation m) {
 		m.mutate(this);
+	}
+	
+	@Override
+	public Expr getChild() {
+		return e;
+	}
+	
+	@Override
+	public void setChild(Node newExpr) {
+		e = (Expr) newExpr;
+	}
+
+	@Override
+	public T getType() {
+		return t;
+	}
+
+	@Override
+	public T[] getAllPossibleType() {
+		T[] r = {T.nearby, T.ahead, T.random, T.mem, T.paren,
+				T.neg, T.sensor};
+		return r;
+	}
+
+	@Override
+	public void setType(Object newType) {
+		t = (T) newType;
 	}
 }

@@ -2,29 +2,20 @@ package ast;
 
 import parse.TokenType;
 
-public class Relation extends Condition{
+public class Relation extends Condition implements BinaryOperation, 
+                                                   GenericalOperation {
 	private Expr ep1;
 	private Expr ep2;
 	private TokenType  r;
-	private Condition con;
-	private boolean isCondition;
 	
 	public Relation(Expr e1,Expr e2,TokenType r) {
 		ep1 = e1;
 		ep2 = e2;
 		this.r = r;
-		isCondition = false;
-	}
-	
-	public Relation (Condition c) {
-		con = c;
-		isCondition = true;
 	}
 	
 	@Override
 	public int size() {
-		if (isCondition) 
-			return 1 + con.size();
 		return 1 + ep1.size() + ep2.size();
 	}
 
@@ -32,8 +23,6 @@ public class Relation extends Condition{
 	public Node nodeAt(int index) {
 		if(index == 0)
 			return this;
-		if (isCondition)
-			return con.nodeAt(index-1);
 		if(index <= ep1.size()) {
         	return ep1.nodeAt(index - 1);
         }
@@ -42,10 +31,7 @@ public class Relation extends Condition{
 
 	@Override
 	public StringBuilder prettyPrint(StringBuilder sb) {
-		if(con == null)
-			sb.append(ep1 + " " + r.toString() +  " " +ep2);
-		else 
-			sb.append("{ " + con +" }");
+		sb.append(ep1 + " " + r.toString() +  " " +ep2);
 		return sb;
 	}
 	
@@ -53,12 +39,67 @@ public class Relation extends Condition{
 	public void beMutated(AbstractMutation m) {
 		m.mutate(this);
 	}
-	
-	protected boolean isCondition() {
-		return isCondition;
+
+	@Override
+	public Expr getFirChild() {
+		return ep1;
+	}
+
+	@Override
+	public Expr getSecChild() {
+		return ep2;
 	}
 	
-	protected Condition getCondition() {
-		return con;
+	@Override
+	public Expr getRandomChild() {
+		if (util.RandomGen.randomNumber(1) == 0)
+			return ep1;
+		else 
+			return ep2;
+	}
+
+	@Override
+	public void setFirChild(Node newExpr) {
+		ep1 = (Expr) newExpr;
+	}
+
+	@Override
+	public void setSecChild(Node newExpr) {
+		ep2 = (Expr) newExpr;
+	}
+
+	@Override
+	public void setRandomChild(Node newExpr) {
+		if (util.RandomGen.randomNumber(1) == 0)
+			ep1 = (Expr) newExpr;
+		else 
+			ep2 = (Expr) newExpr;
+	}
+	
+	@Override
+	public void replaceChild(Node oldChild, Node newChild) {
+		if (ep1 == oldChild)
+			ep1 = (Expr) newChild;
+		else if (ep2 == oldChild) 
+			ep2 = (Expr) newChild;
+		else 
+			System.out.println("BinaryExpr: can't find oldChild");
+	}
+
+	@Override
+	public Object getType() {
+		return r;
+	}
+
+	@Override
+	public Object[] getAllPossibleType() {
+		TokenType[] r = {TokenType.LT, TokenType.LE, TokenType.EQ,
+				TokenType.GE, TokenType.GT, TokenType.NE};
+		return r;
+	}
+
+	@Override
+	public void setType(Object newType) {
+		r = (TokenType) newType;
 	}
 }

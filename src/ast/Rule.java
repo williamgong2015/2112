@@ -1,5 +1,8 @@
 package ast;
 
+import exceptions.SyntaxError;
+import parse.Tokenizer;
+
 /**
  * A representation of a critter rule.
  */
@@ -45,5 +48,15 @@ public class Rule extends MutableNode {
 	
 	protected void setCondition(Condition newCon) {
 		con = newCon;
+	}
+	
+	@Override
+	public Node parseMyType(Tokenizer t) {
+		try {
+			return parse.ParserImpl.parseRule(t);
+		} catch (SyntaxError e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -21,7 +21,7 @@ import ast.BinaryExpr;
 import ast.Number;
 
 
-class ParserImpl implements Parser {
+public class ParserImpl implements Parser {
 	
 
 	public ParserImpl() {
@@ -100,9 +100,7 @@ class ParserImpl implements Parser {
     		consume(t,TokenType.LBRACE);
     		Condition con = parseCondition(t);
     		consume(t,TokenType.RBRACE);
-    		Relation r = new Relation(con);
-    		con.setParent(r);
-    		return r;
+    		return con;
     	}
         Expr e1 = parseExpression(t);
         TokenType temp = t.next().getType();
