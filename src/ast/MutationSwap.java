@@ -19,8 +19,9 @@ public class MutationSwap extends AbstractMutation {
 	 * BinaryExpr and Relation
 	 */
 	private boolean mutate(BinaryOperation n) {
+		Node tmp = n.getFirChild();
 		n.setFirChild(n.getSecChild());
-		n.setSecChild(n.getFirChild());
+		n.setSecChild(tmp);
 		return true;
 	}
 	
@@ -50,7 +51,9 @@ public class MutationSwap extends AbstractMutation {
 	private boolean mutate(Placeholder n) {
 		if (n.numOfChildren() > 1) {
 			int[] indexes = util.RandomGen.twoUniqueRandomNum(n.numOfChildren());
-			n.setOneWithAnother(indexes[0], indexes[1]);
+			Node tmp = n.getChild(indexes[0]);
+			n.setChild(indexes[0], n.getChild(indexes[1]));
+			n.setChild(indexes[1], tmp);
 			return true;
 		}
 		return false;

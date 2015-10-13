@@ -20,7 +20,7 @@ public class MutationInsert extends AbstractMutation {
 	 * Share common code for nodes of class Condition
 	 */
 	private boolean mutate(Condition n) {
-		Condition fellow = (Condition) findMyFellowAndSub(Condition.class, n);
+		Condition fellow = (Condition) findMyFellowAndSub(Condition.class, n, n.hashCode());
 		if (fellow == null)
 			return false;
 		Condition newChild = (Condition) getACopy(fellow);
@@ -48,7 +48,7 @@ public class MutationInsert extends AbstractMutation {
 	 * Share common code for nodes of class Expr
 	 */
 	private boolean mutate(Expr n) {
-		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n);
+		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n, n.hashCode());
 		if (fellow == null)
 			return false;
 		Expr newChild = (Expr) getACopy(fellow);

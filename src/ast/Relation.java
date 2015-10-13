@@ -2,6 +2,10 @@ package ast;
 
 import parse.TokenType;
 
+/**
+ * a condition which takes two expression,
+ * it's something like a > b ,a != c,etc.
+ */
 public class Relation extends Condition implements BinaryOperation, 
                                                    GenericalOperation {
 	private Expr ep1;

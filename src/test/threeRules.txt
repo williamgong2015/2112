@@ -1,0 +1,8 @@
+
+mem[5]=1 --> mem[6] := mem[4]
+             mem[5] := 2;
+
+mem[6] mod 1000 < 6 --> mem[5]:=1 
+                        eat;
+
+mem[mem[3] + 10] mod 6 <= 3 --> right;

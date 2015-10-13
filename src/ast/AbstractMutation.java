@@ -73,10 +73,10 @@ public abstract class AbstractMutation implements Mutation{
 		Node root = n.getParent();
 		// while root is still a mutable node (not ProgramImpl yet)
 		while (MutableNode.class.isAssignableFrom( root.getClass() ))
-			root = ((MutableNode) n).getParent();
+			root = ((MutableNode) root).getParent();
 		// generate a random sequence of checking order to check all the nodes
 		int size = root.size();
-		Random rng = new Random();
+		Random rng = new Random(System.currentTimeMillis());
 		// Note: use LinkedHashSet to maintain insertion order
 		Set<Integer> generated = new LinkedHashSet<Integer>();
 		while (generated.size() < size)
@@ -97,12 +97,12 @@ public abstract class AbstractMutation implements Mutation{
 	 * @return randomly chosen node in the ast tree that is of the same kind as
 	 *         or is the sub class of {@code cls} but the node is not {@code n} 
 	 */
-	public Node findMyFellowAndSub(Class<?> cls, MutableNode n) {
+	public Node findMyFellowAndSub(Class<?> cls, MutableNode n, int hash) {
 		// get the root (ProgramImpl node)
 		Node root = n.getParent();
 		// while root is still a mutable node (not ProgramImpl yet)
 		while (MutableNode.class.isAssignableFrom( root.getClass() ))
-			root = ((MutableNode) n).getParent();
+			root = ((MutableNode) root).getParent();
 		// generate a random sequence of checking order to check all the nodes
 		int size = root.size();
 		Random rng = new Random();
@@ -115,7 +115,7 @@ public abstract class AbstractMutation implements Mutation{
 		    generated.add(next);
 		}
 		for (Integer i : generated) {
-			if (root.nodeAt(i) != n && cls.isAssignableFrom(root.nodeAt(i).getClass()))
+			if (root.nodeAt(i).hashCode() != hash && cls.isAssignableFrom(root.nodeAt(i).getClass()))
 				return root.nodeAt(i);
 		}
 		System.out.println("MutationReplace: Can't find fellow mutable node");

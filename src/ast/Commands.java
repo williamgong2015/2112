@@ -2,6 +2,12 @@ package ast;
 
 import java.util.ArrayList;
 
+import exceptions.SyntaxError;
+import parse.Tokenizer;
+
+/**
+ * a node which represents "Command" in grammar
+ */
 public class Commands extends Command implements Placeholder {
 
 	private ArrayList<Command> up;
@@ -59,11 +65,6 @@ public class Commands extends Command implements Placeholder {
 	public int numOfChildren() {
 		return up.size();
 	}
-
-	@Override
-	public void setOneWithAnother(int one, int another) {
-		up.set(one, up.get(another));
-	}
 	
 	@Override
 	public void setChild(int index, Node newChild) {
@@ -78,6 +79,16 @@ public class Commands extends Command implements Placeholder {
 	@Override
 	public int indexOfChild(Node child) {
 		return up.indexOf((Command) child);
+	}
+	
+	@Override
+	public MutableNode parseMyType(Tokenizer t) {
+		try {
+			return parse.ParserImpl.parseCommand(t);
+		} catch (SyntaxError e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

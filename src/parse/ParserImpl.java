@@ -301,11 +301,7 @@ public class ParserImpl implements Parser {
         }
     }
     
-    public static boolean compare(Tokenizer t, TokenType tt){
-        if(!t.hasNext() || !t.next().getType().equals(tt))
-        	return false;
-        return true;
-    }
+    // here translate the syntax sugar
     public static Expr dealWithSyntaxSugar(Token temp) {
     	TokenType t = temp.getType();
     	if(t.equals(TokenType.ABV_MEMSIZE)) {

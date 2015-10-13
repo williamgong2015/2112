@@ -2,6 +2,8 @@ package ast;
 
 import parse.TokenType;
 
+/** represents six kind of "action" in grammar*/
+
 public class NullaryCommand extends Command implements GenericalOperation {
 
 	private TokenType a;

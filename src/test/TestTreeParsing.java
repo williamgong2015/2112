@@ -9,7 +9,7 @@ import org.junit.Test;
 import ast.Program;
 import parse.ParserImpl;
 
-public class TreeTester {
+public class TestTreeParsing {
 
 	/**
 	 * Parse and build a AST tree, pretty print it and use the printed 
@@ -22,14 +22,15 @@ public class TreeTester {
 	 */
 	@Test
 	public void testParseTree() throws FileNotFoundException {
-		FileReader f = new FileReader("test.txt");
+		FileReader f = new FileReader("src/test/test.txt");
 		ParserImpl p = new ParserImpl();
 		Program t1 = p.parse(f);
 		String parsedOutput = t1.toString();
 		StringReader s = new StringReader(parsedOutput);
 		Program t2 = p.parse(s);
-		assertTrue("Two Tree's pretty print output does not match", parsedOutput.equals(t2.toString()));
-		System.out.println("Success, your pretty print ast tree: ");
+		assertTrue("Two Tree's pretty print output does not match", 
+				parsedOutput.equals(t2.toString()));
+		System.out.println("testParseTree Succeed, your AST tree: ");
 		System.out.println();
 		System.out.println(parsedOutput);
 	}

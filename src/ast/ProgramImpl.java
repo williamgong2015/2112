@@ -89,10 +89,6 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 		return root.size();
 	}
 
-	@Override
-	public void setOneWithAnother(int one, int another) {
-		root.set(one, root.get(another));
-	}
 	
 	@Override 
 	public void setChild(int index, Node newChild) {

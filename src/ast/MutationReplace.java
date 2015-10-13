@@ -13,13 +13,13 @@ package ast;
 public class MutationReplace extends AbstractMutation {
 	
 	/**
-	 * Child of Placeholder share this method 
-	 *     
-	 * These nodes are:
-	 *     Rule (child of ProgramImpl), NullaryCommand (child of Commands)
-	 *     UnaryCommand (child of Commands), BinaryCommand (child of Commands)
+	 * Rule use this replace method
+	 * 
+	 * It find the same kind of nodes from it parent ProgramImpl, which is 
+	 * faster than randomly picking nodes and test if it is of the same kind
 	 */
-	private boolean mutateChildOfPlaceholder(MutableNode n) {
+	@Override
+	public boolean mutate(Rule n) {
 		Placeholder parent = (Placeholder) n.getParent();
 		int size = parent.numOfChildren();
 		if (size <= 1)
@@ -32,9 +32,24 @@ public class MutationReplace extends AbstractMutation {
 		return true;
 	}
 	
-	@Override
-	public boolean mutate(Rule n) {
-		return mutateChildOfPlaceholder(n);
+	/**
+	 * Nodes of class Command share this method 
+	 * 
+	 * These nodes are:
+	 *     NullaryCommand (child of Commands), 
+	 *     UnaryCommand (child of Commands), 
+	 *     BinaryCommand (child of Commands)
+	 */
+	private boolean mutateChildOfPlaceholder(Command n) {
+		Placeholder parent = (Placeholder) n.getParent();
+		int oldIndex = parent.indexOfChild(n);
+		MutableNode fellow = (MutableNode) findMyFellowAndSub(Command.class, n, n.hashCode());
+		if (fellow == null)
+			return false;
+		Command newChild = (Command) getACopy(fellow);
+		newChild.setParent(parent);
+		parent.setChild(oldIndex, newChild);
+		return true;
 	}
 	
 	@Override
@@ -56,7 +71,7 @@ public class MutationReplace extends AbstractMutation {
 	 * Nodes of class Condition share this method 
 	 */
 	private boolean mutate(Condition n) {
-		MutableNode fellow = (MutableNode) findMyFellow(n);
+		MutableNode fellow = (MutableNode) findMyFellowAndSub(Condition.class, n, n.hashCode());
 		if (fellow == null)
 			return false;
 		Condition newChild = (Condition) getACopy(fellow);

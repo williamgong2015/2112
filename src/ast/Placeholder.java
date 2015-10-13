@@ -10,11 +10,6 @@ public interface Placeholder extends Node {
 	/** @return the number of children in the placeholder */
 	int numOfChildren();
 	
-	/** Effect: set the child at index {@code one} 
-	 *  with the another child at index {@code another}
-	 */
-	void setOneWithAnother(int one, int another);
-	
 	/** 
 	 * Effect: set the child at index {@code index}
 	 * with {@code newChild}

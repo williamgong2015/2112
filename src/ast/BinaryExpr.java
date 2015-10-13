@@ -1,5 +1,9 @@
 package ast;
 
+/** 
+ *  an expression which takes two expression as child
+ *  like 3 * 4,mem[2] + 5,etc
+ */
 public class BinaryExpr extends Expr implements BinaryOperation, GenericalOperation {
 
 	private Expr e1;
