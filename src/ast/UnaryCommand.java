@@ -35,8 +35,8 @@ public class UnaryCommand extends Command implements UnaryOperation,
 	}
 	
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	@Override

@@ -238,10 +238,11 @@ public class ParserImpl implements Parser {
         	return f;
         }
         if(temp.isSensor()) {
-        	Expr e = parseSensor(t);
-        	Expr f = new UnaryExpr(e,UnaryExpr.T.sensor);
-        	e.setParent(f);
-        	return f;
+//        	Expr e = parseSensor(t);
+//        	Expr f = new UnaryExpr(e,UnaryExpr.T.sensor);
+//        	e.setParent(f);
+//        	return f;
+        	return parseSensor(t);
         }
         if(temp.isMemSugar()) {
         	t.next();

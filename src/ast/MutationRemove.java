@@ -110,29 +110,22 @@ public class MutationRemove extends AbstractMutation{
 	private boolean mutate(Expr n) {
 		// the child of n used to replace n
 		Expr child;
-		if (n instanceof UnaryExpr)
+		if (n instanceof UnaryExpr) 
 			child = ((UnaryExpr) n).getChild();
 		else 
 			child = ((BinaryExpr) n).getRandomChild();
+
 		Node parent = n.getParent();
-		if (parent instanceof Relation) {
-			((Relation) parent).setRandomChild(child);
+		if (parent instanceof UnaryExpr || parent instanceof UnaryCommand) {
+			((UnaryOperation) parent).setChild(child);
 			return true;
 		}
-		else if (parent instanceof UnaryExpr) {
-			((UnaryExpr) parent).setChild(child);
-			return true;
-		}
-		else if (parent instanceof BinaryExpr) {
-			((BinaryExpr) parent).setRandomChild(child);
-			return true;
-		}
-		else if (parent instanceof UnaryCommand) {
-			((UnaryCommand) parent).setChild(child);
-			return true;
-		}
-		else if (parent instanceof BinaryCommand) {
-			((BinaryCommand) parent).setRandomChild(child);
+		else if (parent instanceof BinaryExpr || parent instanceof Relation ||
+				parent instanceof BinaryCommand) {
+			if (((BinaryOperation) parent).getFirChild() == n)
+				((BinaryOperation) parent).setFirChild(child);
+			else
+				((BinaryOperation) parent).setSecChild(child);
 			return true;
 		}
 		// TODO: Delete these two lines if passing all the test

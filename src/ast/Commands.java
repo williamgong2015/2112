@@ -25,7 +25,7 @@ public class Commands extends Command implements Placeholder {
 		if(index == 0)
 			return this;
 		for(Command c : up) {
-			if(index <=c.size() )
+			if(index <= c.size() )
 				return c.nodeAt(index - 1);
 			else
 				index -= c.size();
@@ -47,8 +47,8 @@ public class Commands extends Command implements Placeholder {
 	}
 	
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	protected Command getRandomChild() {

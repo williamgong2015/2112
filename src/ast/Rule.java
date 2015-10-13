@@ -38,8 +38,8 @@ public class Rule extends MutableNode {
     }
     
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	protected void setCommand(Command newCom) {

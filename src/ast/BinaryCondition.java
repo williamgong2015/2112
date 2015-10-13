@@ -68,8 +68,8 @@ public class BinaryCondition extends Condition implements BinaryOperation, Gener
     }
     
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	@Override

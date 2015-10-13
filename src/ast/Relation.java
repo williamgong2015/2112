@@ -36,8 +36,8 @@ public class Relation extends Condition implements BinaryOperation,
 	}
 	
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 
 	@Override

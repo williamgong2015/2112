@@ -57,8 +57,8 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 	}
 	
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	@Override
@@ -78,8 +78,10 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 
 	@Override
 	public T[] getAllPossibleType() {
+//		T[] r = {T.nearby, T.ahead, T.random, T.mem, T.paren,
+//				T.neg, T.sensor};
 		T[] r = {T.nearby, T.ahead, T.random, T.mem, T.paren,
-				T.neg, T.sensor};
+				T.neg};
 		return r;
 	}
 

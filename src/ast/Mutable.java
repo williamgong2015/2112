@@ -1,5 +1,5 @@
 package ast;
 
 public interface Mutable {
-	public void beMutated(AbstractMutation m);
+	public boolean beMutated(AbstractMutation m);
 }

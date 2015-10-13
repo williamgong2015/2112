@@ -54,8 +54,8 @@ public class BinaryExpr extends Expr implements BinaryOperation, GenericalOperat
 	}
 	
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 	
 	public Node getFirChild() {

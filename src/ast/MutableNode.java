@@ -4,7 +4,7 @@ public abstract class MutableNode implements Node ,Mutable {
 	
 	private Node parent;
 	
-	public abstract void beMutated(AbstractMutation m);
+	public abstract boolean beMutated(AbstractMutation m);
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder ();

@@ -80,8 +80,8 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
     }
 
 	@Override
-	public void beMutated(AbstractMutation m) {
-		m.mutate(this);
+	public boolean beMutated(AbstractMutation m) {
+		return m.mutate(this);
 	}
 
 	@Override
