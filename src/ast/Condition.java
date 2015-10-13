@@ -9,7 +9,7 @@ import parse.Tokenizer;
  */
 public abstract class Condition extends MutableNode {
 	@Override
-	public Node parseMyType(Tokenizer t) {
+	public MutableNode parseMyType(Tokenizer t) {
 		try {
 			return parse.ParserImpl.parseCondition(t);
 		} catch (SyntaxError e) {

@@ -6,7 +6,7 @@ import parse.Tokenizer;
 public abstract class Command extends MutableNode{
 
 	@Override
-	public Node parseMyType(Tokenizer t) {
+	public MutableNode parseMyType(Tokenizer t) {
 		try {
 			return parse.ParserImpl.parseCommand(t);
 		} catch (SyntaxError e) {

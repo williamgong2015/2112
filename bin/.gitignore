@@ -1,5 +1,2 @@
-/ast/
-/exceptions/
-/parse/
 /test/
-/util/
+/ast/

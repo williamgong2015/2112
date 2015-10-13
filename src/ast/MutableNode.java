@@ -1,6 +1,6 @@
 package ast;
 
-public abstract class MutableNode implements Node ,Mutable {
+public abstract class MutableNode implements Node ,Mutable, Parsable {
 	
 	private Node parent;
 	

@@ -110,7 +110,7 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 	}
 
 	@Override
-	public Node parseMyType(Tokenizer t) {
+	public ProgramImpl parseMyType(Tokenizer t) {
 		try {
 			return parse.ParserImpl.parseProgram(t);
 		} catch (SyntaxError e) {

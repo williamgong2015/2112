@@ -3,7 +3,7 @@ package ast;
 /**
  * A node in the abstract syntax tree of a program.
  */
-public interface Node extends Parsable{
+public interface Node {
 
     /**
      * The number of nodes in the AST rooted at this node, including this node

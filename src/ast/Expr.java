@@ -9,7 +9,7 @@ import parse.Tokenizer;
 public abstract class Expr extends MutableNode {
 	
 	@Override
-	public Node parseMyType(Tokenizer t) {
+	public MutableNode parseMyType(Tokenizer t) {
 		try {
 			return parse.ParserImpl.parseExpression(t);
 		} catch (SyntaxError e) {

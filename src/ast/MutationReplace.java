@@ -26,7 +26,7 @@ public class MutationReplace extends AbstractMutation {
 			return false;
 		int oldIndex = parent.indexOfChild(n);
 		int anotherIndex = util.RandomGen.anotherRandomNum(size, oldIndex);
-		MutableNode newChild = (MutableNode) getACopy(parent.getChild(anotherIndex));
+		MutableNode newChild = (MutableNode) getACopy((MutableNode) parent.getChild(anotherIndex));
 		newChild.setParent(parent);
 		parent.setChild(oldIndex, newChild);
 		return true;
@@ -56,7 +56,7 @@ public class MutationReplace extends AbstractMutation {
 	 * Nodes of class Condition share this method 
 	 */
 	private boolean mutate(Condition n) {
-		Node fellow = findMyFellow(n);
+		MutableNode fellow = (MutableNode) findMyFellow(n);
 		if (fellow == null)
 			return false;
 		Condition newChild = (Condition) getACopy(fellow);

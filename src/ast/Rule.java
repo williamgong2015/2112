@@ -51,7 +51,7 @@ public class Rule extends MutableNode {
 	}
 	
 	@Override
-	public Node parseMyType(Tokenizer t) {
+	public MutableNode parseMyType(Tokenizer t) {
 		try {
 			return parse.ParserImpl.parseRule(t);
 		} catch (SyntaxError e) {
