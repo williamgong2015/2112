@@ -43,7 +43,7 @@ public class MutationReplace extends AbstractMutation {
 	private boolean mutateChildOfPlaceholder(Command n) {
 		Placeholder parent = (Placeholder) n.getParent();
 		int oldIndex = parent.indexOfChild(n);
-		MutableNode fellow = (MutableNode) findMyFellowAndSub(Command.class, n, n.hashCode());
+		MutableNode fellow = (MutableNode) findMyFellowAndSub(Command.class, n, Commands.class);
 		if (fellow == null)
 			return false;
 		Command newChild = (Command) getACopy(fellow);
@@ -71,7 +71,7 @@ public class MutationReplace extends AbstractMutation {
 	 * Nodes of class Condition share this method 
 	 */
 	private boolean mutate(Condition n) {
-		MutableNode fellow = (MutableNode) findMyFellowAndSub(Condition.class, n, n.hashCode());
+		MutableNode fellow = (MutableNode) findMyFellowAndSub(Condition.class, n, null);
 		if (fellow == null)
 			return false;
 		Condition newChild = (Condition) getACopy(fellow);
@@ -86,7 +86,7 @@ public class MutationReplace extends AbstractMutation {
 			return true;
 		}
 		else {
-			System.out.println("MutationReplace: can't resolve parent type");
+//			System.out.println("MutationReplace: can't resolve parent type");
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ public class MutationReplace extends AbstractMutation {
 	 * Nodes of class Expr share this method
 	 */
 	private boolean mutate(Expr n) {
-		Expr fellow = (Expr) findMyFellow(n);
+		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n, null);
 		Expr newChild = (Expr) getACopy(fellow);
 		Node parent = n.getParent();
 		newChild.setParent(parent);
@@ -115,7 +115,7 @@ public class MutationReplace extends AbstractMutation {
 		}
 		else if (parent instanceof BinaryExpr || parent instanceof BinaryCommand
 				|| parent instanceof Relation) {
-			((BinaryExpr) parent).replaceChild(n, newChild);
+			((BinaryOperation) parent).replaceChild(n, newChild);
 			return true;
 		}
 		else {

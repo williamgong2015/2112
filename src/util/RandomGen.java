@@ -13,6 +13,11 @@ public class RandomGen {
 		return rand.nextInt(size);
 	}
 	
+	public static int randomNumber() {
+		Random rand = new Random();
+		return rand.nextInt();
+	}
+	
 	/** @return two unique integers both in [0..size] */
 	public static int[] twoUniqueRandomNum(int size) {
 		if (size <= 1)

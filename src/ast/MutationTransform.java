@@ -60,4 +60,18 @@ public class MutationTransform extends AbstractMutation {
 	public boolean mutate(BinaryExpr n) {
 		return mutate((GenericalOperation) n);
 	}
+	
+	public boolean mutate(Number n) {
+		int oldVal = n.getVal();
+		int newVal;
+		int d = util.RandomGen.randomNumber();
+		while (d == 0) 
+			d = util.RandomGen.randomNumber();
+		if (util.RandomGen.randomNumber(1) == 0)
+			newVal = oldVal + Integer.MAX_VALUE / d;
+		else
+			newVal = oldVal - Integer.MAX_VALUE / d;
+		n.setVal(newVal);
+		return true;
+	}
 }

@@ -30,4 +30,12 @@ public class Number extends Expr{
 	public boolean beMutated(AbstractMutation m) {
 		return m.mutate(this);
 	}
+	
+	public void setVal(int newVal) {
+		val = newVal;
+	}
+	
+	public int getVal() {
+		return val;
+	}
 }

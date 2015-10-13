@@ -89,15 +89,19 @@ public abstract class AbstractMutation implements Mutation{
 			if (root.nodeAt(i) != n && root.nodeAt(i).getClass().equals( n.getClass()))
 				return root.nodeAt(i);
 		}
-		System.out.println("MutationReplace: Can't find fellow mutable node");
+//		System.out.println("MutationReplace: Can't find fellow mutable node");
 		return null;
 	}
 	
 	/**
 	 * @return randomly chosen node in the ast tree that is of the same kind as
 	 *         or is the sub class of {@code cls} but the node is not {@code n} 
+	 *         
+	 * @param cls find node of {@code cls} class or subclass of {@code cls}
+	 * @param n the node found should not be {@code n} exactly
+	 * @param notCls the found node should not be {@code notCls}
 	 */
-	public Node findMyFellowAndSub(Class<?> cls, MutableNode n, int hash) {
+	public Node findMyFellowAndSub(Class<?> cls, MutableNode n, Class<?> notCls) {
 		// get the root (ProgramImpl node)
 		Node root = n.getParent();
 		// while root is still a mutable node (not ProgramImpl yet)
@@ -115,10 +119,12 @@ public abstract class AbstractMutation implements Mutation{
 		    generated.add(next);
 		}
 		for (Integer i : generated) {
-			if (root.nodeAt(i).hashCode() != hash && cls.isAssignableFrom(root.nodeAt(i).getClass()))
+			if (root.nodeAt(i) != n && 
+				cls.isAssignableFrom(root.nodeAt(i).getClass()) &&
+				(notCls == null || !notCls.equals(root.nodeAt(i).getClass())))
 				return root.nodeAt(i);
 		}
-		System.out.println("MutationReplace: Can't find fellow mutable node");
+//		System.out.println("MutationReplace: Can't find fellow mutable node");
 		return null;
 	}
 	
