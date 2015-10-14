@@ -40,7 +40,7 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 		if(t.equals(T.random))
 			sb.append("random[" + e + "]");
 		if(t.equals(T.paren))
-			sb.append("(" + e + " )");
+			sb.append("(" + e + ")");
 		if(t.equals(T.neg))
 			sb.append("-" + e);
 		if(t.equals(T.sensor))

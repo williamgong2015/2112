@@ -14,14 +14,14 @@ public class TreeTester {
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		System.out.println(t.size());
+		//test pretty-print  and nodeAt of every node
 		for (int i = 0; i < t.size(); ++i) {
 			System.out.println(i + " th Node");
 			System.out.println(t.nodeAt(i));
 		}
+		// test whether the program could be parsed again
+		StringReader sr = new StringReader(t.toString());
+		p.parse(sr);
 	}
 	
-	//test 
-	String s = "{{{ahead[1] != 1 or ahead[1] != 2}} and ahead[1] != 0-1 --> attack;";
-	StringReader sr = new StringReader(s);
-
 }

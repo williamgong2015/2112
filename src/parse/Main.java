@@ -23,13 +23,16 @@ public class Main {
 				}
 			}
 		}
-		else try {
+		else if(args.length == 1) try {
 			FileReader f = new FileReader(new File(args[0]));
 			Parser p = ParserFactory.getParser();
 			Program pro = p.parse(f);
 			System.out.println(pro);
 		} catch (FileNotFoundException e) {
 			System.err.println("No such file...");
+		}
+		else {
+			System.err.println("Wrong operation");
 		}
 	}
 }
