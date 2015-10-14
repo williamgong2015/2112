@@ -11,6 +11,16 @@ public class Main {
 		if(args.length > 1 ) {
 			if(args[0].equals("--mutate")) {
 				int n = Integer.parseInt(args[1]);
+				try {
+					FileReader f = new FileReader(new File(args[2]));
+					Parser p = ParserFactory.getParser();
+					Program pro = p.parse(f);
+				} catch (FileNotFoundException e) {
+					System.err.println("No such file...");
+				}
+				catch(ArrayIndexOutOfBoundsException e) {
+					System.err.println("Wrong operation");
+				}
 			}
 		}
 		else try {

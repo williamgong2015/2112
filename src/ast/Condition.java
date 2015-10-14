@@ -4,7 +4,7 @@ import exceptions.SyntaxError;
 import parse.Tokenizer;
 
 /**
- * An interface representing a Boolean condition in a critter program.
+ * An abstract class representing a Boolean condition in a critter program.
  *
  */
 public abstract class Condition extends MutableNode {

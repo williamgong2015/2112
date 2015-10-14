@@ -69,7 +69,7 @@ public class Commands extends Command implements Placeholder {
 
 	@Override
 	public int numOfChildren() {
-		return act == null ? up.size() : up.size() + 1;
+		return up.size();
 	}
 	
 	@Override

@@ -4,7 +4,6 @@ package ast;
  * A representation of a binary Boolean condition: 'and' or 'or'
  *
  */
-
 public class BinaryCondition extends Condition implements BinaryOperation, GenericalOperation {
 	
 	private Condition left;

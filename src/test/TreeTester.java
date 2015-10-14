@@ -2,6 +2,7 @@ package test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.StringReader;
 
 import ast.Program;
 import parse.ParserImpl;
@@ -17,7 +18,10 @@ public class TreeTester {
 			System.out.println(i + " th Node");
 			System.out.println(t.nodeAt(i));
 		}
-
 	}
+	
+	//test 
+	String s = "{{{ahead[1] != 1 or ahead[1] != 2}} and ahead[1] != 0-1 --> attack;";
+	StringReader sr = new StringReader(s);
 
 }

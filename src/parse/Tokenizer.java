@@ -420,6 +420,9 @@ public class Tokenizer implements Iterator<Token> {
         }
     }
     
+    /**
+     * check whether this is a comment or not
+     */
     private boolean isComment() throws IOException {
     	br.mark(2);
     	if((char)(br.read()) == '/')
@@ -429,6 +432,10 @@ public class Tokenizer implements Iterator<Token> {
     	return false;
     }
     
+    /**
+     *  when encountering a comment,ignore 
+     *  the words in the same line which follows "\\"
+     */
     private void dealWithComments() throws IOException, EOFException {
     	br.readLine();
     	buf.setLength(0);

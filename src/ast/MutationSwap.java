@@ -10,7 +10,7 @@ package ast;
  *     (can be swap if have more than 1 child) Commands, ProgramImpl
  *
  */
-public class MutationSwap extends AbstractMutation {
+public class MutationSwap extends AbstactMutation {
 	
 	/* Nodes that always can be swap */
 	

@@ -3,8 +3,8 @@ package ast;
 import parse.TokenType;
 
 /**
- * a condition which takes two expression,
- * it's something like a > b ,a != c,etc.
+ * a node represents the condition which
+ * is made up by two expressions
  */
 public class Relation extends Condition implements BinaryOperation, 
                                                    GenericalOperation {

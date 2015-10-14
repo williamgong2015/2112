@@ -1,5 +1,7 @@
 package ast;
-
+/**
+ * a node which is an expression and has no child.
+ */
 public class UnaryExpr extends Expr implements UnaryOperation,
                                                GenericalOperation {
 

@@ -1,5 +1,8 @@
 package ast;
-
+/**
+ * a node which is a command and it only has one child
+ *
+ */
 public class UnaryCommand extends Command implements UnaryOperation,
                                                      GenericalOperation {
 	private Expr e;

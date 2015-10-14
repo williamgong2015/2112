@@ -20,7 +20,10 @@ import exceptions.SyntaxError;
 import ast.BinaryExpr;
 import ast.Number;
 
-
+/**
+ * the implementation of parser
+ *
+ */
 public class ParserImpl implements Parser {
 	
 
@@ -299,7 +302,9 @@ public class ParserImpl implements Parser {
         }
     }
     
-    // here translate the syntax sugar
+    /**   
+     *  translate the syntax sugar to AST node.
+     */
     public static Expr dealWithSyntaxSugar(Token temp) {
     	TokenType t = temp.getType();
     	if(t.equals(TokenType.ABV_MEMSIZE)) {

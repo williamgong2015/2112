@@ -10,7 +10,7 @@ package ast;
  *     
  * 
  */
-public class MutationReplace extends AbstractMutation {
+public class MutationReplace extends AbstactMutation {
 	
 	/**
 	 * Rule use this replace method

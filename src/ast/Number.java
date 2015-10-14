@@ -1,7 +1,7 @@
 package ast;
 
 /**
- * this node represents a number
+ * a node which represents a number
  */
 public class Number extends Expr{
 

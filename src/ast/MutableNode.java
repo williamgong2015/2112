@@ -1,5 +1,10 @@
 package ast;
 
+/**
+ * an abstract class which is the superclass
+ * of all other nodes
+ *
+ */
 public abstract class MutableNode implements Node ,Mutable, Parsable {
 	
 	private Node parent;
