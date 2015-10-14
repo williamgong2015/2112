@@ -26,7 +26,7 @@ public class BinaryCommand extends Command implements BinaryOperation {
 
 	@Override
 	public StringBuilder prettyPrint(StringBuilder sb) {
-		sb.append("mem[" + e1 + "]:="  + e2);
+		sb.append("mem[" + e1 + "] := "  + e2);
 		return sb;
 	}
 	

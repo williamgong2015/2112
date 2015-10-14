@@ -157,9 +157,7 @@ public class ParserImpl implements Parser {
         	Token temp = t.next();
         	c = new NullaryCommand(temp.getType());
         }
-        if(c != null)
-        	al.add(c);
-        Commands com = new Commands(al);
+        Commands com = new Commands(al,c);
         if(c != null)
         	c.setParent(com);
         if(al.size() != 0) {

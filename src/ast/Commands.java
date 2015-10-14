@@ -11,14 +11,18 @@ import parse.Tokenizer;
 public class Commands extends Command implements Placeholder {
 
 	private ArrayList<Command> up;
+	Command act;
 	
-	public Commands(ArrayList<Command> a) {
+	public Commands(ArrayList<Command> a,Command ac) {
 		up = a;
+		act = ac;
 	}
 	
 	@Override
 	public int size() {
 		int s = 1;
+		if(act != null)
+			s += act.size();
 		if(up.size() != 0) {
 			for(Command c : up)
 				s += c.size();
@@ -36,7 +40,7 @@ public class Commands extends Command implements Placeholder {
 			else
 				index -= c.size();
 		}
-		return null;
+		return act.nodeAt(index - 1);
 	}
 
 	@Override
@@ -44,6 +48,8 @@ public class Commands extends Command implements Placeholder {
 		for(Command c : up) {
 			sb.append(c + " ");
 		}
+		if(act != null)
+			sb.append(act);
 		return sb;
 	}
 	
@@ -63,22 +69,28 @@ public class Commands extends Command implements Placeholder {
 
 	@Override
 	public int numOfChildren() {
-		return up.size();
+		return act == null ? up.size() : up.size() + 1;
 	}
 	
 	@Override
 	public void setChild(int index, Node newChild) {
-		up.set(index, (Command) newChild);
+		if(index <= up.size())
+			up.set(index, (Command) newChild);
+		else
+			act = (Command) newChild;
 	}
 	
 	@Override
 	public Command getChild(int index) {
-		return up.get(index);
+		if(index <= up.size())
+			return up.get(index);
+		else
+			return act;
 	}
 
 	@Override
 	public int indexOfChild(Node child) {
-		return up.indexOf((Command) child);
+		return up.indexOf((Command) child) > 0 ? up.indexOf((Command) child) : up.size() + 1;
 	}
 	
 	@Override
