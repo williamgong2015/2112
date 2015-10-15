@@ -7,7 +7,7 @@ import parse.TokenType;
  * is made up by two expressions
  */
 public class Relation extends Condition implements BinaryOperation, 
-                                                   GenericalOperation {
+                                                   GenericOperation {
 	private Expr ep1;
 	private Expr ep2;
 	private TokenType  r;

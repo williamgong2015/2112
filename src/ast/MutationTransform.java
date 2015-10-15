@@ -19,7 +19,7 @@ public class MutationTransform extends AbstractMutation {
 	/**
 	 * Share common code for nodes of GnericalOperation
 	 */
-	private boolean mutate(GenericalOperation n) {
+	private boolean mutate(GenericOperation n) {
 		Object[] allType = n.getAllPossibleType();
 		int size = allType.length;
 		Object type = n.getType();
@@ -38,27 +38,27 @@ public class MutationTransform extends AbstractMutation {
 	}
 	
 	public boolean mutate(NullaryCommand n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(UnaryCommand n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(BinaryCondition n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(Relation n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(UnaryExpr n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(BinaryExpr n) {
-		return mutate((GenericalOperation) n);
+		return mutate((GenericOperation) n);
 	}
 	
 	public boolean mutate(Number n) {

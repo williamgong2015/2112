@@ -4,7 +4,7 @@ package ast;
  * Interface for generic nodes which has a TokenType attribute 
  *
  */
-public interface GenericalOperation {
+public interface GenericOperation {
 
 	Object getType();
 	

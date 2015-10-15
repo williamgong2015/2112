@@ -4,7 +4,7 @@ package ast;
  *
  */
 public class UnaryCommand extends Command implements UnaryOperation,
-                                                     GenericalOperation {
+                                                     GenericOperation {
 	private Expr e;
 	private tp t;
 	

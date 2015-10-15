@@ -79,11 +79,11 @@ public class TestMutationTransform {
 		Program t = p.parse(f);
 
 		AbstractMutation m = (AbstractMutation) MutationFactory.getTransform();
-		Object oldType = ((GenericalOperation) t.nodeAt(index)).getType();
+		Object oldType = ((GenericOperation) t.nodeAt(index)).getType();
 		assertTrue(className + " does not got transfromed", 
 				((MutableNode) t.nodeAt(index)).beMutated(m) == true);
-		Object[] types = ((GenericalOperation) t.nodeAt(index)).getAllPossibleType();
-		Object newType = ((GenericalOperation) t.nodeAt(index)).getType();
+		Object[] types = ((GenericOperation) t.nodeAt(index)).getAllPossibleType();
+		Object newType = ((GenericOperation) t.nodeAt(index)).getType();
 		assertTrue("the changed type does not match expectation", 
 				!oldType.equals(newType) && 
 				util.EqualityCheck.checkIsOneOf(types, newType));

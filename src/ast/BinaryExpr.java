@@ -4,7 +4,7 @@ package ast;
  *  an expression which takes two expression as child
  *  like 3 * 4,mem[2] + 5,etc
  */
-public class BinaryExpr extends Expr implements BinaryOperation, GenericalOperation {
+public class BinaryExpr extends Expr implements BinaryOperation, GenericOperation {
 
 	private Expr e1;
 	private Expr e2;

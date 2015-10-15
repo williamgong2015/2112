@@ -106,8 +106,8 @@ public class TestMutationInsert {
 		AbstractMutation m = (AbstractMutation) MutationFactory.getInsert();
 		assertTrue(className + " fail to got inserted", 
 				((MutableNode) t.nodeAt(index)).beMutated(m) == true);	
-		Object[] types = ((GenericalOperation) t.nodeAt(index)).getAllPossibleType();
-		Object newType = ((GenericalOperation) t.nodeAt(index)).getType();
+		Object[] types = ((GenericOperation) t.nodeAt(index)).getAllPossibleType();
+		Object newType = ((GenericOperation) t.nodeAt(index)).getType();
 		// see if the inserted type can various
 		assertTrue("the changed type does not match expectation", 
 				util.EqualityCheck.checkIsOneOf(types, newType));
@@ -166,8 +166,8 @@ public class TestMutationInsert {
 				((MutableNode) t.nodeAt(index)).beMutated(m) == true);	
 		// BinaryExpr and UnaryExpr need to check their variated type
 		if (className.equals("BinaryExpr") || className.equals("UnaryExpr")) {
-			Object[] types = ((GenericalOperation) t.nodeAt(index)).getAllPossibleType();
-			Object newType = ((GenericalOperation) t.nodeAt(index)).getType();
+			Object[] types = ((GenericOperation) t.nodeAt(index)).getAllPossibleType();
+			Object newType = ((GenericOperation) t.nodeAt(index)).getType();
 			// see if the inserted type can be various
 			assertTrue("the changed type does not match expectation", 
 					util.EqualityCheck.checkIsOneOf(types, newType));

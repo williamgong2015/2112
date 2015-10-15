@@ -4,7 +4,7 @@ import parse.TokenType;
 
 /** represents six kind of "action" in grammar*/
 
-public class NullaryCommand extends Command implements GenericalOperation {
+public class NullaryCommand extends Command implements GenericOperation {
 
 	private TokenType a;
 	
