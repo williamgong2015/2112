@@ -8,7 +8,7 @@ package ast;
  * 
  * The nodes support remove mutation are 
  *     (can be removed if its parent has more than 1 child)
- *     Rule, NullaryCommand, UnaryCommand, BinaryCommand, Commands,
+ *     Rule, NullaryCommand, UnaryCommand, BinaryCommand
  *     (can be removed and replaced by one of its child) 
  *     BinaryCondition, UnaryExpr, BinaryExpr
  *
@@ -36,7 +36,10 @@ public class MutationRemove extends AbstractMutation{
 	private boolean mutate(Command n) {
 		Commands c = (Commands) n.getParent();
 		if (c.numOfChildren() > 1) {
-			c.getChildren().remove(n);
+			if (c.act == n)
+				c.act = null;
+			else
+				c.getUpdates().remove(n);
 			return true;
 		}
 		return false;
@@ -58,20 +61,6 @@ public class MutationRemove extends AbstractMutation{
 	}
 	
 	/* Nodes that be removed and replaced by a randomly selected child */
-	/**
-	 * Commands can be removed and replaced by a randomly selected child
-	 * if it children has more than one command (otherwise, the remove commands
-	 * and replace it with its only child won't change the pretty print result)
-	 */
-	@Override
-	public boolean mutate(Commands n) {
-		Rule r = (Rule) n.getParent();
-		if (n.numOfChildren() > 1) {
-			r.setCommand(n.getRandomChild());
-			return true;
-		}
-		return false;
-	}
 	
 	/**
 	 * BinaryCondition can be removed and replaced by a random selected child

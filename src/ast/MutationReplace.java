@@ -10,7 +10,7 @@ package ast;
  *     
  * 
  */
-public class MutationReplace extends AbstactMutation {
+public class MutationReplace extends AbstractMutation {
 	
 	/**
 	 * Rule use this replace method
@@ -25,11 +25,18 @@ public class MutationReplace extends AbstactMutation {
 		if (size <= 1)
 			return false;
 		int oldIndex = parent.indexOfChild(n);
-		int anotherIndex = util.RandomGen.anotherRandomNum(size, oldIndex);
-		MutableNode newChild = (MutableNode) getACopy((MutableNode) parent.getChild(anotherIndex));
-		newChild.setParent(parent);
-		parent.setChild(oldIndex, newChild);
-		return true;
+		int[] otherIndexes = util.RandomGen.arrOfRanNumExcept(size, oldIndex);
+		for (int i = 0; i < otherIndexes.length; ++i) {
+			// keep trying to find a rule different from {@code n}
+			MutableNode newChild = (MutableNode) 
+					getACopy((MutableNode) parent.getChild(otherIndexes[i]));
+			if (!newChild.toString().equals(n.toString())) {
+				newChild.setParent(parent);
+				parent.setChild(oldIndex, newChild);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -40,10 +47,10 @@ public class MutationReplace extends AbstactMutation {
 	 *     UnaryCommand (child of Commands), 
 	 *     BinaryCommand (child of Commands)
 	 */
-	private boolean mutateChildOfPlaceholder(Command n) {
+	private boolean mutateChildOfPlaceholder(Command n, Class<?>... cls) {
 		Placeholder parent = (Placeholder) n.getParent();
 		int oldIndex = parent.indexOfChild(n);
-		MutableNode fellow = (MutableNode) findMyFellowAndSub(Command.class, n, Commands.class);
+		MutableNode fellow = (MutableNode) findMyFellow(n, cls);
 		if (fellow == null)
 			return false;
 		Command newChild = (Command) getACopy(fellow);
@@ -52,19 +59,30 @@ public class MutationReplace extends AbstactMutation {
 		return true;
 	}
 	
+	// Action can be mutated and become action or update
 	@Override
 	public boolean mutate(NullaryCommand n) {
-		return mutateChildOfPlaceholder(n);
+		return mutateChildOfPlaceholder(n, UnaryCommand.class, 
+				BinaryCommand.class, NullaryCommand.class);
 	}
 	
+	// Action can be mutated and become action or update
 	@Override
 	public boolean mutate(UnaryCommand n) {
-		return mutateChildOfPlaceholder(n);
+		return mutateChildOfPlaceholder(n, UnaryCommand.class, 
+				BinaryCommand.class, NullaryCommand.class);
 	}
 	
+	// Update can be mutated into another update if it is not the last command
+	// if it is the last command, it can be mutated and become an action
 	@Override
 	public boolean mutate(BinaryCommand n) {
-		return mutateChildOfPlaceholder(n);
+		int numOfFellow = ((Commands) n.getParent()).numOfChildren();
+		// Update is not the last command
+		if (((Commands) n.getParent()).getChild(numOfFellow-1) != n)
+			return mutateChildOfPlaceholder(n, BinaryCommand.class);
+		return mutateChildOfPlaceholder(n, UnaryCommand.class, 
+				BinaryCommand.class, NullaryCommand.class);
 	}
 	
 	/**

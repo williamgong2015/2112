@@ -10,7 +10,7 @@ package ast;
  *     (can be swap if have more than 1 child) Commands, ProgramImpl
  *
  */
-public class MutationSwap extends AbstactMutation {
+public class MutationSwap extends AbstractMutation {
 	
 	/* Nodes that always can be swap */
 	
@@ -19,6 +19,9 @@ public class MutationSwap extends AbstactMutation {
 	 * BinaryExpr and Relation
 	 */
 	private boolean mutate(BinaryOperation n) {
+		// if two child are the same, the tree won't change, swap can't success
+		if (n.getFirChild().toString().equals(n.getSecChild().toString()))
+			return false;
 		Node tmp = n.getFirChild();
 		n.setFirChild(n.getSecChild());
 		n.setSecChild(tmp);
@@ -47,26 +50,51 @@ public class MutationSwap extends AbstactMutation {
 	
 	/* Nodes that can be swap if it has more than 1 child */
 	
-	/** Share common code between ProgramImpl and Commands */
-	private boolean mutate(Placeholder n) {
+	@Override
+	public boolean mutate(ProgramImpl n) {
 		if (n.numOfChildren() > 1) {
-			int[] indexes = util.RandomGen.twoUniqueRandomNum(n.numOfChildren());
-			Node tmp = n.getChild(indexes[0]);
-			n.setChild(indexes[0], n.getChild(indexes[1]));
-			n.setChild(indexes[1], tmp);
-			return true;
+			int[] indexes = new int[2];
+			for (int i = 0; i < n.numOfChildren(); ++i) {
+				for (int j = i+1; j < n.numOfChildren(); ++j) {
+					indexes[0] = i;
+					indexes[1] = j;
+					// if the two rules are the same
+					if (n.getChild(indexes[0]).toString()
+							.equals(n.getChild(indexes[1]).toString()))
+						continue;
+					Node tmp = n.getChild(indexes[0]);
+					n.setChild(indexes[0], n.getChild(indexes[1]));
+					n.setChild(indexes[1], tmp);
+					return true;
+				}
+			}	
 		}
 		return false;
 	}
 	
-	@Override
-	public boolean mutate(ProgramImpl n) {
-		return mutate((Placeholder) n);
-	}
-	
+	// only updates in Commands may be swaped
 	@Override
 	public boolean mutate(Commands n) {
-		return mutate((Placeholder) n);
+		int size = n.getUpdates().size();
+		if (size > 1) {
+			int[] indexes = new int[2];
+			for (int i = 0; i < size; ++i) {
+				for (int j = i+1; j < size; ++j) {
+					indexes[0] = i;
+					indexes[1] = j;
+					// if the two command are the same, the tree doesn't change
+					// try other swap
+					if (n.getChild(indexes[0]).toString()
+							.equals(n.getChild(indexes[1]).toString()))
+						continue;
+					Node tmp = n.getChild(indexes[0]);
+					n.setChild(indexes[0], n.getChild(indexes[1]));
+					n.setChild(indexes[1], tmp);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 }

@@ -53,8 +53,21 @@ public class Commands extends Command implements Placeholder {
 		return sb;
 	}
 	
+	/**
+	 * @return all the updates and the action if it exists
+	 */
 	@Override
 	public ArrayList<Command> getChildren() {
+		ArrayList<Command> r = up;
+		if (act != null)
+			r.add(act);
+		return r;
+	}
+	
+	/**
+	 * @return all the updates
+	 */
+	public ArrayList<Command> getUpdates() {
 		return up;
 	}
 	
@@ -63,18 +76,23 @@ public class Commands extends Command implements Placeholder {
 		return m.mutate(this);
 	}
 	
+	
 	protected Command getRandomChild() {
-		return up.get(util.RandomGen.randomNumber(up.size()));
+		ArrayList<Command> r = getChildren();
+		return r.get(util.RandomGen.randomNumber(r.size()));
 	}
 
 	@Override
 	public int numOfChildren() {
-		return up.size();
+		if (act != null)
+			return up.size() + 1;
+		else 
+			return up.size();
 	}
 	
 	@Override
 	public void setChild(int index, Node newChild) {
-		if(index <= up.size())
+		if(index < up.size())
 			up.set(index, (Command) newChild);
 		else
 			act = (Command) newChild;
@@ -82,7 +100,7 @@ public class Commands extends Command implements Placeholder {
 	
 	@Override
 	public Command getChild(int index) {
-		if(index <= up.size())
+		if(index < up.size())
 			return up.get(index);
 		else
 			return act;
@@ -90,7 +108,9 @@ public class Commands extends Command implements Placeholder {
 
 	@Override
 	public int indexOfChild(Node child) {
-		return up.indexOf((Command) child) > 0 ? up.indexOf((Command) child) : up.size() + 1;
+		if (child == act)
+			return up.size();
+		return up.indexOf((Command) child);
 	}
 	
 	@Override
@@ -102,5 +122,7 @@ public class Commands extends Command implements Placeholder {
 			return null;
 		}
 	}
+	
+	
 
 }

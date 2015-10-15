@@ -67,7 +67,7 @@ public class MutationTransform extends AbstractMutation {
 		int d = util.RandomGen.randomNumber();
 		while (d == 0) 
 			d = util.RandomGen.randomNumber();
-		if (util.RandomGen.randomNumber(1) == 0)
+		if (util.RandomGen.randomNumber(2) == 0)
 			newVal = oldVal + Integer.MAX_VALUE / d;
 		else
 			newVal = oldVal - Integer.MAX_VALUE / d;

@@ -64,11 +64,16 @@ public abstract class AbstractMutation implements Mutation{
 		return false;
 	}
 	
+
 	/**
-	 * @return randomly chosen node in the ast tree that is of 
-	 *         the same kind as {@code n} but not {@code n} itself
+	 * Find a node in the AST tree of specific classes, but not the same as 
+	 * a given node
+	 *
+	 * @param n the given node, node to find can't be the same as it
+	 * @param cls the node to find should be one of the classes in cls
+	 * @return the found node
 	 */
-	public Node findMyFellow(MutableNode n) {
+	public Node findMyFellow(MutableNode n, Class<?>... cls) {
 		// get the root (ProgramImpl node)
 		Node root = n.getParent();
 		// while root is still a mutable node (not ProgramImpl yet)
@@ -86,20 +91,26 @@ public abstract class AbstractMutation implements Mutation{
 		    generated.add(next);
 		}
 		for (Integer i : generated) {
-			if (root.nodeAt(i) != n && root.nodeAt(i).getClass().equals( n.getClass()))
-				return root.nodeAt(i);
+			if (root.nodeAt(i).toString().equals(n.toString()))
+				continue;
+			// if found fellow node match one of the given class
+			for (Class<?> c : cls) {
+				if (root.nodeAt(i).getClass().equals(c))
+					return root.nodeAt(i);
+			}	
 		}
 //		System.out.println("MutationReplace: Can't find fellow mutable node");
 		return null;
 	}
 	
 	/**
-	 * @return randomly chosen node in the ast tree that is of the same kind as
-	 *         or is the sub class of {@code cls} but the node is not {@code n} 
+	 * Find a node in AST tree being the same class or subclass of given class
+	 * but not the same as the given node
 	 *         
 	 * @param cls find node of {@code cls} class or subclass of {@code cls}
-	 * @param n the node found should not be {@code n} exactly
+	 * @param n the node found should not be the same as {@code n}
 	 * @param notCls the found node should not be {@code notCls}
+	 * @return the found node
 	 */
 	public Node findMyFellowAndSub(Class<?> cls, MutableNode n, Class<?> notCls) {
 		// get the root (ProgramImpl node)
@@ -119,7 +130,7 @@ public abstract class AbstractMutation implements Mutation{
 		    generated.add(next);
 		}
 		for (Integer i : generated) {
-			if (root.nodeAt(i) != n && 
+			if (!root.nodeAt(i).toString().equals(n.toString()) && 
 				cls.isAssignableFrom(root.nodeAt(i).getClass()) &&
 				(notCls == null || !notCls.equals(root.nodeAt(i).getClass())))
 				return root.nodeAt(i);

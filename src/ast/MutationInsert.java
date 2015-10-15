@@ -25,11 +25,20 @@ public class MutationInsert extends AbstractMutation {
 			return false;
 		Condition newChild = (Condition) getACopy(fellow);
 		BinaryCondition b;
-		if (util.RandomGen.randomNumber(1) == 0)
+		if (util.RandomGen.randomNumber(2) == 0)
 			b = new BinaryCondition(n, BinaryCondition.Operator.OR, newChild);
 		else
 			b = new BinaryCondition(n, BinaryCondition.Operator.AND, newChild);
 		b.setParent(n.getParent());
+		if (n.getParent() instanceof BinaryCondition) {
+			if (((BinaryCondition) n.getParent()).getFirChild() == n)
+				((BinaryCondition) n.getParent()).setFirChild(b);
+			else 
+				((BinaryCondition) n.getParent()).setSecChild(b);
+		}
+		else {
+			((Rule) n.getParent()).setCondition(b);
+		}
 		n.setParent(b);
 		newChild.setParent(b);
 		return true;
@@ -53,11 +62,20 @@ public class MutationInsert extends AbstractMutation {
 			return false;
 		Expr newChild = (Expr) getACopy(fellow);
 		// insert an UnaryExpr
-		if (util.RandomGen.randomNumber(1) == 0) {
+		if (util.RandomGen.randomNumber(2) == 0) {
 			UnaryExpr u = new UnaryExpr(n);
 			Object[] types = u.getAllPossibleType();
 			u.setType(types[util.RandomGen.randomNumber(types.length)]);
 			u.setParent(n.getParent());
+			if (n.getParent() instanceof UnaryOperation) {
+				((UnaryOperation) n.getParent()).setChild(u);
+			}
+			else if (n.getParent() instanceof BinaryOperation) {
+				if (((BinaryOperation) n.getParent()).getFirChild() == n)
+					((BinaryOperation) n.getParent()).setFirChild(u);
+				else 
+					((BinaryOperation) n.getParent()).setSecChild(u);
+			}
 			n.setParent(u);
 			return true;
 		}
@@ -67,6 +85,15 @@ public class MutationInsert extends AbstractMutation {
 			Object[] types = b.getAllPossibleType();
 			b.setType(types[util.RandomGen.randomNumber(types.length)]);
 			b.setParent(n.getParent());
+			if (n.getParent() instanceof UnaryOperation) {
+				((UnaryOperation) n.getParent()).setChild(b);
+			}
+			else if (n.getParent() instanceof BinaryOperation) {
+				if (((BinaryOperation) n.getParent()).getFirChild() == n)
+					((BinaryOperation) n.getParent()).setFirChild(b);
+				else 
+					((BinaryOperation) n.getParent()).setSecChild(b);
+			}
 			n.setParent(b);
 			newChild.setParent(b);
 			return true;

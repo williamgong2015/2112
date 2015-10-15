@@ -1,9 +1,17 @@
 package util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
  * Random Number Generator
+ * 
+ * Reference: 
+ * Shuffle An Array
+ * http://stackoverflow.com/questions/15196363/java-how-do-i-create-an-
+ * int-array-with-randomly-shuffled-numbers-in-a-given-ra
  */
 public class RandomGen {
 
@@ -45,6 +53,26 @@ public class RandomGen {
 		while (one == another)
 			another = rand.nextInt(size);
 		return another;
+	}
+	
+	/** 
+	 * @return a shuffled integer array containing [0,1,2...size] except 
+	 *         {@code one}
+	 * @param one
+	 *     a given integer shouldn't be in the array
+	 */
+	public static int[] arrOfRanNumExcept(int size, int one) {
+		List<Integer> dataList = new ArrayList<Integer>();
+	    for (int i = 0; i < size; i++) {
+	    	if (i != one)
+	    		dataList.add(i);
+	    }
+	    Collections.shuffle(dataList);
+	    int[] r = new int[dataList.size()];
+	    for (int i = 0; i < dataList.size(); i++) {
+	      r[i] = dataList.get(i);
+	    }
+	    return r;
 	}
 	
 }

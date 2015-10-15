@@ -25,12 +25,12 @@ public class MutationDuplicate extends AbstractMutation {
 	
 	public boolean mutate(Commands n) {
 		if(n.act == null) {
-		ArrayList<Command> c = n.getChildren();
-		Command newCommand = (Command) getACopy(c.get(util.RandomGen.
-				randomNumber(c.size())));
-		newCommand.setParent(n);
-		c.add(newCommand);
-		return true;
+			ArrayList<Command> c = n.getChildren();
+			Command newCommand = (Command) getACopy(c.get(util.RandomGen.
+					randomNumber(c.size())));
+			newCommand.setParent(n);
+			c.add(newCommand);
+			return true;
 		}
 		else
 			return false;
