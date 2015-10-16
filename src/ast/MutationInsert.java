@@ -1,5 +1,6 @@
 package ast;
 
+import ast.UnaryExpr.T;
 
 /**
  * A newly created node is inserted as the parent of the mutated node. 
@@ -65,7 +66,10 @@ public class MutationInsert extends AbstractMutation {
 		if (util.RandomGen.randomNumber(2) == 0) {
 			UnaryExpr u = new UnaryExpr(n);
 			Object[] types = u.getAllPossibleType();
-			u.setType(types[util.RandomGen.randomNumber(types.length)]);
+			Object newType = types[util.RandomGen.randomNumber(types.length)];
+			if (newType == T.neg)
+				return false;
+			u.setType(newType);
 			u.setParent(n.getParent());
 			if (n.getParent() instanceof UnaryOperation) {
 				((UnaryOperation) n.getParent()).setChild(u);
@@ -111,5 +115,12 @@ public class MutationInsert extends AbstractMutation {
 	
 	public boolean mutate(BinaryExpr n) {
 		return mutate((Expr) n);
+	}
+
+
+	@Override
+	public String getClassName() {
+		return "Insert";
+
 	}
 }

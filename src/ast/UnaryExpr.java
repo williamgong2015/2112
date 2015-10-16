@@ -80,8 +80,6 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 
 	@Override
 	public T[] getAllPossibleType() {
-//		T[] r = {T.nearby, T.ahead, T.random, T.mem, T.paren,
-//				T.neg, T.sensor};
 		T[] r = {T.nearby, T.ahead, T.random, T.mem, T.paren,
 				T.neg};
 		return r;

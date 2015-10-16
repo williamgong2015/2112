@@ -1,8 +1,8 @@
 package ast;
 
 /** 
- * a node which represents "update" in grammar
- * ,which output as mem[e1] := e2
+ * A node which represents "update" in grammar, 
+ * which output as mem[e1] := e2
  */
 public class BinaryCommand extends Command implements BinaryOperation {
 

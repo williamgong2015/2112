@@ -64,6 +64,12 @@ public abstract class AbstractMutation implements Mutation{
 		return false;
 	}
 	
+	public abstract String getClassName();
+	
+	public String toString() {
+		return "Applying " + getClassName() + " mutation method ";
+	}
+	
 
 	/**
 	 * Find a node in the AST tree of specific classes, but not the same as 
@@ -99,7 +105,6 @@ public abstract class AbstractMutation implements Mutation{
 					return root.nodeAt(i);
 			}	
 		}
-//		System.out.println("MutationReplace: Can't find fellow mutable node");
 		return null;
 	}
 	
@@ -115,6 +120,12 @@ public abstract class AbstractMutation implements Mutation{
 	public Node findMyFellowAndSub(Class<?> cls, MutableNode n, Class<?> notCls) {
 		// get the root (ProgramImpl node)
 		Node root = n.getParent();
+		
+		// TODO: Dirty fix
+		if (root == null)
+			return null;
+		if (n == null)
+			return null;
 		// while root is still a mutable node (not ProgramImpl yet)
 		while (MutableNode.class.isAssignableFrom( root.getClass() ))
 			root = ((MutableNode) root).getParent();
@@ -135,7 +146,6 @@ public abstract class AbstractMutation implements Mutation{
 				(notCls == null || !notCls.equals(root.nodeAt(i).getClass())))
 				return root.nodeAt(i);
 		}
-//		System.out.println("MutationReplace: Can't find fellow mutable node");
 		return null;
 	}
 	

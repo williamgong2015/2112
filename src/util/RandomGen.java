@@ -15,7 +15,7 @@ import java.util.Random;
  */
 public class RandomGen {
 
-	/** @return a integer in [0..size] */
+	/** @return a integer in [0..size) */
 	public static int randomNumber(int size) {
 		Random rand = new Random();
 		return rand.nextInt(size);
@@ -26,7 +26,7 @@ public class RandomGen {
 		return rand.nextInt();
 	}
 	
-	/** @return two unique integers both in [0..size] */
+	/** @return two unique integers both in [0..size) */
 	public static int[] twoUniqueRandomNum(int size) {
 		if (size <= 1)
 			return null;
@@ -40,7 +40,7 @@ public class RandomGen {
 	}
 	
 	/** 
-	 * @return a integers in [0..size] different from the given {@code one}
+	 * @return a integers in [0..size) different from the given {@code one}
 	 * @param one
 	 *     the given integer
 	 * Require: size > 1
@@ -56,7 +56,7 @@ public class RandomGen {
 	}
 	
 	/** 
-	 * @return a shuffled integer array containing [0,1,2...size] except 
+	 * @return a shuffled integer array containing [0,1,2...size) except 
 	 *         {@code one}
 	 * @param one
 	 *     a given integer shouldn't be in the array

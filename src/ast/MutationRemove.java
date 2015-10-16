@@ -76,7 +76,6 @@ public class MutationRemove extends AbstractMutation{
 				b.setFirChild(n.getRandomChild());
 			else if (b.getSecChild() == n)
 				b.setSecChild(n.getRandomChild());
-			// TODO: Delete these two lines if passing all the test
 			else
 				System.out.println("MutationRemove: can't find the BinaryCondition from its parent");
 			return true;
@@ -86,7 +85,6 @@ public class MutationRemove extends AbstractMutation{
 			r.setCondition(n.getRandomChild());
 			return true;
 		}
-		// TODO: Delete these two lines if passing all the test
 		else {
 			System.out.println("MutationRemove: can't resolve BinaryCondition's parent");
 			return false;
@@ -117,7 +115,6 @@ public class MutationRemove extends AbstractMutation{
 				((BinaryOperation) parent).setSecChild(child);
 			return true;
 		}
-		// TODO: Delete these two lines if passing all the test
 		else {
 			System.out.println("MutationRemove: can't resolve Expr n's parent");
 			return false;
@@ -132,6 +129,11 @@ public class MutationRemove extends AbstractMutation{
 	@Override
 	public boolean mutate(BinaryExpr n) {
 		return mutate((Expr) n);
+	}
+
+	@Override
+	public String getClassName() {
+		return "Remove";
 	}
 	
 }

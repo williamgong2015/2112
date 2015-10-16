@@ -124,6 +124,8 @@ public class MutationReplace extends AbstractMutation {
 	 */
 	private boolean mutate(Expr n) {
 		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n, null);
+		if (fellow == null)
+			return false;
 		Expr newChild = (Expr) getACopy(fellow);
 		Node parent = n.getParent();
 		newChild.setParent(parent);
@@ -155,5 +157,10 @@ public class MutationReplace extends AbstractMutation {
 	@Override
 	public boolean mutate(BinaryExpr n) {
 		return mutate((Expr) n);
+	}
+
+	@Override
+	public String getClassName() {
+		return "Replace";
 	}
 }

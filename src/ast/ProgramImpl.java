@@ -1,11 +1,13 @@
 package ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import exceptions.SyntaxError;
 import parse.Parser;
 import parse.ParserFactory;
 import parse.Tokenizer;
+import util.RandomGen;
 
 import java.io.StringReader;
 
@@ -16,9 +18,13 @@ import java.io.StringReader;
 public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 
 	private ArrayList<Rule> root;
+	private ArrayList<Integer> orderOfMutation;
 	
 	public ProgramImpl(ArrayList<Rule> al) {
 		root = al;
+		orderOfMutation = new ArrayList<Integer>();
+		for(int i = 0;i < 6;i++) 
+			orderOfMutation.add(i);
 	}
 	
     @Override
@@ -45,20 +51,58 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 
     @Override
     public Program mutate() {
-    	String s =  this.toString();
-    	StringReader rd = new StringReader(s);
-    	Parser p = ParserFactory.getParser();
-    	Program pro = p.parse(rd);
-    	pro.mutate();
-        // TODO Auto-generated method stub
-        return pro;
+    	Collections.shuffle(orderOfMutation);
+    	while(true) {
+    		int index = RandomGen.randomNumber(this.size());
+    		for(int i = 0;i < 6;i++) {
+    			Mutation m = null;
+    			if(orderOfMutation.get(i) == 0) {
+    				m = MutationFactory.getDuplicate();
+    			}
+    			if(orderOfMutation.get(i) == 1) {
+    				m = MutationFactory.getInsert();
+    			}
+    			if(orderOfMutation.get(i) == 2) {
+    				m = MutationFactory.getRemove();
+    			}
+    			if(orderOfMutation.get(i) == 3) {
+    				m = MutationFactory.getReplace();
+    			}
+    			if(orderOfMutation.get(i) == 4) {
+    				m = MutationFactory.getSwap();
+    			}
+    			if(orderOfMutation.get(i) == 5) {
+    				m = MutationFactory.getTransform();
+    			}
+    			Program pro = mutate(index,m);
+    			if(pro != null) 
+    				return pro;
+    		}
+    	}
     }
 
     @Override
     public Program mutate(int index, Mutation m) {
-        MutableNode n = (MutableNode)this.nodeAt(index);
-        n.beMutated((AbstractMutation)m);
-        return null;
+       if(index >= this.size())
+    	   throw new IndexOutOfBoundsException();
+       String temp = this.toString();
+       StringReader rd = new StringReader(temp);
+       Parser p = ParserFactory.getParser();
+   	   Program pro = p.parse(rd);
+   	   
+   	   // TODO: Dirty fix, if the tree can't be
+   	   if (pro == null)
+   		   return null;
+   	   
+   	   Mutable n = (Mutable) pro.nodeAt(index);
+   	   String pre = n.toString();
+   	   if(n.beMutated((AbstractMutation)m)) {
+   		   System.out.print(m);
+   		   System.out.println("to mutate node \"" + pre +"\"\n");
+   		   return pro;
+   	   }
+   	   else
+   		   return null;
     }
 
     @Override

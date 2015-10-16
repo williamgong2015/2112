@@ -96,5 +96,10 @@ public class MutationSwap extends AbstractMutation {
 		}
 		return false;
 	}
+
+	@Override
+	public String getClassName() {
+		return "Swap";
+	}
 	
 }

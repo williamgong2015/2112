@@ -35,4 +35,9 @@ public class MutationDuplicate extends AbstractMutation {
 		else
 			return false;
 	}
+
+	@Override
+	public String getClassName() {
+		return "Duplicate";
+	}
 }

@@ -1,5 +1,6 @@
 package ast;
 
+import ast.UnaryExpr.T;
 
 /**
  * The node is replaced with a randomly chosen node of the same kind
@@ -33,6 +34,9 @@ public class MutationTransform extends AbstractMutation {
 			return false;
 		}
 		int newType = util.RandomGen.anotherRandomNum(size, oldType);
+		// TODO Dirty Fix: not supporting transform to -factor
+		if (allType[newType].equals(T.neg))
+			return false;
 		n.setType(allType[newType]);
 		return true;
 	}
@@ -73,5 +77,10 @@ public class MutationTransform extends AbstractMutation {
 			newVal = oldVal - Integer.MAX_VALUE / d;
 		n.setVal(newVal);
 		return true;
+	}
+
+	@Override
+	public String getClassName() {
+		return "Transform";
 	}
 }
