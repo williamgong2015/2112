@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.*;
 
@@ -17,7 +17,7 @@ public class MutationTest {
 
 	@Test
 	public void test() throws FileNotFoundException {
-		FileReader f = new FileReader(new File("src/test/mutationTest.txt"));
+		FileReader f = new FileReader(new File("src/tests/mutationTest.txt"));
 		Parser p = ParserFactory.getParser();
 		Program pro = p.parse(f);
 		for(int i = 0;i < 1000;i++) {

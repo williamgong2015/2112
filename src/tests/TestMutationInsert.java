@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.assertTrue;
 
@@ -29,7 +29,7 @@ public class TestMutationInsert {
 	 */
 	@Test
 	public void testInsertUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getInsert();
@@ -99,7 +99,7 @@ public class TestMutationInsert {
 	 * @throws SyntaxError 
 	 */
 	private void testInsertCondition(int index, String className) throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoConditions.txt");
+		FileReader f = new FileReader("src/tests/twoConditions.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		String oldNodeStr = t.nodeAt(index).toString().replaceAll("[{}]", "").trim();
@@ -156,7 +156,7 @@ public class TestMutationInsert {
 	 * @throws SyntaxError 
 	 */
 	private void testInsertExpr(int index, String className) throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/oneExpr.txt");
+		FileReader f = new FileReader("src/tests/oneExpr.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 

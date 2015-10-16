@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.*;
 
@@ -22,7 +22,7 @@ public class TestTreeParsing {
 	 */
 	@Test
 	public void testParseTree() throws FileNotFoundException {
-		FileReader f = new FileReader("src/test/test.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t1 = p.parse(f);
 		String parsedOutput = t1.toString();

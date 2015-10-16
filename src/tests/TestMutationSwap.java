@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.assertTrue;
 
@@ -29,7 +29,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapProgramImpl() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoRules.txt");
+		FileReader f = new FileReader("src/tests/twoRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -74,7 +74,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapCommands() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoCommands.txt");
+		FileReader f = new FileReader("src/tests/twoCommands.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -118,7 +118,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -159,7 +159,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapBinaryOperation() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();

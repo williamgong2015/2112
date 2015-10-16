@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,7 +10,7 @@ import parse.ParserImpl;
 public class TreeTester {
 
 	public static void main(String[] args) throws FileNotFoundException {
-		FileReader f = new FileReader("test.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		System.out.println(t.size());

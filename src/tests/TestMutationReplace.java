@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.assertTrue;
 
@@ -33,7 +33,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplaceUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getReplace();
@@ -61,7 +61,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplace2SameRules() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoSameRules.txt");
+		FileReader f = new FileReader("src/tests/twoSameRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getReplace();
@@ -86,7 +86,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplace3Rules() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/threeRules.txt");
+		FileReader f = new FileReader("src/tests/threeRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getReplace();
@@ -115,7 +115,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplaceCommand() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoCommands.txt");
+		FileReader f = new FileReader("src/tests/twoCommands.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 
@@ -173,7 +173,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplaceCondition() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/twoConditions.txt");
+		FileReader f = new FileReader("src/tests/twoConditions.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getReplace();
@@ -204,7 +204,7 @@ public class TestMutationReplace {
 	 */
 	@Test
 	public void testReplaceExpr() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/oneExpr.txt");
+		FileReader f = new FileReader("src/tests/oneExpr.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getReplace();

@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 
 import static org.junit.Assert.assertTrue;
@@ -29,7 +29,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateUnsupport() throws FileNotFoundException {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();
@@ -72,7 +72,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateCommands() throws FileNotFoundException {
-		FileReader f = new FileReader("src/test/twoCommands.txt");
+		FileReader f = new FileReader("src/tests/twoCommands.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();
@@ -98,7 +98,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateProgramImpl() throws FileNotFoundException {
-		FileReader f = new FileReader("src/test/threeRules.txt");
+		FileReader f = new FileReader("src/tests/threeRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();

@@ -1,4 +1,4 @@
-package test;
+package tests;
 
 import static org.junit.Assert.assertTrue;
 
@@ -34,7 +34,7 @@ public class TestMutationTransform {
 	 */
 	@Test
 	public void testTransformUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getTransform();
@@ -74,7 +74,7 @@ public class TestMutationTransform {
 	 */
 	private void testTransform(int index, String className) 
 			throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 
@@ -159,7 +159,7 @@ public class TestMutationTransform {
 	 */
 	@Test
 	public void testTransformNumber() throws FileNotFoundException, SyntaxError {		
-		FileReader f = new FileReader("src/test/mutationTest.txt");
+		FileReader f = new FileReader("src/tests/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getTransform();
