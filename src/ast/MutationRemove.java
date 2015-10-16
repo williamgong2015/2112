@@ -1,5 +1,6 @@
 package ast;
 
+
 /**
  * Remove a node along with its descendants and return true,
  * if the parent of the node being removed needs a replacement child,
@@ -101,7 +102,9 @@ public class MutationRemove extends AbstractMutation{
 			child = ((UnaryExpr) n).getChild();
 		else 
 			child = ((BinaryExpr) n).getRandomChild();
-
+		// TODO: dirty fix
+		if (child.toString().charAt(0) == '-')
+			return false;
 		Node parent = n.getParent();
 		if (parent instanceof UnaryExpr || parent instanceof UnaryCommand) {
 			((UnaryOperation) parent).setChild(child);

@@ -35,8 +35,13 @@ public class MutationTransform extends AbstractMutation {
 		}
 		int newType = util.RandomGen.anotherRandomNum(size, oldType);
 		// TODO Dirty Fix: not supporting transform to -factor
-		if (allType[newType].equals(T.neg))
-			return false;
+		Node parent = ((MutableNode) n).getParent();
+		if ((parent instanceof UnaryExpr &&
+				((UnaryExpr) parent).getType() == T.neg) ||
+				(n instanceof UnaryExpr &&
+				((UnaryExpr) n).getChild().toString().charAt(0) == '-'))
+			if (allType[newType].equals(T.neg)) 
+				return false;
 		n.setType(allType[newType]);
 		return true;
 	}
@@ -75,6 +80,10 @@ public class MutationTransform extends AbstractMutation {
 			newVal = oldVal + Integer.MAX_VALUE / d;
 		else
 			newVal = oldVal - Integer.MAX_VALUE / d;
+		Node parent = n.getParent();
+		if (parent instanceof UnaryExpr &&
+				((UnaryExpr) parent).getType() == T.neg && newVal < 0)
+				newVal = -newVal;
 		n.setVal(newVal);
 		return true;
 	}

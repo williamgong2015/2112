@@ -67,8 +67,13 @@ public class MutationInsert extends AbstractMutation {
 			UnaryExpr u = new UnaryExpr(n);
 			Object[] types = u.getAllPossibleType();
 			Object newType = types[util.RandomGen.randomNumber(types.length)];
-			if (newType == T.neg)
-				return false;
+			// TODO Dirty Fix: not supporting transform to -factor
+			Node parent = ((MutableNode) n).getParent();
+			if ((parent instanceof UnaryExpr &&
+					((UnaryExpr) parent).getType() == T.neg) ||
+					n.toString().charAt(0) == '-')
+				if (newType == T.neg)
+					return false;
 			u.setType(newType);
 			u.setParent(n.getParent());
 			if (n.getParent() instanceof UnaryOperation) {

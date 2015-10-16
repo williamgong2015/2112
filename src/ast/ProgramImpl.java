@@ -90,10 +90,6 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
        Parser p = ParserFactory.getParser();
    	   Program pro = p.parse(rd);
    	   
-   	   // TODO: Dirty fix, if the tree can't be
-   	   if (pro == null)
-   		   return null;
-   	   
    	   Mutable n = (Mutable) pro.nodeAt(index);
    	   String pre = n.toString();
    	   if(n.beMutated((AbstractMutation)m)) {

@@ -20,9 +20,8 @@ public class MutationTest {
 		FileReader f = new FileReader(new File("src/test/mutationTest.txt"));
 		Parser p = ParserFactory.getParser();
 		Program pro = p.parse(f);
-		for(int i = 0;i < 10000;i++) {
-//			System.out.println(i);
-			System.out.println(pro);
+		for(int i = 0;i < 1000;i++) {
+			System.out.println(i);
 			Program after = pro.mutate();
 			pro = after;
 		}

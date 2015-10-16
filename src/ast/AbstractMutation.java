@@ -124,11 +124,14 @@ public abstract class AbstractMutation implements Mutation{
 		// TODO: Dirty fix
 		if (root == null)
 			return null;
-		if (n == null)
-			return null;
+		
 		// while root is still a mutable node (not ProgramImpl yet)
-		while (MutableNode.class.isAssignableFrom( root.getClass() ))
+		while (MutableNode.class.isAssignableFrom( root.getClass() )) {
 			root = ((MutableNode) root).getParent();
+			if (root == null)
+				return null;
+		}
+			
 		// generate a random sequence of checking order to check all the nodes
 		int size = root.size();
 		Random rng = new Random();

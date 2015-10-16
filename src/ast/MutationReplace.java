@@ -1,5 +1,7 @@
 package ast;
 
+import ast.UnaryExpr.T;
+
 /**
  * The node and its children are replaced with a copy of another randomly 
  * selected node of the right kind, found somewhere in the rule set. 
@@ -127,7 +129,14 @@ public class MutationReplace extends AbstractMutation {
 		if (fellow == null)
 			return false;
 		Expr newChild = (Expr) getACopy(fellow);
-		Node parent = n.getParent();
+		// TODO Dirty Fix: not supporting transform to -factor
+		Node parent = ((MutableNode) n).getParent();
+		if ((parent instanceof UnaryExpr &&
+				((UnaryExpr) parent).getType() == T.neg) ||
+				(n instanceof UnaryExpr &&
+				((UnaryExpr) n).getChild().toString().charAt(0) == '-'))
+			if (newChild.toString().charAt(0) == '-')
+				return false;
 		newChild.setParent(parent);
 		if (parent instanceof UnaryExpr || parent instanceof UnaryCommand) {
 			((UnaryExpr) parent).setChild(newChild);
