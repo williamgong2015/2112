@@ -45,7 +45,7 @@ public class World {
 	}
 	
 	/**
-	 * Get the element at {@code position} in the world if 
+	 * Get the element at {@code pos} in the world if 
 	 * the position is within the boundary of the world, otherwise
 	 * return a rock
 	 */
