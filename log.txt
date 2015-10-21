@@ -1,3 +1,9 @@
+commit 3ec4df1939941eb1d6cec23b5c89f3206e8ef9b9
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Oct 15 22:28:38 2015 -0400
+
+    revise tests folder name
+
 commit 2dd61999289df264df8e738c7ebb20daf5971110
 Author: yuxin <cys32524@gmail.com>
 Date:   Thu Oct 15 22:21:25 2015 -0400
