@@ -24,6 +24,7 @@ public class World {
 		column = c;
 		name = n;
 		turns = 0;
+		hexes = new Hashtable<Position, Element>();
 	}
 	
 	/**
@@ -33,6 +34,7 @@ public class World {
 	public World() {
 		row = Constant.ROWS;
 		column = Constant.COLUMNS; 
+		hexes = new Hashtable<Position, Element>();
 		turns = 0;
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10));) {
 			int a = Math.abs(RandomGen.randomNumber(row));
@@ -78,8 +80,8 @@ public class World {
 	 */
 	public boolean checkPosition(Position position) {
 		int temp = position.getRow() * 2 - position.getColumn();
-		if(position.getRow() < 0 || position.getRow() > row ||
-		   position.getColumn() < 0 || position.getColumn() > column ||
+		if(position.getRow() < 0 || position.getRow() >= row ||
+		   position.getColumn() < 0 || position.getColumn() >= column ||
 		   temp < 0 || temp > 2 * row * column)
 		return false;
 		return true;
@@ -106,7 +108,9 @@ public class World {
 	public boolean setElemAtPosition(Element elem, Position pos) {
 		if (!checkPosition(pos))
 			return false;
-		removeElemAtPosition(pos);
+		if(hexes.get(pos) != null)
+			removeElemAtPosition(pos);
+		hexes.put(pos, elem);
 		return true;
 	}
 	
@@ -130,8 +134,40 @@ public class World {
 	 * Effect: Print an ASCII-art map of the world
 	 */
 	public void printASCIIMap() {
-		
-		
+		int r = row - 1;int c = column - 1;
+		for(int i = (r -(c / 2 + c % 2));i >= 0;i--) {
+			int j = 0;
+			int k = i;
+			for(;j <= Math.min(c,2 * r);j += 2) {
+				System.out.print(enquery(k,j) + "  ");
+				k++;
+			}
+			System.out.println();
+			if(i == 0)
+				return;
+			j = 1;
+			k = i;
+			System.out.print("   ");
+			for(;j < Math.min(c,2 * r);j += 2) {
+				System.out.print(enquery(k,j) + "  ");
+				k++;
+			}
+			System.out.println();
+		}
+	}
+	
+	private String enquery(int r,int c) {
+		Position pos = new Position(r,c);
+		Element e = hexes.get(pos);
+		if(e == null)
+			return " ";
+		if(e.getType().equals("FOOD"))
+			return "F";
+		if(e.getType().equals("CRITTER"))
+			return "" + ((Critter)e).getDir();
+		if(e.getType().equals("ROCK"))
+			return "-";
+		return null;
 	}
 	
 	/**

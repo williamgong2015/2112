@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simulate.Position;
+import simulate.Rock;
 import simulate.World;
 
 /**
@@ -21,6 +23,11 @@ public class WorldTest {
 	@Test
 	public void test() {
 		World w = new World(10,15,"test");
+		Rock r = new Rock();
+		w.setElemAtPosition(r, new Position(1,2));
+		w.setElemAtPosition(r, new Position(3,7));
+		w.setElemAtPosition(r, new Position(2,8));
+		w.printASCIIMap();
 	}
 
 }
