@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * An list of command for the critter to execute
  */
-public class Outcome implements Iterable {
+public class Outcome implements Iterable<String> {
 
 	// all the interpreted and parsed commands
 	ArrayList<String> commands;
@@ -16,12 +16,15 @@ public class Outcome implements Iterable {
 	 * @param command
 	 */
 	public Outcome(String command) {
-		
+		commands = new ArrayList<String> ();
+		String[] temp = command.split(" ");
+		for(String i : temp)
+			commands.add(i);
 	}
 	
 	
 	@Override
-	public Iterator iterator() {
+	public Iterator<String> iterator() {
 		return commands.iterator();
 	}
 

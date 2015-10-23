@@ -2,8 +2,8 @@ package simulate;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-
-import org.junit.experimental.theories.Theories;
+import intial.Constant;
+import util.RandomGen;
 
 /**
  * The critter world
@@ -17,7 +17,34 @@ public class World {
 	// the scale of the world
 	private int row;
 	private int column;
+	private String name;
 	
+	public World(int r,int c,String n) {
+		row = r;
+		column = c;
+		name = n;
+		turns = 0;
+	}
+	
+	/**
+	 * initialize the world using constants
+	 * and put rocks in random position
+	 */
+	public World() {
+		row = Constant.ROWS;
+		column = Constant.COLUMNS; 
+		turns = 0;
+		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10));) {
+			int a = Math.abs(RandomGen.randomNumber(row));
+			int b = Math.abs(RandomGen.randomNumber(column));
+			Position pos = new Position(a,b);
+			if(checkPosition(pos) && hexes.get(pos) == null) {
+				hexes.put(pos, new Rock());
+				i++;
+				//TODO:要考虑死循环的情况，就是这个世界里所有格子都被占满的时候要结束循环
+			}
+		}
+	}
 	
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes;
@@ -25,13 +52,22 @@ public class World {
 	// order of critters in the world to take actions
 	private ArrayList<Critter> order;
 	
+	/**
+	 * add a critter to the arraylist
+	 */
+	public void addCritter(Critter c) {
+		order.add(c);
+	}
 	
 	/**
 	 * A new turn of the world
 	 */
 	public void lapse() {
 		turns++;
-		// TODO: do something
+		for(Critter c : order) {
+			Mediator m = new Mediator(c,this);
+			//TODO
+		}
 	}
 	
 	/**
@@ -40,8 +76,13 @@ public class World {
 	 * @return true if the position is within the boundary,
 	 *         false otherwise
 	 */
-	private boolean checkPosition(Position position) {
+	public boolean checkPosition(Position position) {
+		int temp = position.getRow() * 2 - position.getColumn();
+		if(position.getRow() < 0 || position.getRow() > row ||
+		   position.getColumn() < 0 || position.getColumn() > column ||
+		   temp < 0 || temp > 2 * row * column)
 		return false;
+		return true;
 	}
 	
 	/**
@@ -90,9 +131,45 @@ public class World {
 	 */
 	public void printASCIIMap() {
 		
+		
 	}
 	
+	/**
+	 * @return how many positions are not occupied
+	 */
+	public int aviablePos() {
+		return 0;//TODO
+	}
 	
+	/**
+	 * @return how many rows in the world
+	 */
+	public int getRow() {
+		return row;
+	}
 	
+	/**
+	 * @return how many columns in the world
+	 */
+	public int getColumn() {
+		return column;
+	}
 	
+	/**
+	 * Print a description of the contents of 
+	 * the hex at coordinate (column, row{@code c, r}). 
+	 */
+	public void hex(int r,int c) {
+		Position pos = new Position(r,c);
+		Element e = hexes.get(pos);
+		if(e == null || e.getType().equals("ROCK"))
+			return;
+		if(e.getType().equals("FOOD"))
+			System.out.println(((Food)e).getAmount());
+		if(e.getType().equals("CRITTER")) {
+			Critter temp = (Critter)e;
+			System.out.println(temp.toString());
+			//TODO:这里需要打印这个生物执行的最后一条动作
+		}
+	}
 }

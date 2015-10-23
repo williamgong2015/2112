@@ -1,5 +1,7 @@
 package simulate;
 
+import intial.Constant;
+
 /**
  * A communication module between the world, all elements in the world,
  * the interpreter and the executor
@@ -17,6 +19,11 @@ public class Mediator {
 	
 	public void setCritterMem(int index, int val) {
 		critter.setMem(index, val);
+	}
+	
+	public void increaseCritterEnergy(int val) {
+		int energy = getCritterMem(4);
+		setCritterMem(4, energy + val);
 	}
 	
 	public int getCritterMem(int index) {
@@ -52,5 +59,53 @@ public class Mediator {
 	 */
 	public boolean removeWorldElemAtPosition(Position pos) {
 		return world.removeElemAtPosition(pos);
+	}
+
+	public int getCritterNearby(int val) {
+		Position pos = critter.getPosition().get(val);
+		Element e = world.getElemAtPosition(pos);
+		return elementDistinguisher(e);
+	}
+
+	public int getCritterAhead(int val) {
+		Position pos = critter.getPosition();
+		pos.move(val, critter.getDir());
+		Element e = world.getElemAtPosition(pos);
+		return elementDistinguisher(e); 
+	}
+	
+	private int elementDistinguisher(Element e) {
+		if(e == null)
+			return 0;
+		if(e.getType().equals("ROCK"))
+			return -1;
+		else if(e.getType().equals("CRITTER"))
+			return ((Critter)e).appearance();
+		else if(e.getType().equals("FOOD"))
+			return -1 - ((Food)e).getEnergy();
+		return 0;
+	}
+	
+	public Position getCritterPosition() {
+		return critter.getPosition();
+	}
+	
+	public int getCritterDirection() {
+		return critter.getDir();
+	}
+	
+	public Critter getCritter() {
+		return critter;
+	}
+	
+	public void critterTurn(boolean left) {
+		critter.Turn(left);
+	}
+	
+	/**
+	 * @return the position which is in front of the critter
+	 */
+	public Position getCritterFront() {
+		return critter.inFront();
 	}
 }

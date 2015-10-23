@@ -59,4 +59,12 @@ public class Rule extends MutableNode {
 			return null;
 		}
 	}
+	
+	public Condition getCondition() {
+		return con;
+	}
+	
+	public Command getCommand() {
+		return com;
+	}
 }

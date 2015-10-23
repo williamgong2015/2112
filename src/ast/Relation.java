@@ -106,4 +106,8 @@ public class Relation extends Condition implements BinaryOperation,
 	public void setType(Object newType) {
 		r = (TokenType) newType;
 	}
+	
+	public String operator() {
+		return r.toString();
+	}
 }

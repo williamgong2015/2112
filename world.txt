@@ -1,0 +1,14 @@
+name Small world
+size 10 15
+rock 2 2
+rock 3 6
+rock 9 10
+
+// Some food
+food 4 4
+food 3 1
+
+// example_critter.txt should be in the working directory
+critter example1.txt 2 5 3
+critter example1.txt 4 3 1
+critter example2.txt 4 4 2

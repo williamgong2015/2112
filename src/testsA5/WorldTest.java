@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simulate.World;
+
 /**
  * Black box test of World, 
  * create a new world and initialize it with some elements, 
@@ -18,7 +20,7 @@ public class WorldTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		World w = new World(10,15,"test");
 	}
 
 }

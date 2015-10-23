@@ -1,15 +1,26 @@
 package console;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
+
+import exceptions.SyntaxError;
+import simulate.Critter;
+import simulate.Food;
+import simulate.Position;
+import simulate.Rock;
+import simulate.World;
+import util.RandomGen;
 
 /** The console user interface for Assignment 5. */
 public class Console {
     private Scanner scan;
     public boolean done;
+    private World world;
 
-    //TODO world representation...
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, SyntaxError {
         Console console = new Console();
 
         while (!console.done) {
@@ -20,8 +31,10 @@ public class Console {
 
     /**
      * Processes a single console command provided by the user.
+     * @throws SyntaxError 
+     * @throws IOException 
      */
-    void handleCommand() {
+    void handleCommand() throws IOException, SyntaxError {
         String command = scan.next();
         switch (command) {
         case "new": {
@@ -78,8 +91,8 @@ public class Console {
     /**
      * Starts new random world simulation.
      */
-    private void newWorld() {
-        //TODO implement
+    public void newWorld() {
+        new World();
     }
 
     /**
@@ -87,7 +100,46 @@ public class Console {
      * @param filename
      */
     private void loadWorld(String filename) {
-        //TODO implement
+    	try{
+    		FileReader r = new FileReader(new File(filename));
+			BufferedReader br = new BufferedReader(r);
+    		String s = br.readLine();
+    		String name = s.substring(5);
+    		s = br.readLine();
+    		String[] temp = s.split(" ");
+    		int column = Integer.parseInt(temp[1]);
+    		int row = Integer.parseInt(temp[2]);
+    		World world = new World(row,column,name);
+    		System.out.println(name);
+    		while((s = br.readLine()) != null) {
+    			if(s.startsWith("//"))
+    				continue;
+    			temp = s.split(" ");
+    			if(temp.length == 0)
+    				continue;
+    			Position pos;
+    			if(temp[0].equals("rock")) {
+    				pos = new Position(Integer.parseInt(temp[2]),Integer.parseInt(temp[1]));
+    				world.setElemAtPosition(new Rock(), pos);
+    			}
+    			if(temp[0].equals("food")) {
+    				int amount = Integer.parseInt(temp[3]);
+    				pos = new Position(Integer.parseInt(temp[2]),Integer.parseInt(temp[1]));
+    				world.setElemAtPosition(new Food(amount), pos);
+    			}
+    			if(temp[0].equals("critter")) {
+    				String file = temp[1];
+    				pos = new Position(Integer.parseInt(temp[3]),Integer.parseInt(temp[2]));
+    				int dir = Integer.parseInt(temp[4]);
+    				Critter c = new Critter(file);
+    				c.setDir(dir);
+    				world.setElemAtPosition(c, pos);
+    				world.addCritter(c);
+    			}
+    		}
+    	} catch(Exception e) {
+    		System.err.println("No such file");
+    	}
     }
 
     /**
@@ -95,9 +147,21 @@ public class Console {
      * n critters with that definition into the world.
      * @param filename
      * @param n
+     * @throws SyntaxError 
+     * @throws IOException 
      */
-    private void loadCritters(String filename, int n) {
-        //TODO implement
+    private void loadCritters(String filename, int n) throws IOException, SyntaxError {
+        for(int i = 0;i < n;) {
+        	Critter c = new Critter(filename);
+        	int a = RandomGen.randomNumber(world.getRow());
+        	int b = RandomGen.randomNumber(world.getColumn());
+        	Position pos = new Position(a,b);
+        	if(world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
+        		world.setElemAtPosition(c, pos);
+        		world.addCritter(c);
+        		i++;
+        	}
+        }
     }
 
     /**
@@ -105,7 +169,8 @@ public class Console {
      * @param n
      */
     private void advanceTime(int n) {
-        //TODO implement
+        for(int i = 0;i < n;i++)
+        	world.lapse();
     }
 
     /**
@@ -122,7 +187,7 @@ public class Console {
      * @param r row of hex
      */
     private void hexInfo(int c, int r) {
-        //TODO implement
+        world.hex(r, c);
     }
 
     /**
