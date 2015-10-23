@@ -60,4 +60,16 @@ public class Position {
 	public int getColumn() {
 		return column;
 	}
+	
+	public int hashCode() {
+		return 37 * row + column;
+	}
+	
+	public boolean equals(Object o) {
+		if(o instanceof Position) {
+			return (this.getColumn() ==((Position)o).getColumn() 
+					&& this.getRow() ==((Position)o).getRow());
+		}
+		return false;
+	}
 }
