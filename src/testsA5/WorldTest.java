@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import simulate.Critter;
 import simulate.Position;
 import simulate.Rock;
 import simulate.World;

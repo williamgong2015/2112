@@ -135,7 +135,7 @@ public class World {
 	 */
 	public void printASCIIMap() {
 		int r = row - 1;int c = column - 1;
-		for(int i = (r -(c / 2 + c % 2));i >= 0;i--) {
+		for(int i = (r - c / 2);i >= 0;i--) {
 			int j = 0;
 			int k = i;
 			for(;j <= Math.min(c,2 * r);j += 2) {
@@ -147,7 +147,7 @@ public class World {
 				return;
 			j = 1;
 			k = i;
-			System.out.print("   ");
+			System.out.print(" ");
 			for(;j < Math.min(c,2 * r);j += 2) {
 				System.out.print(enquery(k,j) + "  ");
 				k++;
@@ -160,13 +160,13 @@ public class World {
 		Position pos = new Position(r,c);
 		Element e = hexes.get(pos);
 		if(e == null)
-			return " ";
+			return "-";
 		if(e.getType().equals("FOOD"))
 			return "F";
 		if(e.getType().equals("CRITTER"))
 			return "" + ((Critter)e).getDir();
 		if(e.getType().equals("ROCK"))
-			return "-";
+			return "#";
 		return null;
 	}
 	
