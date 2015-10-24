@@ -114,8 +114,9 @@ public class InterpreterImpl implements Interpreter {
 			return val;
 		case neg :
 			return -val;
+		//TODO: 
 		case sensor :
-			return 0;//TODO
+			return 0;
 		}
 		return 0;
 	}

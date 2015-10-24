@@ -25,4 +25,8 @@ public abstract class Element {
 	public Position getPosition() {
 		return pos;
 	}
+	
+	public void setPosition(Position pos) {
+		this.pos = pos;
+	}
 }

@@ -7,7 +7,16 @@ import util.RandomGen;
 
 /**
  * The critter world
- *
+ * Placing all the elements in the world at proper position, provide methods
+ * to set and get these elements
+ * 
+ * Class invariant:
+ * 0. row > 0, column > 0, turns >= 0
+ * 1. All the elements in the world are within the boundary of the world
+ * 2. All the elements in the world has a position property that stores the 
+ *    its position in world
+ * 3. No two elements can be at the same position (based on 2, also have no
+ *    two elements can have the same position property)
  */
 public class World {
 
@@ -18,41 +27,66 @@ public class World {
 	private int row;
 	private int column;
 	private String name;
+
+	// maps position to element in the world
+	private Hashtable<Position, Element> hexes;
 	
-	public World(int r,int c,String n) {
-		row = r;
-		column = c;
+	// order of critters in the world to take actions
+	private ArrayList<Critter> order;
+	
+	/**
+	 * Initialize a world
+	 * Check: {@code r} > 0, {@code c} > 0, 
+	 * 
+	 * @param r row
+	 * @param c column
+	 * @param n name of the world
+	 */
+	public World(int c, int r, String n) {
+		if (r <=0 || c <= 0) {
+			System.out.println("the world has an unproper size");
+			row = 1;
+			column = 1;
+		}
+		else {
+			row = r;
+			column = c;
+		}
 		name = n;
 		turns = 0;
 		hexes = new Hashtable<Position, Element>();
 	}
 	
 	/**
-	 * initialize the world using constants
+	 * Initialize a default world using constants 
 	 * and put rocks in random position
+	 * 
+	 * Check: all the constants in Constant class has been initailized
 	 */
 	public World() {
+		if (!Constant.hasBeenInitialized()) {
+	    	try {
+	    		Constant.init();
+	    	} catch (Exception e) {
+	    		System.out.println("can't find constant.txt,"
+	    				+ "the constant has not been initialized");
+	    	}
+		}
 		row = Constant.ROWS;
 		column = Constant.COLUMNS; 
 		hexes = new Hashtable<Position, Element>();
 		turns = 0;
-		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10));) {
+		name = "Default World";
+		// initialize some rocks into the world
+		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); i++) {
 			int a = Math.abs(RandomGen.randomNumber(row));
 			int b = Math.abs(RandomGen.randomNumber(column));
-			Position pos = new Position(a,b);
+			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				i++;
-				//TODO:要考虑死循环的情况，就是这个世界里所有格子都被占满的时候要结束循环
 			}
 		}
 	}
-	
-	// maps position to element in the world
-	private Hashtable<Position, Element> hexes;
-	
-	// order of critters in the world to take actions
-	private ArrayList<Critter> order;
 	
 	/**
 	 * add a critter to the arraylist
@@ -82,7 +116,7 @@ public class World {
 		int temp = position.getRow() * 2 - position.getColumn();
 		if(position.getRow() < 0 || position.getRow() >= row ||
 		   position.getColumn() < 0 || position.getColumn() >= column ||
-		   temp < 0 || temp > 2 * row * column)
+		   temp < 0 || temp >= 2 * row - column)
 		return false;
 		return true;
 	}
@@ -110,6 +144,7 @@ public class World {
 			return false;
 		if(hexes.get(pos) != null)
 			removeElemAtPosition(pos);
+		elem.setPosition(pos);
 		hexes.put(pos, elem);
 		return true;
 	}
@@ -126,46 +161,70 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
+		Element e = hexes.get(pos);
+		e.setPosition(null);
 		hexes.remove(pos);
 		return true;
+	}
+	
+	/**
+	 * Effect: Print the world 
+	 * 
+	 * Notation: {@code r} row index
+	 *           {@code c} column index
+	 *           {@code h} horizontal index
+	 *           {@code v} vertical index
+	 * Formula:  h = 2r-c, v = c, 
+	 *           r = (v+h+1)/2, c = v
+	 *           
+	 * @param printElement {@code true} when printing ASCII-art map
+	 *                     {@code false} when printing coordinate
+	 * @param indent       the indent being used
+	 */
+	public void printASCII(boolean printElement, String indent) {
+		int h; int v;
+		int horizonalBound = Position.getH(column, row);
+		int verticalBound = Position.getV(column, row);
+		for (h = horizonalBound-1; h >= 0; --h) {
+			if (h % 2 == 1) {
+				System.out.print(indent);
+				v = 1;
+			}
+			else 
+				v = 0;
+			
+			for (; v < verticalBound; v += 2) {
+				if (printElement)
+					System.out.print(
+							enquery(Position.getC(v,h),Position.getR(v,h)));
+				else 
+					System.out.print("(" + Position.getC(v,h) + "," + 
+							Position.getR(v,h) + ")");
+				System.out.print(indent);
+			}
+			System.out.println();
+		}
 	}
 	
 	/**
 	 * Effect: Print an ASCII-art map of the world
 	 */
 	public void printASCIIMap() {
-		int r = row - 1;int c = column - 1;
-		if(c % 2 == 1) {
-			System.out.print("  ");
-			for(int j = 1,k = r - c / 2;j <= Math.min(c,2 * r);j += 2) {
-				System.out.print(enquery(k,j) + "  ");
-				k++;
-			}
-			System.out.println();
-		}
-		for(int i = (r - c / 2);i >= 0;i--) {
-			int j = 0;
-			int k = i;
-			for(;j <= Math.min(c,2 * r);j += 2) {
-				System.out.print(enquery(k,j) + "  ");
-				k++;
-			}
-			System.out.println();
-			if(i == 0)
-				return;
-			j = 1;
-			k = i;
-			System.out.print(" ");
-			for(;j <= Math.min(c,2 * r);j += 2) {
-				System.out.print(enquery(k,j) + "  ");
-				k++;
-			}
-			System.out.println();
-		}
+		String indent = " ";
+		printASCII(true, indent);
 	}
 	
-	private String enquery(int r,int c) {
-		Position pos = new Position(r,c);
+	/**
+	 * Effect: Print the coordinate representation of
+	 * the ASCII-art map of the world
+	 */
+	public void printCoordinatesASCIIMap() {
+		String indent = "      ";
+		printASCII(false, indent);
+	}
+	
+	private String enquery(int c, int r) {
+		Position pos = new Position(c,r);
 		Element e = hexes.get(pos);
 		if(e == null)
 			return "-";
@@ -204,7 +263,7 @@ public class World {
 	 * the hex at coordinate (column, row{@code c, r}). 
 	 */
 	public void hex(int r,int c) {
-		Position pos = new Position(r,c);
+		Position pos = new Position(c,r);
 		Element e = hexes.get(pos);
 		if(e == null || e.getType().equals("ROCK"))
 			return;

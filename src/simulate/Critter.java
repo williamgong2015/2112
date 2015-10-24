@@ -151,7 +151,7 @@ public class Critter extends Element {
 	 */
 	public Position inFront() {
 		Position front = this.getPosition();
-		return front.move(1, this.orientation);
+		return front.getRelativePos(1, this.orientation);
 	}
 	
 	/**

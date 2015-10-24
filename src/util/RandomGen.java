@@ -14,15 +14,15 @@ import java.util.Random;
  * int-array-with-randomly-shuffled-numbers-in-a-given-ra
  */
 public class RandomGen {
+	
+	public static Random rand = new Random();
 
 	/** @return a integer in [0..size) */
 	public static int randomNumber(int size) {
-		Random rand = new Random();
 		return rand.nextInt(size);
 	}
 	
 	public static int randomNumber() {
-		Random rand = new Random();
 		return rand.nextInt();
 	}
 	
@@ -31,7 +31,6 @@ public class RandomGen {
 		if (size <= 1)
 			return null;
 		int[] r = new int[2];
-		Random rand = new Random();
 		r[0] = rand.nextInt(size);
 		r[1] = rand.nextInt(size);
 		while (r[0] == r[1])
@@ -48,7 +47,6 @@ public class RandomGen {
 	public static int anotherRandomNum(int size, int one) {
 		if (size <= 1)
 			return -1;
-		Random rand = new Random();
 		int another = rand.nextInt(size);
 		while (one == another)
 			another = rand.nextInt(size);

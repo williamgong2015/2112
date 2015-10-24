@@ -44,7 +44,7 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 		if(t.equals(T.neg))
 			sb.append("-" + e);
 		if(t.equals(T.sensor))
-		sb.append(e.toString());
+			sb.append(e.toString());
 		return sb;
 	}
 

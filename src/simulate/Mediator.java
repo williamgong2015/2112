@@ -69,7 +69,7 @@ public class Mediator {
 
 	public int getCritterAhead(int val) {
 		Position pos = critter.getPosition();
-		pos.move(val, critter.getDir());
+		pos.getRelativePos(val, critter.getDir());
 		Element e = world.getElemAtPosition(pos);
 		return elementDistinguisher(e); 
 	}

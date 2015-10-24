@@ -1,0 +1,57 @@
+case "BASE_DAMAGE": BASE_DAMAGE = Integer.parseInt(token[1]);
+break;
+
+case "DAMAGE_INC": DAMAGE_INC = Integer.parseInt(token[1]);
+break;
+
+case "ENERGY_PER_SIZE": ENERGY_PER_SIZE = Integer.parseInt(token[1]);
+break;
+
+case "FOOD_PER_SIZE": FOOD_PER_SIZE = Integer.parseInt(token[1]);
+break;
+
+case "MAX_SMELL_DISTANCE": MAX_SMELL_DISTANCE = Integer.parseInt(token[1]);
+break;
+
+case "ROCK_VALUE": ROCK_VALUE = Integer.parseInt(token[1]);
+break;
+
+case "COLUMNS": COLUMNS = Integer.parseInt(token[1]);
+break;
+
+case "ROWS": ROWS = Integer.parseInt(token[1]);
+break;
+
+case "MAX_RULES_PER_TURN": MAX_RULES_PER_TURN = Integer.parseInt(token[1]);
+break;
+
+case "SOLAR_FLUX": SOLAR_FLUX = Integer.parseInt(token[1]);
+break;
+
+case "MOVE_COST": MOVE_COST = Integer.parseInt(token[1]);
+break;
+
+case "ATTACK_COST": ATTACK_COST = Integer.parseInt(token[1]);
+break;
+
+case "GROW_COST": GROW_COST = Integer.parseInt(token[1]);
+break;
+
+case "BUD_COST": BUD_COST = Integer.parseInt(token[1]);
+break;
+
+case "MATE_COST": MATE_COST = Integer.parseInt(token[1]);
+break;
+
+case "RULE_COST": RULE_COST = Integer.parseInt(token[1]);
+break;
+
+case "ABILITY_COST": ABILITY_COST = Integer.parseInt(token[1]);
+break;
+
+case "INITIAL_ENERGY": INITIAL_ENERGY = Integer.parseInt(token[1]);
+break;
+
+case "MIN_MEMORY": MIN_MEMORY = Integer.parseInt(token[1]);
+break;
+

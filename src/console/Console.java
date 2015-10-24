@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import exceptions.SyntaxError;
+import intial.Constant;
 import simulate.Critter;
 import simulate.Food;
 import simulate.Position;
@@ -90,18 +91,28 @@ public class Console {
 
     /**
      * Starts new random world simulation.
+     * Initialize the constant of the new world from constant.txt file
+     * @throws IOException 
      */
     public void newWorld() {
+    	try {
+    		Constant.init();
+    	} catch (Exception e) {
+    		System.out.println("can't find constant.txt,"
+    				+ "the constant has not been initialized");
+    	}
         new World();
     }
 
     /**
      * Starts new simulation with world specified in filename.
+     * Initialize the constant of the new world from constant.txt file
      * @param filename
      */
     private void loadWorld(String filename) {
     	try{
     		FileReader r = new FileReader(new File(filename));
+			@SuppressWarnings("resource")
 			BufferedReader br = new BufferedReader(r);
     		String s = br.readLine();
     		String name = s.substring(5);
@@ -119,23 +130,24 @@ public class Console {
     				continue;
     			Position pos;
     			if(temp[0].equals("rock")) {
-    				pos = new Position(Integer.parseInt(temp[2]),Integer.parseInt(temp[1]));
+    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
     				world.setElemAtPosition(new Rock(), pos);
     			}
     			if(temp[0].equals("food")) {
     				int amount = Integer.parseInt(temp[3]);
-    				pos = new Position(Integer.parseInt(temp[2]),Integer.parseInt(temp[1]));
+    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
     				world.setElemAtPosition(new Food(amount), pos);
     			}
     			if(temp[0].equals("critter")) {
     				String file = temp[1];
-    				pos = new Position(Integer.parseInt(temp[3]),Integer.parseInt(temp[2]));
+    				pos = new Position(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
     				int dir = Integer.parseInt(temp[4]);
     				Critter c = new Critter(file);
     				c.setDir(dir);
     				world.setElemAtPosition(c, pos);
     				world.addCritter(c);
     			}
+    			Constant.init();
     		}
     	} catch(Exception e) {
     		System.err.println("No such file");
@@ -155,7 +167,7 @@ public class Console {
         	Critter c = new Critter(filename);
         	int a = RandomGen.randomNumber(world.getRow());
         	int b = RandomGen.randomNumber(world.getColumn());
-        	Position pos = new Position(a,b);
+        	Position pos = new Position(b, a);
         	if(world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
         		world.setElemAtPosition(c, pos);
         		world.addCritter(c);
@@ -178,7 +190,7 @@ public class Console {
      * map of the simulation.
      */
     private void worldInfo() {
-        //TODO implement
+        world.printASCIIMap();
     }
 
     /**
