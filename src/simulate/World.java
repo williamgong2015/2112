@@ -135,6 +135,14 @@ public class World {
 	 */
 	public void printASCIIMap() {
 		int r = row - 1;int c = column - 1;
+		if(c % 2 == 1) {
+			System.out.print("  ");
+			for(int j = 1,k = r - c / 2;j <= Math.min(c,2 * r);j += 2) {
+				System.out.print(enquery(k,j) + "  ");
+				k++;
+			}
+			System.out.println();
+		}
 		for(int i = (r - c / 2);i >= 0;i--) {
 			int j = 0;
 			int k = i;
@@ -148,7 +156,7 @@ public class World {
 			j = 1;
 			k = i;
 			System.out.print(" ");
-			for(;j < Math.min(c,2 * r);j += 2) {
+			for(;j <= Math.min(c,2 * r);j += 2) {
 				System.out.print(enquery(k,j) + "  ");
 				k++;
 			}
