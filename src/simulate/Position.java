@@ -38,9 +38,13 @@ public class Position {
 	 * direction of this position at distance{@code val} from the position
 	 */
 	public Position getRelativePos(int val,int dir) {
+		if (val < 0) {
+			val = -val;
+			dir = Math.abs(dir - 3);
+		}
 		Position pos = this;
 		for(int i = 0;i < val;i++)
-			pos = pos.get(dir);
+			pos = pos.getNextStep(dir);
 		return pos;
 	}
 	
@@ -48,7 +52,7 @@ public class Position {
 	 * return a position which is at direction {@code dir}
 	 * of the position one step away
 	 */
-	public Position get(int dir) {
+	public Position getNextStep(int dir) {
 		switch(dir) {
 		case 0:
 			return new Position(column, row + 1);

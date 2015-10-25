@@ -27,5 +27,6 @@ public class getConstant {
 			
 		}
 		writer.close();
+		in.close();
 	}
 }

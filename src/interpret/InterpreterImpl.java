@@ -25,30 +25,32 @@ import ast.Number;
  */
 public class InterpreterImpl implements Interpreter {
 
+	// need the mediator the get and set the critter's properties
 	private Mediator m;
 	
 	public InterpreterImpl(Mediator med) {
 		m = med;
 	}
 	
+	/**
+	 * The highest module for interpreting a critter
+	 * @return A new Outcome object contains all the commands in an ArrayList
+	 */
 	@Override
 	public Outcome interpret(Program p) {
-		
-		// TODO Auto-generated method stub
-		
-		// eval the condition 
-		
-		// eval the command
-				
-		// return a outcome (a list of commands)
-		
-		ProgramImpl pro = (ProgramImpl)p;
-		for(Rule r : pro.getChildren()) {
-			if(this.eval(r.getCondition())) {
-				String s = eval(r.getCommand());//TODO
+		String result = null;
+		ProgramImpl pro = (ProgramImpl) p;
+		// finds the first rule in its list of rules whose condition is true
+		for (Rule r : pro.getChildren()) {
+			if (this.eval(r.getCondition())) {
+				result = eval(r.getCommand());
+				break;
 			}
 		}
-		return null;
+		// If no rule’s condition is true, the critter perform a wait
+		if (result == null)
+			result = "wait";
+		return new Outcome(result);
 	}
 
 	@Override
@@ -103,9 +105,9 @@ public class InterpreterImpl implements Interpreter {
 		int val = eval(u.getChild());
 		switch(type) {
 		case nearby :
-			return m.getCritterNearby(val);
+			return m.elementDistinguisher(m.getElementNearby(val));
 		case ahead :
-			return m.getCritterAhead(val);
+			return m.elementDistinguisher(m.getElementNearby(val));
 		case random :
 			return RandomGen.randomNumber(val) > 0 ? RandomGen.randomNumber(val) : 0;
 		case mem :
@@ -114,7 +116,6 @@ public class InterpreterImpl implements Interpreter {
 			return val;
 		case neg :
 			return -val;
-		//TODO: 
 		case sensor :
 			return 0;
 		}

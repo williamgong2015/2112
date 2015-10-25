@@ -75,6 +75,8 @@ public class Constant {
 	// Minimum number of memory entries in a critter
 	public static int MIN_MEMORY;
 
+	public final static int MAX_PASS = 999;
+
 
 	
 	/**
@@ -168,6 +170,7 @@ public class Constant {
 		for (int i = 0; i < SIZE; ++i) {
 			if ((bitmap & (1 << i)) == 0) {
 				hasInitialized = false;
+				in.close();
 				return;
 			}
 		}

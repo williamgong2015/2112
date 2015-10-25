@@ -2,6 +2,10 @@ package simulate;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+
+import execute.Executor;
+import interpret.InterpreterImpl;
+import interpret.Outcome;
 import intial.Constant;
 import util.RandomGen;
 
@@ -95,14 +99,35 @@ public class World {
 		order.add(c);
 	}
 	
+	
 	/**
-	 * A new turn of the world
+	 * A new turn of the world 
+	 * 
 	 */
 	public void lapse() {
 		turns++;
-		for(Critter c : order) {
-			Mediator m = new Mediator(c,this);
-			//TODO
+		// update every critter until it execute a action or has being 
+		// updated for 999 PASS (for the second one, take a wait action)
+		for(Critter c : order) {	
+			Mediator m = new Mediator(c, this);
+			InterpreterImpl interpret = new InterpreterImpl(m);
+			Executor executor = new Executor(m);
+			boolean hasAction = false;
+			m.setWantToMate(false);
+			// for each critter, while it hasn't act and hasn't come to MAXPASS
+			// keep interpret it and execute its commands
+			while (m.getCritterMem(5) <= Constant.MAX_PASS && 
+					hasAction == false) {
+				Outcome outcomes = interpret.interpret(m.getCritterProgram());
+				m.setCritterMem(5, m.getCritterMem(5) + 1);
+				if (outcomes.hasAction())
+					hasAction = true;
+				executor.execute(outcomes);
+			}
+			m.setCritterMem(5, 1);
+			// if after the loop, the critter still does not take any action
+			if (!hasAction) 
+				executor.execute(new Outcome("wait"));
 		}
 	}
 	
@@ -150,6 +175,24 @@ public class World {
 	}
 	
 	/**
+	 * Add a new Critter into the {@code pos} of the world, 
+	 * Add the critter to the arraylist of action order
+	 * @param elem
+	 * @param pos
+	 * @return false if the {@code pos} is illegal or is occupied
+	 */
+	public boolean addCritterAtPosition(Critter elem, Position pos) {
+		if (!checkPosition(pos))
+			return false;
+		if(hexes.get(pos) != null)
+			return false;
+		elem.setPosition(pos);
+		hexes.put(pos, elem);
+		addCritter(elem);
+		return true;
+	}
+	
+	/**
 	 * Remove the element at the {@code pos} in the world
 	 * @param pos the position to check
 	 * @return {@code false} if the position is out of the boundary, 
@@ -165,6 +208,34 @@ public class World {
 		e.setPosition(null);
 		hexes.remove(pos);
 		return true;
+	}
+	
+	/**
+	 * Remove a critter at the {@code pos} in the world 
+	 * and remove it from {@code order}
+	 * @param pos
+	 * @return
+	 */
+	public boolean removeCritterAtPostion(Position pos) {
+		if (!checkPosition(pos))
+			return false;
+		if (!hexes.containsKey(pos))
+			return false;
+		Element e = hexes.get(pos);
+		if (!e.getType().equals("CRITTER"))
+			return false;
+		e.setPosition(null);
+		order.remove(e);
+		hexes.remove(pos);
+		return true;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public int getTurns() {
+		return turns;
 	}
 	
 	/**
@@ -238,13 +309,6 @@ public class World {
 	}
 	
 	/**
-	 * @return how many positions are not occupied
-	 */
-	public int aviablePos() {
-		return 0;//TODO
-	}
-	
-	/**
 	 * @return how many rows in the world
 	 */
 	public int getRow() {
@@ -272,7 +336,11 @@ public class World {
 		if(e.getType().equals("CRITTER")) {
 			Critter temp = (Critter)e;
 			System.out.println(temp.toString());
-			//TODO:这里需要打印这个生物执行的最后一条动作
+			if (temp.getLastRuleExe() != null)
+				System.out.println(temp.getLastRuleExe());
+			else
+				System.out.println("none of this critter's "
+						+ "rule has been executed");
 		}
 	}
 }

@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import ast.ProgramImpl;
+import ast.Rule;
 import exceptions.SyntaxError;
 import intial.Constant;
 import parse.ParserImpl;
@@ -14,13 +15,32 @@ import parse.Tokenizer;
 /**
  * A critter object in the world, store the properties of the critter
  * 
+ * 
  */
 public class Critter extends Element {
 
+	// require: 0 <= mem[5] <= Constant.MAX_PASS
 	private int[] mem;
 	private int orientation;
 	private String name;
 	private ProgramImpl pro;
+	// the last rule being executed
+	private Rule lastRuleExe = null;
+	private boolean wantToMate = false;
+	
+	/**
+	 * Create a new Critter
+	 * @param len
+	 * @param m
+	 * @param name
+	 * @param pro
+	 */
+	public Critter(int[] mem, String name, ProgramImpl pro) {
+		super("CRITTER");
+		this.mem = mem;
+		this.name = name;
+		this.pro = pro;
+	}
 	
 	public Critter(String file) throws IOException, SyntaxError {
 		super("CRITTER");
@@ -70,6 +90,14 @@ public class Critter extends Element {
 		mem[index] = val;
 	}
 	
+	public void setWantToMate(boolean wantToMate) {
+		this.wantToMate = wantToMate;
+	}
+	
+	public boolean getWantToMate() {
+		return this.wantToMate;
+	}
+	
 	/** 
 	 * @return the specified memory{@code mem[index]}
 	 */
@@ -77,6 +105,23 @@ public class Critter extends Element {
 		if(index >= mem[0] || index <= 0)
 			return 0;
 		return mem[index];
+	}
+	
+	
+	public ProgramImpl getProgram() {
+		return this.pro;
+	}
+	
+	/**
+	 * Effect: set the last rule being executed
+	 * @param r the last rule being executed
+	 */
+	public void setLastRuleExe(Rule r) {
+		lastRuleExe = r;
+	}
+	
+	public Rule getLastRuleExe() {
+		return lastRuleExe;
 	}
 
 	/**
@@ -87,7 +132,7 @@ public class Critter extends Element {
 		int temp = (index + orientation) % 6;
 		if(temp < 0)
 			temp += 6;
-		Position p = this.getPosition().get(temp);
+		Position p = this.getPosition().getNextStep(temp);
 		return p;
 	}
 	

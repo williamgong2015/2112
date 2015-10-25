@@ -1,5 +1,7 @@
 package simulate;
 
+import ast.ProgramImpl;
+import ast.Rule;
 import intial.Constant;
 
 /**
@@ -17,8 +19,36 @@ public class Mediator {
 		world = w;
 	}
 	
+	public World getWorld() {
+		return world;
+	}
+	
+	/**
+	 * Handle set mem out of bound here
+	 * @param index
+	 * @param val
+	 */
 	public void setCritterMem(int index, int val) {
+		// immutable
+		if (index <= 2)
+			return;
+		// val out of bound
+		else if (index == 6 || index == 7) {
+			if (val < 0 || val > 99)
+				return;
+		}
+		// index out of bound
+		if (index >= critter.getMem(0))
+			return;
 		critter.setMem(index, val);
+	}
+	
+	/**
+	 * Set the last rule being exeuted of that critter
+	 * @param r
+	 */
+	public void setCritterLastRuleExe(Rule r) {
+		critter.setLastRuleExe(r);
 	}
 	
 	public void increaseCritterEnergy(int val) {
@@ -29,6 +59,11 @@ public class Mediator {
 	public int getCritterMem(int index) {
 		return critter.getMem(index);
 	}
+	
+	public ProgramImpl getCritterProgram() {
+		return critter.getProgram();
+	}
+	
 	
 	/**
 	 * Get the element at {@code pos} in the world if 
@@ -51,6 +86,16 @@ public class Mediator {
 	}
 	
 	/**
+	 * Add a new critter into the world
+	 * @param elem
+	 * @param pos
+	 * @return
+	 */
+	public boolean addCritterAtPosition(Critter elem, Position pos) {
+		return world.addCritterAtPosition(elem, pos);
+	}
+	
+	/**
 	 * Remove the element at the {@code pos} in the world
 	 * @param pos the position to check
 	 * @return {@code false} if the position is out of the boundary, 
@@ -60,21 +105,25 @@ public class Mediator {
 	public boolean removeWorldElemAtPosition(Position pos) {
 		return world.removeElemAtPosition(pos);
 	}
-
-	public int getCritterNearby(int val) {
-		Position pos = critter.getPosition().get(val);
-		Element e = world.getElemAtPosition(pos);
-		return elementDistinguisher(e);
+	
+	public boolean removeCritterAtPosition(Position pos) {
+		return world.removeCritterAtPostion(pos);
 	}
 
-	public int getCritterAhead(int val) {
-		Position pos = critter.getPosition();
-		pos.getRelativePos(val, critter.getDir());
+	public Element getElementNearby(int val) {
+		Position pos = critter.getPosition().getNextStep(val);
 		Element e = world.getElemAtPosition(pos);
-		return elementDistinguisher(e); 
+		return e;
 	}
 	
-	private int elementDistinguisher(Element e) {
+	public Element getElementAhead(int val) {
+		Position pos = critter.getPosition();
+		pos = pos.getRelativePos(val, critter.getDir());
+		Element e = world.getElemAtPosition(pos);
+		return e; 
+	}
+	
+	public int elementDistinguisher(Element e) {
 		if(e == null)
 			return 0;
 		if(e.getType().equals("ROCK"))
@@ -98,8 +147,26 @@ public class Mediator {
 		return critter;
 	}
 	
+	public int getCritterComplex() {
+		return critter.getProgram().getChildren().size() * 
+				Constant.RULE_COST + (critter.getMem(1) + critter.getMem(2)) *
+				Constant.ABILITY_COST;
+	}
+	
 	public void critterTurn(boolean left) {
 		critter.Turn(left);
+	}
+	
+	public void setWantToMate(boolean wantToMate) {
+		critter.setWantToMate(wantToMate);
+	}
+	
+	public boolean getWantToMate() {
+		return critter.getWantToMate();
+	}
+	
+	public boolean critterAlive() {
+		return critter.stillAlive();
 	}
 	
 	/**
@@ -107,5 +174,13 @@ public class Mediator {
 	 */
 	public Position getCritterFront() {
 		return critter.inFront();
+	}
+	
+	public void handleCritterDeath() {
+		Food food = new Food(this.getCritterMem(3) * 
+				Constant.FOOD_PER_SIZE);
+		Position pos = this.getCritterPosition();
+		this.removeCritterAtPosition(pos);
+		this.setWorldElemAtPosition(food, pos);
 	}
 }
