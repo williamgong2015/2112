@@ -1,0 +1,6 @@
+10/24/2015 Saturday:
+
+I impl interpreter and executor but doesn't have time to test them yet.
+I impl executor but directly use methods in critter to modify its property. This should be changed to create a temporary Mediator for that critter, and then modify the critter with the Mediator. 
+
+- yuxin
