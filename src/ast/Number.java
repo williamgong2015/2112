@@ -1,5 +1,8 @@
 package ast;
 
+import simulate.Critter;
+import simulate.World;
+
 /**
  * a node which represents a number
  */
@@ -37,5 +40,10 @@ public class Number extends Expr{
 	
 	public int getVal() {
 		return val;
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		return "" + val;
 	}
 }

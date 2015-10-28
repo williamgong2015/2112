@@ -1,6 +1,8 @@
 package ast;
 
 import parse.TokenType;
+import simulate.Critter;
+import simulate.World;
 
 /**
  * a node represents the condition which
@@ -107,7 +109,25 @@ public class Relation extends Condition implements BinaryOperation,
 		r = (TokenType) newType;
 	}
 	
-	public String operator() {
-		return r.toString();
+	@Override
+	public String eval(Critter c,World w) {
+		int left = Integer.parseInt(ep1.eval(c,w));
+		int right = Integer.parseInt(ep2.eval(c,w));
+		String str = r.toString();
+		switch(str) {
+		case "<=" :
+			return "" + (left <= right);
+		case "<"  :
+			return "" + (left < right);
+		case ">"  :
+			return "" + (left > right);
+		case ">="  :
+			return "" + (left >= right);
+		case "="  :
+			return "" + (left == right);
+		case "!="  :
+			return "" + (left != right);
+		}
+		return "false";
 	}
 }

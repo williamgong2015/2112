@@ -2,6 +2,8 @@ package ast;
 
 import exceptions.SyntaxError;
 import parse.Tokenizer;
+import simulate.Critter;
+import simulate.World;
 
 /**
  * A representation of a critter rule.
@@ -66,5 +68,10 @@ public class Rule extends MutableNode {
 	
 	public Command getCommand() {
 		return com;
+	}
+
+	@Override
+	public String eval(Critter c, World w) {
+		return null;
 	}
 }

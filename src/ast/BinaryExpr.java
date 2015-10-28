@@ -1,5 +1,8 @@
 package ast;
 
+import simulate.Critter;
+import simulate.World;
+
 /** 
  *  an expression which takes two expression as child
  *  like 3 * 4,mem[2] + 5,etc
@@ -116,5 +119,36 @@ public class BinaryExpr extends Expr implements BinaryOperation, GenericOperatio
 	@Override
 	public void setType(Object newType) {
 		o = (op) newType;
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		int left = Integer.parseInt(e1.eval(c,w));
+		int right = Integer.parseInt(e2.eval(c,w));
+		int temp;
+		switch(o) {
+		case DIV:
+			if(right == 0)
+				return "0";
+			else
+				temp = left / right;
+				return "" + temp;
+		case MOD:
+			if(right == 0)
+				return "0";
+			else
+				temp = left % right;
+				return "" + temp;
+		case MUL:
+			temp = left * right;
+			return "" + temp;
+		case PLUS:
+			temp = left + right;
+			return "" + temp;
+		case MIN:
+			temp = left - right;
+			return "" + temp;
+		}
+		return "0";
 	}
 }

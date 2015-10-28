@@ -1,4 +1,8 @@
 package ast;
+
+import simulate.Critter;
+import simulate.World;
+
 /**
  * a node which is a command and it only has one child
  *
@@ -66,5 +70,14 @@ public class UnaryCommand extends Command implements UnaryOperation,
 	@Override
 	public void setType(Object newType) {
 		t = (tp) newType;
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		int ep = Integer.parseInt(e.eval(c,w));
+		if(t.equals(tp.serve))
+			return "s" + ep;
+		else
+			return "t" + ep;
 	}
 }

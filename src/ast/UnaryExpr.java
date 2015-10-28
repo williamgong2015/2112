@@ -1,4 +1,12 @@
 package ast;
+
+import simulate.Critter;
+import simulate.Element;
+import simulate.Food;
+import simulate.Position;
+import simulate.World;
+import util.RandomGen;
+
 /**
  * a node which is an expression and has no child.
  */
@@ -88,5 +96,45 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 	@Override
 	public void setType(Object newType) {
 		t = (T) newType;
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		UnaryExpr.T type = t;
+		int val = Integer.parseInt(e.eval(c,w));
+		switch(type) {
+		case nearby :
+			Position pos = c.getPosition().getNextStep(val);
+			Element e = w.getElemAtPosition(pos);
+			return "" + elementDistinguisher(e);
+		case ahead :
+			Position pos2 = c.getPosition();
+			pos2 = pos2.getRelativePos(val, c.getDir());
+			Element e2 = w.getElemAtPosition(pos2);
+			return "" + elementDistinguisher(e2);
+		case random :
+			return "" + (RandomGen.randomNumber(val) > 0 ? RandomGen.randomNumber(val) : 0);
+		case mem :
+			return "" + c.getMem(val);
+		case paren :
+			return "" + val;
+		case neg :
+			return "" + (-val);
+		case sensor :
+			return "0";
+		}
+		return "";
+	}
+	
+	public int elementDistinguisher(Element e) {
+		if(e == null)
+			return 0;
+		if(e.getType().equals("ROCK"))
+			return -1;
+		else if(e.getType().equals("CRITTER"))
+			return ((Critter)e).appearance();
+		else if(e.getType().equals("FOOD"))
+			return -1 - ((Food)e).getEnergy();
+		return 0;
 	}
 }

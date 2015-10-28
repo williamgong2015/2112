@@ -36,7 +36,7 @@ public class World {
 	private Hashtable<Position, Element> hexes;
 	
 	// order of critters in the world to take actions
-	private ArrayList<Critter> order;
+	public ArrayList<Critter> order;
 	
 	/**
 	 * Initialize a world

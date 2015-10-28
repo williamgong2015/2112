@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import exceptions.SyntaxError;
 import parse.Tokenizer;
+import simulate.Critter;
+import simulate.World;
 
 /**
  * a node which represents "Command" in grammar
@@ -121,6 +123,18 @@ public class Commands extends Command implements Placeholder {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		StringBuilder sb = new StringBuilder();
+		for(Command i : up) {
+			sb.append(i.eval(c,w));
+			sb.append(" ");
+		}
+		if(act != null)
+			sb.append(act.eval(c, w));
+		return sb.toString();
 	}
 	
 	

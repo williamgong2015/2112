@@ -1,5 +1,8 @@
 package ast;
 
+import simulate.Critter;
+import simulate.World;
+
 /**
  * an abstract class which is the superclass
  * of all other nodes
@@ -8,6 +11,8 @@ package ast;
 public abstract class MutableNode implements Node ,Mutable, Parsable {
 	
 	private Node parent;
+	
+	public abstract String eval(Critter c,World w);
 	
 	public abstract boolean beMutated(AbstractMutation m);
 	

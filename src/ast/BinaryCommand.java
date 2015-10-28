@@ -1,5 +1,8 @@
 package ast;
 
+import simulate.Critter;
+import simulate.World;
+
 /** 
  * A node which represents "update" in grammar, 
  * which output as mem[e1] := e2
@@ -83,5 +86,10 @@ public class BinaryCommand extends Command implements BinaryOperation {
 			e2 = (Expr) newChild;
 		else 
 			System.out.println("BinaryCommand: can't find oldChild");
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		return "u" + e1.eval(c, w) + "," + e2.eval(c, w);
 	}
 }

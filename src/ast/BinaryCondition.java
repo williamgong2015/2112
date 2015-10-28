@@ -1,5 +1,8 @@
 package ast;
 
+import simulate.Critter;
+import simulate.World;
+
 /**
  * A representation of a binary Boolean condition: 'and' or 'or'
  *
@@ -132,6 +135,25 @@ public class BinaryCondition extends Condition implements BinaryOperation, Gener
 	@Override
 	public void setType(Object newType) {
 		op = (Operator) newType;
+	}
+
+	@Override
+	public String eval(Critter c,World w) {
+		boolean l = (left.eval(c,w).equals("true"));
+		boolean r = (right.eval(c,w).equals("true"));
+		if(op.equals(Operator.AND)) {
+			if(l && r)
+				return "true";
+			else
+				return "false";
+		}
+			
+		else {
+			if(l || r)
+				return "true";
+			else
+				return "false";
+		}
 	}
 	
 }

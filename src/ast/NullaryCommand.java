@@ -1,6 +1,8 @@
 package ast;
 
 import parse.TokenType;
+import simulate.Critter;
+import simulate.World;
 
 /** represents six kind of "action" in grammar*/
 
@@ -45,6 +47,11 @@ public class NullaryCommand extends Command implements GenericOperation {
 	@Override
 	public void setType(Object newType) {
 		a = (TokenType) newType;
+	}
+	
+	@Override
+	public String eval(Critter c,World w) {
+		return a.toString();
 	}
 	
 }

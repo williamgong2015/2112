@@ -110,11 +110,11 @@ public class Mediator {
 		return world.removeCritterAtPostion(pos);
 	}
 
-	public Element getElementNearby(int val) {
-		Position pos = critter.getPosition().getNextStep(val);
-		Element e = world.getElemAtPosition(pos);
-		return e;
-	}
+//	public Element getElementNearby(int val) {
+//		Position pos = critter.getPosition().getNextStep(val);
+//		Element e = world.getElemAtPosition(pos);
+//		return e;
+//	}
 	
 	public Element getElementAhead(int val) {
 		Position pos = critter.getPosition();
