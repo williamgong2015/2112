@@ -122,7 +122,8 @@ public class Executor {
 	
 	
 	/**
-	 * The critter rotate 60 degrees right or left. This takes little energy
+	 * The critter rotate 60 degrees right or left. This takes the energy 
+	 * equals to the critter's size
 	 * @param direction true denotes turn left, 
 	 *                  false denotes turn right
 	 */
@@ -313,30 +314,30 @@ public class Executor {
 	 * @throws SyntaxError 
 	 */
 	public void critterMate(Critter first, Critter second) {
+		// cost more energy than attempting mate if the mate would success
+		int energyBalanceFirst = first.getMem(3) - 
+				Constant.MATE_COST * first.getComplexity();
+		int energyBalanceSecond = second.getMem(3) - 
+				Constant.MATE_COST * second.getComplexity();
+		
+		// mate not succeed because one of the critter would die
+		if (first.getMem(4) <= energyBalanceFirst ||
+				second.getMem(4) <= energyBalanceSecond)
+			return;
+			
+		first.setMem(4, first.getMem(4) + energyBalanceFirst);
+		second.setMem(4, first.getMem(4) + energyBalanceSecond);
+		
 		Position posToSet;
+		// mate not succeed mate because both position 
+		// after the critters are occupied
 		if (mediator.getWorldElemAtPosition(
 				first.getPosition().getRelativePos(1, 3)) == null && 
 				mediator.getWorldElemAtPosition(
 						second.getPosition().getRelativePos(1, 3)) == null)
 			return;
-		int energyBalance = mediator.getCritterMem(3) - Constant.MATE_COST * 
-				mediator.getCritterComplex();
-		first.setMem(4, first.getMem(4) + energyBalance);
-		second.setMem(4, first.getMem(4) + energyBalance);
-		
-		Mediator tmp = new Mediator(first, mediator.getWorld());
-		boolean firstAlive = tmp.critterAlive();
-		if (!firstAlive)
-			tmp.handleCritterDeath();
-		tmp = new Mediator(second, mediator.getWorld());
-		boolean secondAlive = tmp.critterAlive();
-		if (!secondAlive)
-			tmp.handleCritterDeath();
-		
-		if (!firstAlive || !secondAlive)
-			return;
-		
-		if (mediator.getWorldElemAtPosition(
+		// get the position to place the new critter
+		else if (mediator.getWorldElemAtPosition(
 				first.getPosition().getRelativePos(1, 3)) == null)
 			posToSet = second.getPosition().getRelativePos(1, 3);
 		else if (mediator.getWorldElemAtPosition(

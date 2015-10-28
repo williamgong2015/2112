@@ -19,10 +19,14 @@ import util.RandomGen;
 public class Console {
     private Scanner scan;
     public boolean done;
-    private World world;
+    public World world;
 
     public static void main(String[] args) throws IOException, SyntaxError {
         Console console = new Console();
+        String current = new java.io.File( "." ).getCanonicalPath();
+        System.out.println("Current dir:"+current);
+        String currentDir = System.getProperty("user.dir");
+        System.out.println("Current dir using System:" +currentDir);
 
         while (!console.done) {
             System.out.print("Enter a command or \"help\" for a list of commands.\n> ");
@@ -101,7 +105,7 @@ public class Console {
     		System.out.println("can't find constant.txt,"
     				+ "the constant has not been initialized");
     	}
-        new World();
+    	world = new World();
     }
 
     /**
@@ -109,7 +113,7 @@ public class Console {
      * Initialize the constant of the new world from constant.txt file
      * @param filename
      */
-    private void loadWorld(String filename) {
+    public void loadWorld(String filename) {
     	try{
     		FileReader r = new FileReader(new File(filename));
 			@SuppressWarnings("resource")
@@ -120,7 +124,7 @@ public class Console {
     		String[] temp = s.split(" ");
     		int column = Integer.parseInt(temp[1]);
     		int row = Integer.parseInt(temp[2]);
-    		World world = new World(row,column,name);
+    		world = new World(row,column,name);
     		System.out.println(name);
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
@@ -144,12 +148,15 @@ public class Console {
     				int dir = Integer.parseInt(temp[4]);
     				Critter c = new Critter(file);
     				c.setDir(dir);
-    				world.setElemAtPosition(c, pos);
-    				world.addCritter(c);
+    				if (world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
+	    				world.setElemAtPosition(c, pos);
+	    				world.addCritterToList(c);
+    				}
     			}
     			Constant.init();
     		}
     	} catch(Exception e) {
+    		e.printStackTrace();
     		System.err.println("No such file");
     	}
     }
@@ -162,15 +169,17 @@ public class Console {
      * @throws SyntaxError 
      * @throws IOException 
      */
-    private void loadCritters(String filename, int n) throws IOException, SyntaxError {
+    public void loadCritters(String filename, int n) throws IOException, SyntaxError {
         for(int i = 0;i < n;) {
         	Critter c = new Critter(filename);
         	int a = RandomGen.randomNumber(world.getRow());
         	int b = RandomGen.randomNumber(world.getColumn());
+        	int dir = RandomGen.randomNumber(6);
+        	c.setDir(dir);
         	Position pos = new Position(b, a);
         	if(world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
         		world.setElemAtPosition(c, pos);
-        		world.addCritter(c);
+        		world.addCritterToList(c);
         		i++;
         	}
         }
@@ -180,7 +189,7 @@ public class Console {
      * Advances the world by n time steps.
      * @param n
      */
-    private void advanceTime(int n) {
+    public void advanceTime(int n) {
         for(int i = 0;i < n;i++)
         	world.lapse();
     }
@@ -189,8 +198,9 @@ public class Console {
      * Prints current time step, number of critters, and world
      * map of the simulation.
      */
-    private void worldInfo() {
+    public void worldInfo() {
         world.printASCIIMap();
+        world.printCoordinatesASCIIMap();
     }
 
     /**
@@ -198,7 +208,7 @@ public class Console {
      * @param c column of hex
      * @param r row of hex
      */
-    private void hexInfo(int c, int r) {
+    public void hexInfo(int c, int r) {
         world.hex(r, c);
     }
 
@@ -206,16 +216,18 @@ public class Console {
      * Prints a list of possible commands to the standard output.
      */
     private void printHelp() {
-        System.out.println("new: start a new simulation with a random world");
-        System.out.println("load <world_file>: start a new simulation with "
-                + "the world loaded from world_file");
-        System.out.println("critters <critter_file> <n>: add n critters "
-                + "defined by critter_file randomly into the world");
-        System.out.println("step <n>: advance the world by n timesteps");
-        System.out.println("info: print current timestep, number of critters "
-                + "living, and map of world");
-        System.out.println("hex <c> <r>: print contents of hex "
-                + "at column c, row r");
-        System.out.println("exit: exit the program");
+        System.out.println("- new: \n        start a new simulation with "
+        		+ "a random world");
+        System.out.println("- load <world_file>: \n        start a new "
+        		+ "simulation with the world loaded from world_file");
+        System.out.println("- critters <critter_file> <n>: \n        add n "
+        		+ "critters defined by critter_file randomly into the world");
+        System.out.println("- step <n>: \n        advance the world "
+        		+ "by n timesteps");
+        System.out.println("- info: \n        print current timestep, number "
+        		+ "of critters living, and map of world");
+        System.out.println("- hex <c> <r>: \n        print contents of hex at "
+        		+ "column c, row r");
+        System.out.println("- exit: \n        exit the program");
     }
 }

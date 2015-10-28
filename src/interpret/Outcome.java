@@ -12,7 +12,7 @@ public class Outcome implements Iterable<String> {
 	ArrayList<String> commands;
 	
 	// if the array of commands has an action in it
-	boolean hasAction;;
+	boolean hasAction;
 	
 	/**
 	 * Parse the String of commands and store them in the ArrayList
@@ -29,7 +29,7 @@ public class Outcome implements Iterable<String> {
 	}
 	
 	private void checkHasAction(String next) {
-		if (next.charAt(0) == 'u')
+		if (next.charAt(0) != 'u')
 			hasAction = true;
 	}
 	
@@ -40,6 +40,14 @@ public class Outcome implements Iterable<String> {
 	@Override
 	public Iterator<String> iterator() {
 		return commands.iterator();
+	}
+	
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		for (String str : this) {
+			s.append(str + "\n");
+		}
+		return s.toString();
 	}
 
 }

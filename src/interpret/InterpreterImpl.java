@@ -42,10 +42,16 @@ public class InterpreterImpl implements Interpreter {
 		ProgramImpl pro = (ProgramImpl) p;
 		// finds the first rule in its list of rules whose condition is true
 		for (Rule r : pro.getChildren()) {
+			System.out.print("interpreting rule: ");
+			System.out.println(r.toString());
+			System.out.print("Result: ");
 			if (this.eval(r.getCondition())) {
+				System.out.println("true");
 				result = eval(r.getCommand());
 				break;
 			}
+			else
+				System.out.println("false");
 		}
 		// If no rule’s condition is true, the critter perform a wait
 		if (result == null)
@@ -107,7 +113,7 @@ public class InterpreterImpl implements Interpreter {
 		case nearby :
 			return m.elementDistinguisher(m.getElementNearby(val));
 		case ahead :
-			return m.elementDistinguisher(m.getElementNearby(val));
+			return m.elementDistinguisher(m.getElementAhead(val));
 		case random :
 			return RandomGen.randomNumber(val) > 0 ? RandomGen.randomNumber(val) : 0;
 		case mem :

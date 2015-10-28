@@ -67,7 +67,7 @@ public class WorldTest {
 	 */
 	@Test
 	public void blackBoxTest2() throws IOException, SyntaxError {
-		World w = new World(10,10,"test");
+		World w = new World(6,8,"test");
 		w.printCoordinatesASCIIMap();
 		Constant.init();
 		String file = "critter1.txt";

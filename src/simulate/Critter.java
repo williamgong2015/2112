@@ -27,6 +27,8 @@ public class Critter extends Element {
 	// the last rule being executed
 	private Rule lastRuleExe = null;
 	private boolean wantToMate = false;
+	// if still -1, it hasn't been initialized
+	private int complexity = -1;
 	
 	/**
 	 * Create a new Critter
@@ -40,6 +42,7 @@ public class Critter extends Element {
 		this.mem = mem;
 		this.name = name;
 		this.pro = pro;
+		setComplexity();
 	}
 	
 	public Critter(String file) throws IOException, SyntaxError {
@@ -59,6 +62,7 @@ public class Critter extends Element {
 		if(temp < Constant.MIN_MEMORY)
 			temp = Constant.MIN_MEMORY;
 		mem = new int[temp];
+		mem[0] = temp; // memsize
 		for(int j = 1;j < 5;j++) {
 			s = br.readLine();
 			i = 0;
@@ -67,6 +71,7 @@ public class Critter extends Element {
 			temp = Integer.parseInt(s.substring(i).trim());
 			mem[j] = temp;
 		}
+		mem[5] = 1; // pass = 1
 		s = br.readLine();
 		i = 0;
 		while(s.charAt(i) > '9' || s.charAt(i) < '0')
@@ -75,6 +80,7 @@ public class Critter extends Element {
 		mem[7] = temp;
 		Tokenizer t = new Tokenizer(br);
 		pro = ParserImpl.parseProgram(t);
+		setComplexity();
 	}
 	/**
 	 * set the specified memory {@code mem[index]} to
@@ -88,6 +94,25 @@ public class Critter extends Element {
 				return;
 		}
 		mem[index] = val;
+	}
+	
+	/**
+	 * Set the complexity when creating the critter
+	 * the complexity should be >= 0
+	 */
+	private void setComplexity() {
+		complexity = pro.getChildren().size() * Constant.RULE_COST 
+				+ (mem[1] + mem[2]) * Constant.ABILITY_COST;
+	}
+	
+	/**
+	 * Get the calculated complexity of the critter
+	 * @return
+	 */
+	public int getComplexity() {
+		if (complexity == -1)
+			setComplexity();
+		return complexity;
 	}
 	
 	public void setWantToMate(boolean wantToMate) {

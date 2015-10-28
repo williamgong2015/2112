@@ -19,9 +19,14 @@ import org.junit.Test;
  */
 public class ExecutorTest {
 
+	/**
+	 * Test the move action of a critter
+	 * 
+	 * 
+	 */
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testMove() {
+		
 	}
 
 }

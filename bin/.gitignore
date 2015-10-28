@@ -1,11 +1,7 @@
-/ast/
 /console/
-/exceptions/
-/execute/
-/interpret/
-/intial/
-/parse/
 /simulate/
-/tests/
+/execute/
+/executor/
+/testexecutor/
+/interpret/
 /testsA5/
-/util/

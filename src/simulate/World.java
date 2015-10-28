@@ -59,6 +59,7 @@ public class World {
 		name = n;
 		turns = 0;
 		hexes = new Hashtable<Position, Element>();
+		order = new ArrayList<Critter>();
 	}
 	
 	/**
@@ -81,6 +82,7 @@ public class World {
 		hexes = new Hashtable<Position, Element>();
 		turns = 0;
 		name = "Default World";
+		order = new ArrayList<Critter>();
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); i++) {
 			int a = Math.abs(RandomGen.randomNumber(row));
@@ -95,7 +97,7 @@ public class World {
 	/**
 	 * add a critter to the arraylist
 	 */
-	public void addCritter(Critter c) {
+	public void addCritterToList(Critter c) {
 		order.add(c);
 	}
 	
@@ -119,6 +121,7 @@ public class World {
 			while (m.getCritterMem(5) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(m.getCritterProgram());
+				System.out.println(outcomes);
 				m.setCritterMem(5, m.getCritterMem(5) + 1);
 				if (outcomes.hasAction())
 					hasAction = true;
@@ -188,7 +191,7 @@ public class World {
 			return false;
 		elem.setPosition(pos);
 		hexes.put(pos, elem);
-		addCritter(elem);
+		addCritterToList(elem);
 		return true;
 	}
 	
