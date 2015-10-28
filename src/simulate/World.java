@@ -47,7 +47,7 @@ public class World {
 	 * @param n name of the world
 	 */
 	public World(int c, int r, String n) {
-		if (r <=0 || c <= 0) {
+		if (r <= 0 || c <= 0) {
 			System.out.println("the world has an unproper size");
 			row = 1;
 			column = 1;
@@ -111,23 +111,22 @@ public class World {
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
 		for(Critter c : order) {	
-			Mediator m = new Mediator(c, this);
-			InterpreterImpl interpret = new InterpreterImpl(m);
-			Executor executor = new Executor(m);
+			InterpreterImpl interpret = new InterpreterImpl(this,c);
+			Executor executor = new Executor(this,c);
 			boolean hasAction = false;
-			m.setWantToMate(false);
+			c.setWantToMate(false);
 			// for each critter, while it hasn't act and hasn't come to MAXPASS
 			// keep interpret it and execute its commands
-			while (m.getCritterMem(5) <= Constant.MAX_PASS && 
+			while (c.getMem(5) <= Constant.MAX_PASS && 
 					hasAction == false) {
-				Outcome outcomes = interpret.interpret(m.getCritterProgram());
+				Outcome outcomes = interpret.interpret(c.getProgram());
 				System.out.println(outcomes);
-				m.setCritterMem(5, m.getCritterMem(5) + 1);
+				c.setMem(5, c.getMem(5) + 1);
 				if (outcomes.hasAction())
 					hasAction = true;
 				executor.execute(outcomes);
 			}
-			m.setCritterMem(5, 1);
+			c.setMem(5, 1);
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
 				executor.execute(new Outcome("wait"));
