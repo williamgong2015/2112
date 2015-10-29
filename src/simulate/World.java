@@ -1,12 +1,17 @@
 package simulate;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import constant.Constant;
+import constant.IDX;
 import execute.Executor;
+import execute.ResultList;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
-import intial.Constant;
 import util.RandomGen;
 
 /**
@@ -31,12 +36,15 @@ public class World {
 	private int row;
 	private int column;
 	private String name;
+	private int size;
 
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes;
 	
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order;
+	
+	
 	
 	/**
 	 * Initialize a world
@@ -47,6 +55,14 @@ public class World {
 	 * @param n name of the world
 	 */
 	public World(int c, int r, String n) {
+		if (!Constant.hasBeenInitialized()) {
+	    	try {
+	    		Constant.init();
+	    	} catch (Exception e) {
+	    		System.out.println("can't find constant.txt,"
+	    				+ "the constant has not been initialized");
+	    	}
+		}
 		if (r <= 0 || c <= 0) {
 			System.out.println("the world has an unproper size");
 			row = 1;
@@ -56,6 +72,7 @@ public class World {
 			row = r;
 			column = c;
 		}
+		setSize();
 		name = n;
 		turns = 0;
 		hexes = new Hashtable<Position, Element>();
@@ -79,6 +96,7 @@ public class World {
 		}
 		row = Constant.ROWS;
 		column = Constant.COLUMNS; 
+		setSize();
 		hexes = new Hashtable<Position, Element>();
 		turns = 0;
 		name = "Default World";
@@ -95,6 +113,60 @@ public class World {
 	}
 	
 	/**
+	 * Create and return a world with a world file
+	 */
+	public static World loadWorld(String filename) {
+		World world;
+    	try{
+    		FileReader r = new FileReader(new File(filename));
+			BufferedReader br = new BufferedReader(r);
+    		String s = br.readLine();
+    		String name = s.substring(5);
+    		s = br.readLine();
+    		String[] temp = s.split(" ");
+    		int column = Integer.parseInt(temp[1]);
+    		int row = Integer.parseInt(temp[2]);
+    		world = new World(column,row,name);
+    		System.out.println(name);
+    		while((s = br.readLine()) != null) {
+    			if(s.startsWith("//"))
+    				continue;
+    			temp = s.split(" ");
+    			if(temp.length == 0)
+    				continue;
+    			Position pos;
+    			if(temp[0].equals("rock")) {
+    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+    				world.setElemAtPosition(new Rock(), pos);
+    			}
+    			if(temp[0].equals("food")) {
+    				int amount = Integer.parseInt(temp[3]);
+    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+    				world.setElemAtPosition(new Food(amount), pos);
+    			}
+    			if(temp[0].equals("critter")) {
+    				String file = temp[1];
+    				pos = new Position(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+    				int dir = Integer.parseInt(temp[4]);
+    				Critter c = new Critter(file);
+    				c.setDir(dir);
+    				if (world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
+	    				world.setElemAtPosition(c, pos);
+	    				world.addCritterToList(c);
+    				}
+    			}
+    		}
+    		r.close();
+    		return world;
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		System.err.println("No such file");
+    		return null;
+    	}
+    	
+    }
+	
+	/**
 	 * add a critter to the arraylist
 	 */
 	public void addCritterToList(Critter c) {
@@ -108,28 +180,43 @@ public class World {
 	 */
 	public void lapse() {
 		turns++;
+		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
-		for(Critter c : order) {	
+		int i = 0;
+		while (i < order.size()) {	
+			Critter c = order.get(i++);
 			InterpreterImpl interpret = new InterpreterImpl(this,c);
-			Executor executor = new Executor(this,c);
+			Executor executor = new Executor(this, c);
 			boolean hasAction = false;
 			c.setWantToMate(false);
 			// for each critter, while it hasn't act and hasn't come to MAXPASS
 			// keep interpret it and execute its commands
-			while (c.getMem(5) <= Constant.MAX_PASS && 
+			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(c.getProgram());
-				System.out.println(outcomes);
-				c.setMem(5, c.getMem(5) + 1);
+				System.out.println("Critter will: " + outcomes);
+				
+				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
 				if (outcomes.hasAction())
 					hasAction = true;
-				executor.execute(outcomes);
+				
+				ResultList tmp = executor.execute(outcomes);
+				toDelete.addAll(tmp.toDelete);
+				// insert the new born critters
+				for (Critter critter : tmp.toInsert)
+					order.add(critter);
 			}
-			c.setMem(5, 1);
+			c.setMem(IDX.PASS, Constant.INIT_PASS);
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
 				executor.execute(new Outcome("wait"));
+		}
+		
+		// remove the critter need to be delete and insert the critter need 
+		// to be inserted
+		for (Critter critter : toDelete) {
+			order.remove(critter);
 		}
 	}
 	
@@ -140,12 +227,7 @@ public class World {
 	 *         false otherwise
 	 */
 	public boolean checkPosition(Position position) {
-		int temp = position.getRow() * 2 - position.getColumn();
-		if(position.getRow() < 0 || position.getRow() >= row ||
-		   position.getColumn() < 0 || position.getColumn() >= column ||
-		   temp < 0 || temp >= 2 * row - column)
-		return false;
-		return true;
+		return Position.checkPosition(position, column, row);
 	}
 	
 	/**
@@ -175,24 +257,7 @@ public class World {
 		hexes.put(pos, elem);
 		return true;
 	}
-	
-	/**
-	 * Add a new Critter into the {@code pos} of the world, 
-	 * Add the critter to the arraylist of action order
-	 * @param elem
-	 * @param pos
-	 * @return false if the {@code pos} is illegal or is occupied
-	 */
-	public boolean addCritterAtPosition(Critter elem, Position pos) {
-		if (!checkPosition(pos))
-			return false;
-		if(hexes.get(pos) != null)
-			return false;
-		elem.setPosition(pos);
-		hexes.put(pos, elem);
-		addCritterToList(elem);
-		return true;
-	}
+
 	
 	/**
 	 * Remove the element at the {@code pos} in the world
@@ -213,23 +278,17 @@ public class World {
 	}
 	
 	/**
-	 * Remove a critter at the {@code pos} in the world 
-	 * and remove it from {@code order}
+	 * Delete a critter in the world ( remove it from {@code order} )
 	 * @param pos
 	 * @return
 	 */
-	public boolean removeCritterAtPostion(Position pos) {
-		if (!checkPosition(pos))
+	public boolean removeCritter(Critter critter) {
+		if (order.contains(critter)) {
+			order.remove(critter);
+			return true;
+		}
+		else 
 			return false;
-		if (!hexes.containsKey(pos))
-			return false;
-		Element e = hexes.get(pos);
-		if (!e.getType().equals("CRITTER"))
-			return false;
-		e.setPosition(null);
-		order.remove(e);
-		hexes.remove(pos);
-		return true;
 	}
 	
 	public String getName() {
@@ -338,11 +397,34 @@ public class World {
 		if(e.getType().equals("CRITTER")) {
 			Critter temp = (Critter)e;
 			System.out.println(temp.toString());
-			if (temp.getLastRuleExe() != null)
-				System.out.println(temp.getLastRuleExe());
-			else
-				System.out.println("none of this critter's "
-						+ "rule has been executed");
 		}
+	}
+	
+	/**
+	 * Calculate and set the size of the world
+	 */
+	private void setSize() {
+		int s = 0;
+		int h; int v;
+		int horizonalBound = Position.getH(column, row);
+		int verticalBound = Position.getV(column, row);
+		for (h = horizonalBound-1; h >= 0; --h) {
+			if (h % 2 == 1) 
+				v = 1;
+			else 
+				v = 0;
+			for (; v < verticalBound; v += 2) {
+				s++;
+			}
+		}
+		size = s;
+	}
+	
+	/**
+	 * Get the number of empty slot in this world
+	 * @return
+	 */
+	public int availableSlot() {
+		return size - hexes.size();
 	}
 }

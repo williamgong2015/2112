@@ -1,0 +1,7 @@
+name Serve world
+size 6 6
+
+food 2 2 5
+
+
+critter txt/ServeTest/critter.txt 2 1 0

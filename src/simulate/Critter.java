@@ -7,11 +7,11 @@ import java.io.IOException;
 
 import ast.ProgramImpl;
 import ast.Rule;
+import constant.Constant;
 import exceptions.SyntaxError;
-import intial.Constant;
 import parse.ParserImpl;
 import parse.Tokenizer;
-
+import constant.IDX;
 /**
  * A critter object in the world, store the properties of the critter
  * 
@@ -31,7 +31,9 @@ public class Critter extends Element {
 	private int complexity = -1;
 	
 	/**
-	 * Create a new Critter
+	 * Create a new Critter with the given memory {@code mem}, 
+	 * name of the critter {@code name}, and the AST program
+	 * Randomly set the orientation of the critter
 	 * @param len
 	 * @param m
 	 * @param name
@@ -42,9 +44,17 @@ public class Critter extends Element {
 		this.mem = mem;
 		this.name = name;
 		this.pro = pro;
+		this.orientation = util.RandomGen.randomNumber(Constant.ORI_RANGE);
 		setComplexity();
 	}
 	
+	/**
+	 * Create a new Critter object by reading a critter file, 
+	 * randomly set the {@code orientation} of the critter 
+	 * @param file
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
 	public Critter(String file) throws IOException, SyntaxError {
 		super("CRITTER");
 		FileReader f = new FileReader(new File(file));
@@ -62,7 +72,7 @@ public class Critter extends Element {
 		if(temp < Constant.MIN_MEMORY)
 			temp = Constant.MIN_MEMORY;
 		mem = new int[temp];
-		mem[0] = temp; // memsize
+		mem[IDX.MEMLEN] = temp; // memsize
 		for(int j = 1;j < 5;j++) {
 			s = br.readLine();
 			i = 0;
@@ -71,23 +81,28 @@ public class Critter extends Element {
 			temp = Integer.parseInt(s.substring(i).trim());
 			mem[j] = temp;
 		}
-		mem[5] = 1; // pass = 1
+		mem[IDX.PASS] = Constant.INIT_PASS; // pass = 1
 		s = br.readLine();
 		i = 0;
 		while(s.charAt(i) > '9' || s.charAt(i) < '0')
 			i++;
 		temp = Integer.parseInt(s.substring(i).trim());
-		mem[7] = temp;
+		mem[IDX.POSTURE] = temp;
 		Tokenizer t = new Tokenizer(br);
 		pro = ParserImpl.parseProgram(t);
 		setComplexity();
+		orientation = util.RandomGen.randomNumber(Constant.ORI_RANGE);
+		f.close();
 	}
 	/**
 	 * set the specified memory {@code mem[index]} to
-	 * specified value {@code val},some memory couldn't be set
+	 * specified value {@code val}, 
+	 * some memory are immutable and couldn't be set
 	 */
 	public void setMem(int index, int val) {
-		if(index >= 0 && index <= 4)
+		if (index >= mem[IDX.MEMLEN])
+			return;
+		if(index >= 0 && index <= 2)
 			return;
 		if(index == 7 || index == 6) {
 			if(val < 0 || val > 99)
@@ -102,7 +117,7 @@ public class Critter extends Element {
 	 */
 	private void setComplexity() {
 		complexity = pro.getChildren().size() * Constant.RULE_COST 
-				+ (mem[1] + mem[2]) * Constant.ABILITY_COST;
+			+ (mem[IDX.DEFENSE] + mem[IDX.OFFENSE]) * Constant.ABILITY_COST;
 	}
 	
 	/**
@@ -127,7 +142,7 @@ public class Critter extends Element {
 	 * @return the specified memory{@code mem[index]}
 	 */
 	public int getMem(int index) {
-		if(index >= mem[0] || index <= 0)
+		if(index >= mem[IDX.MEMLEN] || index < 0)
 			return 0;
 		return mem[index];
 	}
@@ -171,7 +186,8 @@ public class Critter extends Element {
 	 * @return the calculated appearance of the critter
 	 */
 	public int appearance() {
-		return mem[3] * 100000 + mem[6] * 1000 + mem[7] * 10 + orientation;
+		return mem[IDX.SIZE] * 100000 + mem[IDX.TAG] * 1000 + 
+				mem[IDX.POSTURE] * 10 + orientation;
 	}
 	
 	/**
@@ -192,7 +208,7 @@ public class Critter extends Element {
 	 * check if the critter has used up its energy
 	 */
 	public boolean stillAlive() {
-		return mem[3] <= 0;
+		return mem[IDX.ENERGY] > 0;
 	}
 	
 	/**
@@ -213,15 +229,15 @@ public class Critter extends Element {
 	 * return the maximum energy that this critter could have
 	 */
 	public int maxEnergy() {
-		return mem[3] * Constant.ENERGY_PER_SIZE;
+		return mem[IDX.SIZE] * Constant.ENERGY_PER_SIZE;
 	}
 	
 	/**
-	 * @return the position which is in front of the critter;
+	 * Increase a certain amount of energy
+	 * @param amount the amount of energy to increase, may be negative
 	 */
-	public Position inFront() {
-		Position front = this.getPosition();
-		return front.getRelativePos(1, this.orientation);
+	public void increaseEnergy(int amount) {
+		mem[IDX.ENERGY] += amount;
 	}
 	
 	/**
@@ -230,14 +246,20 @@ public class Critter extends Element {
 	public String toString() {
 		StringBuilder sb = new StringBuilder ();
 		sb.append("SPECIES:" + name + "\n");
-		sb.append("MEMSIZE:" + mem[0] + "\n");
-		sb.append("DEFENSE:" + mem[1] + "\n");
-		sb.append("OFFENSE:" + mem[2] + "\n");
-		sb.append("SIZE:" + mem[3] + "\n");
-		sb.append("ENERGY:" + mem[4] + "\n");
-		sb.append("PASS:" + mem[5] + "\n");
-		sb.append("TAG:" + mem[6] + "\n");
-		sb.append("POSTURE:" + mem[7] + "\n");
-		return sb.toString() + this.pro.toString();
+		sb.append("MEMSIZE:" + mem[IDX.MEMLEN] + "\n");
+		sb.append("DEFENSE:" + mem[IDX.DEFENSE] + "\n");
+		sb.append("OFFENSE:" + mem[IDX.OFFENSE] + "\n");
+		sb.append("SIZE:" + mem[IDX.SIZE] + "\n");
+		sb.append("ENERGY:" + mem[IDX.ENERGY] + "\n");
+		sb.append("PASS:" + mem[IDX.PASS] + "\n");
+		sb.append("TAG:" + mem[IDX.TAG] + "\n");
+		sb.append("POSTURE:" + mem[IDX.POSTURE] + "\n");
+		sb.append(this.pro.toString() + "Last Rule: \n");
+		if (getLastRuleExe() != null)
+			sb.append(getLastRuleExe());
+		else
+			sb.append("none of this critter's "
+					+ "rule has been executed");
+		return sb.toString();
 	}
 }

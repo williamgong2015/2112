@@ -1,0 +1,4 @@
+name world
+size 6 7
+
+critter txt/MoveTest/critter.txt 2 2 0

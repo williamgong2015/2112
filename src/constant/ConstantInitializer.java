@@ -1,4 +1,4 @@
-package intial;
+package constant;
 
 /**
  * Read and initialize all the constant from a file

@@ -2,7 +2,7 @@ package testsA5;
 
 import java.io.IOException;
 
-import intial.Constant;
+import constant.Constant;
 
 public class TestConstant {
 

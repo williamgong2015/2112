@@ -7,7 +7,8 @@ import ast.ProgramImpl;
 import ast.Rule;
 import exceptions.SyntaxError;
 import interpret.Outcome;
-import intial.Constant;
+import constant.Constant;
+import constant.DIR;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import simulate.Critter;
@@ -16,7 +17,7 @@ import simulate.Food;
 import simulate.Position;
 import simulate.World;
 import util.Formula;
-
+import constant.IDX;
 /**
  * A executor have a Mediator to communicate to execute critter commands
  *
@@ -25,13 +26,15 @@ public class Executor {
 
 	private World w;
 	private Critter c;
+	ResultList resultList;
 	
 	public Executor(World world,Critter critter) {
 		w = world;
 		c = critter;
 	}
 	
-	public void execute(Outcome out) {
+	public ResultList execute(Outcome out) {
+		resultList = new ResultList();
 		for(String i : out) {
 			char ch = i.charAt(0);
 			int e;
@@ -40,7 +43,7 @@ public class Executor {
 				String[] temp = i.substring(1).split(",");
 				int e1 = Integer.parseInt(temp[0]);
 				int e2 = Integer.parseInt(temp[1]);
-				c.setMem(e1,e2);
+				critterUpdate(e1, e2);
 				break;
 			// serve
 			case 's':
@@ -79,15 +82,30 @@ public class Executor {
 					critterAttempToMate();
 			}
 		}
+		return resultList;
+	}
+	
+	/**
+	 * Execute the update of critter's memory
+	 * Check: mem[e1] is an assignable memory, e2 is within the allow boundary
+	 * @param e1
+	 * @param e2
+	 */
+	public void critterUpdate(int e1, int e2) {
+		if (e1 < 7 || e1 >= c.getMem(IDX.MEMLEN))
+			return;
+		if (e1 == 7 && (e2 > 99 || e2 < 0)) 
+			return;
+		c.setMem(e1, e2);
 	}
 	
 	/**
 	 * The critter in the mediator wait to absorb solar energy
+	 * 
+	 * Formula: increase energy = SOLAR_FLUX * SIZE 
 	 */
 	public void critterWait() {
-		mediator.increaseCritterEnergy(Constant.SOLAR_FLUX * 
-				c.getMem(3));
-		
+		c.increaseEnergy(Constant.SOLAR_FLUX * c.getMem(IDX.SIZE));
 	}
 	
 	/**
@@ -101,10 +119,9 @@ public class Executor {
 	 *         false otherwise
 	 */
 	public void critterMove(boolean forward) {
-		mediator.increaseCritterEnergy(-Constant.MOVE_COST * 
-				c.getMem(3));
+		c.increaseEnergy(-Constant.MOVE_COST * c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
 		Position lastPos = c.getPosition();
@@ -118,7 +135,7 @@ public class Executor {
 		// if the nextPos is empty, move the critter forward
 		if (e == null) {
 			// don't use delete critter
-			w.removeCritterAtPostion(lastPos);
+			w.removeElemAtPosition(lastPos);
 			w.setElemAtPosition(c, nextPos);
 		}
 	}
@@ -131,9 +148,9 @@ public class Executor {
 	 *                  false denotes turn right
 	 */
 	public void critterTurn(boolean left) {
-		mediator.increaseCritterEnergy(-c.getMem(3));
+		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
 		c.Turn(left);
@@ -147,21 +164,22 @@ public class Executor {
 	 * critter can absorb, the remaining food is left on the hex.
 	 */
 	private void critterEat() {
-		Element e = mediator.getElementAhead(1);
+		Element e = getElementAhead(c, w, 1);
 		if (e == null)
 			return;
 		if (e.getType().equals("FOOD")) {
-			int foodEnergy = mediator.elementDistinguisher(e);
-			int currentEnergy = c.getMem(4);
+			int foodEnergy = ((Food) e).getAmount();
+			int currentEnergy = c.getMem(IDX.ENERGY);
 			int maxEnergy = c.maxEnergy();
 			if (foodEnergy + currentEnergy > maxEnergy) {
-				c.setMem(4, maxEnergy);
+				c.setMem(IDX.ENERGY, maxEnergy);
 				((Food) e).setAmount(foodEnergy + currentEnergy - maxEnergy);
 			}
 			else {
-				c.setMem(4, foodEnergy + currentEnergy);
-				Position foodPos = mediator.getCritterFront();
-				w.removeCritterAtPostion(foodPos);
+				c.setMem(IDX.ENERGY, foodEnergy + currentEnergy);
+				Position foodPos = 
+						c.getPosition().getRelativePos(1, DIR.FRONT);
+				w.removeElemAtPosition(foodPos);
 			}
 		}
 	}
@@ -170,27 +188,33 @@ public class Executor {
 	 * A critter may convert some of its own energy into food added to the
 	 * hex in front of it, if that hex is either empty or already contains 
 	 * some food.
+	 * 
+	 * The critter still lose energy if the hex in front is occupied
 	 */
 	public void critterServe(int energyToServe) {
-		mediator.increaseCritterEnergy(-c.getMem(3));
+		c.increaseEnergy(-c.getMem(IDX.SIZE));
+		// the critter may die
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
-		Element e = mediator.getElementAhead(1);
-		int currentEnergy = c.getMem(4);
+		int currentEnergy = c.getMem(IDX.ENERGY);
 		if (energyToServe > currentEnergy)
 			energyToServe = currentEnergy;
+		c.setMem(IDX.ENERGY, currentEnergy - energyToServe);
+		Element e = getElementAhead(c, w, 1);
 		if (e == null) {
 			Food newFood = new Food(energyToServe);
-			mediator.setWorldElemAtPosition(newFood, 
-					mediator.getCritterFront());
+			w.setElemAtPosition(newFood, 
+					c.getPosition().getRelativePos(1, c.getDir()));
 		}
 		else if(e.getType().equals("FOOD")) {
-			int foodEnergy = mediator.elementDistinguisher(e);
+			int foodEnergy = ((Food) e).getAmount();
 			((Food) e).setAmount(foodEnergy + energyToServe);
 		}
-		c.setMem(4, currentEnergy - energyToServe);
+		// the critter may die
+		if (!c.stillAlive()) 
+			handleCritterDeath(c, w);
 	}
 	
 	
@@ -201,21 +225,22 @@ public class Executor {
 	 * of the victim.
 	 */
 	public void critterAttack() {
-		mediator.increaseCritterEnergy(-Constant.ATTACK_COST * 
-				c.getMem(3));
+		c.increaseEnergy(-Constant.ATTACK_COST * c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
-		Element e = mediator.getElementAhead(1);
+		Element e = getElementAhead(c, w, 1);
 		if (e == null || !e.getType().equals("CRITTER"))
 			return;
 		Critter victim = (Critter) e;
-		int damage = (int) (Constant.BASE_DAMAGE * c.getMem(3) *
+		int damage = (int) (Constant.BASE_DAMAGE * c.getMem(IDX.SIZE) *
 				Formula.logistic(Constant.DAMAGE_INC * 
-						(c.getMem(3) * mediator.getCritterMem(2)
-						- victim.getMem(3) * victim.getMem(1))));
-		victim.setMem(4, victim.getMem(4) - damage);
+					(c.getMem(IDX.SIZE) * c.getMem(IDX.OFFENSE)
+					- victim.getMem(IDX.SIZE) * victim.getMem(IDX.DEFENSE))));
+		victim.setMem(IDX.ENERGY, victim.getMem(IDX.ENERGY) - damage);
+		if (!victim.stillAlive())
+			this.handleCritterDeath(victim, w);
 	}
 	
 	/**
@@ -225,29 +250,29 @@ public class Executor {
 	 * Require: {@code v} is a valid tag value: 0 <= v <= 99
 	 */
 	public void critterTag(int v) {
-		mediator.increaseCritterEnergy(-c.getMem(3));
+		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
-		Element e = mediator.getElementAhead(1);
+		Element e = getElementAhead(c, w, 1);
 		if (e == null || !e.getType().equals("CRITTER"))
 			return;
 		Critter receiver = (Critter) e;
-		receiver.setMem(6, v);
+		receiver.setMem(IDX.TAG, v);
 	}
 	
 	/**
 	 * A critter may use energy to increase its size by one unit.
 	 */
 	public void critterGrow() {
-		mediator.increaseCritterEnergy(-Constant.GROW_COST * 
-				c.getMem(3) * c.getComplexity());
+		c.increaseEnergy(-Constant.GROW_COST * c.getMem(IDX.SIZE)
+				* c.getComplexity());
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
-		c.setMem(3, c.getMem(3) + 1);
+		c.setMem(IDX.SIZE, c.getMem(IDX.SIZE) + 1);
 	}
 	
 	/**
@@ -256,33 +281,35 @@ public class Executor {
 	 * random mutations).
 	 */
 	public void critterBud() {
-		mediator.increaseCritterEnergy(-Constant.BUD_COST * 
-				c.getComplexity());
+		c.increaseEnergy(-Constant.BUD_COST * c.getComplexity());
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
 		// the position after the critter has been occupied
-		if (mediator.getElementAhead(-1) != null)
+		if (getElementAhead(c, w, -1) != null)
 			return;
 		int[] mem = new int[c.getMem(0)];
-		mem[0] = c.getMem(0);
-		mem[1] = c.getMem(1);
-		mem[2] = c.getMem(2);
+		mem[IDX.MEMLEN] = c.getMem(IDX.MEMLEN);
+		mem[IDX.DEFENSE] = c.getMem(IDX.DEFENSE);
+		mem[IDX.OFFENSE] = c.getMem(IDX.OFFENSE);
 		mem[3] = 1;
-		mem[4] = Constant.INITIAL_ENERGY;
-		mem[5] = 1;
-		mem[6] = 0;
-		mem[7] = 0;
+		mem[IDX.ENERGY] = Constant.INITIAL_ENERGY;
+		mem[IDX.PASS] = 1;
+		mem[IDX.TAG] = 0;
+		mem[IDX.POSTURE] = 0;
 		for (int i = 8; i < mem.length; ++i) 
 			mem[i] = 0;
 		String name = "Child of " + c.getName();
 		ProgramImpl pro = c.getProgram();
-		pro.mutate();
+		// with 1 / CHANCE_OF_MUTATE possibility to mutate it rules
+		if (util.RandomGen.randomNumber(Constant.CHANCE_OF_MUTATE) == 0)
+			pro.mutate();
 		Critter newCritter = new Critter(mem, name, pro);
 		newCritter.setDir(util.RandomGen.randomNumber(6));
 		Position pos = c.getPosition().getRelativePos(1, 3);
-		w.addCritterAtPosition(newCritter, pos);
+		w.setElemAtPosition(newCritter, pos);
+		resultList.toInsert.add(newCritter);
 	}
 	
 	/**
@@ -295,12 +322,12 @@ public class Executor {
 	 * @throws SyntaxError 
 	 */
 	public void critterAttempToMate() {
-		mediator.increaseCritterEnergy(-c.getMem(3));
+		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
-			mediator.handleCritterDeath();
+			handleCritterDeath(c, w);
 			return;
 		}
-		Element e = mediator.getElementAhead(1);
+		Element e = getElementAhead(c, w, -1);
 		if (e == null || !e.getType().equals("CRITTER"))
 			return;
 		Critter cr = (Critter) e;
@@ -317,18 +344,18 @@ public class Executor {
 	 */
 	public void critterMate(Critter first, Critter second) {
 		// cost more energy than attempting mate if the mate would success
-		int energyBalanceFirst = first.getMem(3) - 
+		int energyBalanceFirst = first.getMem(IDX.SIZE) - 
 				Constant.MATE_COST * first.getComplexity();
-		int energyBalanceSecond = second.getMem(3) - 
+		int energyBalanceSecond = second.getMem(IDX.SIZE) - 
 				Constant.MATE_COST * second.getComplexity();
 		
 		// mate not succeed because one of the critter would die
-		if (first.getMem(4) <= energyBalanceFirst ||
-				second.getMem(4) <= energyBalanceSecond)
+		if (first.getMem(IDX.ENERGY) <= energyBalanceFirst ||
+				second.getMem(IDX.ENERGY) <= energyBalanceSecond)
 			return;
 			
-		first.setMem(4, first.getMem(4) + energyBalanceFirst);
-		second.setMem(4, first.getMem(4) + energyBalanceSecond);
+		first.setMem(IDX.ENERGY, first.getMem(IDX.ENERGY) + energyBalanceFirst);
+		second.setMem(IDX.ENERGY, first.getMem(IDX.ENERGY) + energyBalanceSecond);
 		
 		Position posToSet;
 		// mate not succeed mate because both position 
@@ -355,14 +382,14 @@ public class Executor {
 		// assume the new critter's memory length is inherit randomly chosen 
 		// from father and mother
 		int[] mem = new int[randomPickMem(first, second, 0)];
-		mem[0] = mem.length;
-		mem[1] = randomPickMem(first, second, 1);
-		mem[2] = randomPickMem(first, second, 2);
-		mem[3] = 1;
-		mem[4] = Constant.INITIAL_ENERGY;
-		mem[5] = 1;
-		mem[6] = 0;
-		mem[7] = 0;
+		mem[IDX.MEMLEN] = mem.length;
+		mem[IDX.DEFENSE] = randomPickMem(first, second, IDX.DEFENSE);
+		mem[IDX.OFFENSE] = randomPickMem(first, second, IDX.OFFENSE);
+		mem[IDX.SIZE] = 1;
+		mem[IDX.ENERGY] = Constant.INITIAL_ENERGY;
+		mem[IDX.PASS] = 1;
+		mem[IDX.TAG] = 0;
+		mem[IDX.POSTURE] = 0;
 		for (int i = 8; i < mem.length; ++i) 
 			mem[i] = 0;
 		String name = "Child of " + first.getName() + 
@@ -387,7 +414,8 @@ public class Executor {
 		}
 		Critter newCritter = new Critter(mem, name, pro);
 		newCritter.setDir(util.RandomGen.randomNumber(6));
-		w.addCritterAtPosition(newCritter, posToSet);
+		w.setElemAtPosition(newCritter, posToSet);
+		resultList.toInsert.add(newCritter);
 	}
 	
 	public String randomPickRule(ArrayList<Rule> r1, ArrayList<Rule> r2, 
@@ -408,6 +436,32 @@ public class Executor {
 		else
 			return second.getMem(index);
 	}
+	
+	/**
+	 * Turn dead critter into food
+	 */
+	public void handleCritterDeath(Critter critter, World world) {
+		Food food = new Food(critter.getMem(IDX.SIZE) * 
+				Constant.FOOD_PER_SIZE);
+		Position pos = critter.getPosition();
+		resultList.toDelete.add(critter);
+		world.setElemAtPosition(food, pos);
+	}
+	
+	/**
+	 * Get the element {@code val} steps in front of the critter
+	 * @param val step size
+	 * @return the element
+	 */
+	public Element getElementAhead(Critter critter, World world, int val) {
+		Position pos = critter.getPosition();
+		pos = pos.getRelativePos(val, critter.getDir());
+		Element e = world.getElemAtPosition(pos);
+		return e; 
+	}
+	
+	
+
 	
 	// TODO some more methods
 	//energy more than possible ,wait

@@ -1,0 +1,9 @@
+species: Critter
+memsize: 9
+defense: 1
+offense: 1
+size: 1
+energy: 500
+posture: 17
+// this critter keep trying to bud
+ahead[1] = -1 --> bud;

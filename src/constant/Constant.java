@@ -1,4 +1,4 @@
-package intial;
+package constant;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,16 +75,18 @@ public class Constant {
 	// Minimum number of memory entries in a critter
 	public static int MIN_MEMORY;
 
-	public final static int MAX_PASS = 999;
-
-
+	public final static int MAX_PASS = 999; 
+	public final static int INIT_PASS = 1; // all pass are initialized to 1
+	public final static int ORI_RANGE = 6; // the range of critter orientation 
+	public final static int INIT_SIZE = 1;
+	public final static int CHANCE_OF_MUTATE = 5; // 20% of mutate after bud
 	
 	/**
 	 * Initialize the constant dictionary with a constant.txt file
 	 * @throws IOException
 	 */
 	public static void init() throws IOException {
-		Scanner in = new Scanner(new File("example/constant.txt")); 
+		Scanner in = new Scanner(new File("txt/constant.txt")); 
 
 		while (in.hasNextLine()) {
 			String newConstant = in.nextLine();
@@ -165,6 +167,9 @@ public class Constant {
 				case "MIN_MEMORY": MIN_MEMORY = Integer.parseInt(token[1]);
 				bitmap |= 1 << 18;
 				break;
+				
+				default: 
+					break;
 			}
 		}
 		for (int i = 0; i < SIZE; ++i) {

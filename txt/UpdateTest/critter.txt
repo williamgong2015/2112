@@ -1,0 +1,18 @@
+species: CritterUpdateTest
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 100
+posture: 17
+// memory 0-6 shouldn't be update
+mem[8] = 0 --> mem[8] := mem[8] + 1 mem[0] := -1;
+mem[8] = 1 --> mem[8] := mem[8] + 1 mem[1] := -1;
+mem[8] = 2 --> mem[8] := mem[8] + 1 mem[2] := -1;
+mem[8] = 3 --> mem[8] := mem[8] + 1 mem[3] := -1;
+mem[8] = 4 --> mem[8] := mem[8] + 1 mem[4] := -1;
+mem[8] = 5 --> mem[8] := mem[8] + 1 mem[5] := -1;
+mem[8] = 6 --> mem[8] := mem[8] + 1 mem[6] := -1;
+mem[8] = 7 --> mem[8] := mem[8] + 1 mem[7] := 100;  // invalid value
+mem[8] = 8 --> mem[8] := mem[8] + 1 mem[7] := 10;
+mem[8] = 9 --> mem[8] := 0;

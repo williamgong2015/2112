@@ -134,7 +134,7 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 		else if(e.getType().equals("CRITTER"))
 			return ((Critter)e).appearance();
 		else if(e.getType().equals("FOOD"))
-			return -1 - ((Food)e).getEnergy();
+			return -1 - ((Food)e).getAmount();
 		return 0;
 	}
 }

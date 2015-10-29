@@ -101,20 +101,20 @@ public class InterpreterTest {
 	
 	
 	
-//	/**
-//	 * Test the interpreter can return proper outcome after interpret a 
-//	 * critter
-//	 * @throws SyntaxError 
-//	 * @throws IOException 
-//	 */
-//	@Test 
-//	public void testGetProperOutcome() throws IOException, SyntaxError {
-//		console.Console c = new console.Console();
-//		c.loadWorld("world.txt");
-//		c.loadCritters("critter1.txt", 1);
-//		System.out.println("world and critters have been load");
-//		c.worldInfo();
-//		c.advanceTime(1);
-//	}
+	/**
+	 * Test the interpreter can return proper outcome after interpret a 
+	 * critter
+	 * @throws SyntaxError 
+	 * @throws IOException 
+	 */
+	@Test 
+	public void testGetProperOutcome() throws IOException, SyntaxError {
+		console.Console c = new console.Console();
+		c.loadWorld("world.txt");
+		c.loadCritters("critter1.txt", 1);
+		System.out.println("world and critters have been load");
+		c.worldInfo();
+		c.advanceTime(1);
+	}
 
 }

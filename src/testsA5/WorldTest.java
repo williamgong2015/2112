@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import constant.Constant;
 import exceptions.SyntaxError;
-import intial.Constant;
 import simulate.Critter;
 import simulate.Food;
 import simulate.Position;
@@ -69,7 +69,6 @@ public class WorldTest {
 	public void blackBoxTest2() throws IOException, SyntaxError {
 		World w = new World(6,8,"test");
 		w.printCoordinatesASCIIMap();
-		Constant.init();
 		String file = "critter1.txt";
 		Critter c = new Critter(file);
 		c.setDir(5);

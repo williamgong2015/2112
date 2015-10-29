@@ -1,0 +1,9 @@
+species: Critter1
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 200
+posture: 17
+// always try to attack the critter in front of it 
+1 = 1 --> attack;

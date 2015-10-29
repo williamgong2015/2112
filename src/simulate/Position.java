@@ -14,6 +14,44 @@ public class Position {
 		column = c;
 	}
 	
+	/**
+	 * Randomly create a position with the boundary of world,
+	 * the world has a column boundary {@code cBound} and a 
+	 * row boundary {@code rBound}
+	 * 
+	 * @param cBound 
+	 * @param rBound
+	 */
+	public static Position getRandomPosition(int cBound, int rBound) {
+		if (cBound <= 0 || rBound <= 0) {
+			System.out.println("Can't get random position");
+			return null;
+		}
+		Position pos = new Position(util.RandomGen.randomNumber(cBound), 
+				util.RandomGen.randomNumber(rBound));
+		while (!checkPosition(pos, cBound, rBound)) {
+			pos = new Position(util.RandomGen.randomNumber(cBound), 
+					util.RandomGen.randomNumber(rBound));
+		}
+		return pos;
+	}
+	
+	/**
+	 * Check if the given position is within the given boundary
+	 * @param position the position to check
+	 * @param cBound the boundary of column
+	 * @param rBound the boundary of row
+	 * @return
+	 */
+	public static boolean checkPosition(Position position, int cBound, 
+			int rBound) {
+		int temp = position.getRow() * 2 - position.getColumn();
+		if(position.getRow() < 0 || position.getRow() >= rBound ||
+		   position.getColumn() < 0 || position.getColumn() >= cBound ||
+		   temp < 0 || temp >= 2 * rBound - cBound)
+		return false;
+		return true;
+	}
 	
 	/**
 	 * Coordinate transform between Cartesian coordinate and Hex coordinate

@@ -1,0 +1,6 @@
+name Tag world
+size 6 6
+
+// example_critter.txt should be in the working directory
+critter txt/TagTest/critter1.txt 2 1 0
+critter txt/TagTest/critter2.txt 2 2 1

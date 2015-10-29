@@ -1,0 +1,7 @@
+name world
+size 6 6
+
+rock 2 3 
+
+// example_critter.txt should be in the working directory
+critter txt/BudTest/critter.txt 2 2 0

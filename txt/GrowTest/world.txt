@@ -1,0 +1,5 @@
+name Tag world
+size 6 6
+
+// example_critter.txt should be in the working directory
+critter txt/GrowTest/critter.txt 2 1 0

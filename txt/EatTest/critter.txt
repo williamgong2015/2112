@@ -1,0 +1,10 @@
+species: CritterUpdateTest
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 100
+posture: 17
+// memory 0-6 shouldn't be update
+ahead[1] < 0 --> eat;
+1 = 1 --> forward;

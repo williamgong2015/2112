@@ -1,0 +1,10 @@
+species: CritterServeTest
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 100
+posture: 17
+ahead[1] < 0 and ahead[1] > -10 --> serve[10]; // if there is a food, serve it until it contains more than size 10 of energy
+ahead[1] = 0 --> serve[10]; // if there is nothing in front of the critter, serve it with size 10 of energy
+1 = 1 --> right;  // turn right if there has been enough food in front of the critter

@@ -1,6 +1,6 @@
 package simulate;
 
-import intial.Constant;
+import constant.Constant;
 
 /**
  * A food object in the world
@@ -17,13 +17,6 @@ public class Food extends Element {
 	}
 	
 	/**
-	 * @return the energy that this food contains
-	 */
-	public int getEnergy() {
-		return amount * Constant.FOOD_PER_SIZE;
-	}
-	
-	/**
 	 * @return the amount of this food
 	 */
 	public int getAmount() {
@@ -35,5 +28,19 @@ public class Food extends Element {
 	 */
 	public void setAmount(int a) {
 		amount = a;
+	}
+	
+	/**
+	 * Create a string representation of the food amount
+	 */
+	public String toString() {
+		return "Amount: " + amount;
+	}
+	
+	@Override
+	public boolean equals(Object that) {
+		if (!(that instanceof Food))
+			return false;
+		return ((Food) that).getAmount() == this.amount;
 	}
 }

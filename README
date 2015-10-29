@@ -1,3 +1,10 @@
+Specification:
+
+A5:
+1. When loading a world file, read and add elements into the world in sequence. For the ease of implementation, we would check if the position is occupied by the element already inserted, so the element previously inserted may be replaced by the element inserted later. 
+
+
+
 10/24/2015 Saturday:
 
 I impl interpreter and executor but doesn't have time to test them yet.
