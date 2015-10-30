@@ -164,6 +164,12 @@ public class Executor {
 	 * critter can absorb, the remaining food is left on the hex.
 	 */
 	private void critterEat() {
+		c.increaseEnergy(-c.getMem(IDX.SIZE));
+		// the critter may die
+		if (!c.stillAlive()) {
+			handleCritterDeath(c, w);
+			return;
+		}
 		Element e = getElementAhead(c, w, 1);
 		if (e == null)
 			return;
@@ -323,16 +329,18 @@ public class Executor {
 	 */
 	public void critterAttempToMate() {
 		c.increaseEnergy(-c.getMem(IDX.SIZE));
+		c.setWantToMate(true);
 		if (!c.stillAlive()) {
 			handleCritterDeath(c, w);
 			return;
 		}
-		Element e = getElementAhead(c, w, -1);
+		Element e = getElementAhead(c, w, 1);
 		if (e == null || !e.getType().equals("CRITTER"))
 			return;
 		Critter cr = (Critter) e;
-		cr.setWantToMate(true);
-		if (cr.getWantToMate()) 
+		// if the critter it is facing at want to mate
+		// and the critter is also facing at it, mate
+		if (cr.getWantToMate() && c.getDir() == cr.getInvDir()) 
 			critterMate(c, cr);
 	}
 	
@@ -350,35 +358,38 @@ public class Executor {
 				Constant.MATE_COST * second.getComplexity();
 		
 		// mate not succeed because one of the critter would die
-		if (first.getMem(IDX.ENERGY) <= energyBalanceFirst ||
-				second.getMem(IDX.ENERGY) <= energyBalanceSecond)
+		if (first.getMem(IDX.ENERGY) <= -energyBalanceFirst ||
+				second.getMem(IDX.ENERGY) <= -energyBalanceSecond)
 			return;
 			
-		first.setMem(IDX.ENERGY, first.getMem(IDX.ENERGY) + energyBalanceFirst);
-		second.setMem(IDX.ENERGY, first.getMem(IDX.ENERGY) + energyBalanceSecond);
-		
 		Position posToSet;
+		Position posAfterFirst = first.getPosition().
+							getRelativePos(1, first.getInvDir());
+		Position posAfterSecond = second.getPosition().
+							getRelativePos(1, second.getInvDir());
 		// mate not succeed mate because both position 
 		// after the critters are occupied
-		if (w.getElemAtPosition(
-				first.getPosition().getRelativePos(1, 3)) == null && 
-						w.getElemAtPosition(
-						second.getPosition().getRelativePos(1, 3)) == null)
+		if (w.getElemAtPosition(posAfterFirst) != null && 
+			w.getElemAtPosition(posAfterSecond) != null)
 			return;
+		
 		// get the position to place the new critter
-		else if (w.getElemAtPosition(
-				first.getPosition().getRelativePos(1, 3)) == null)
-			posToSet = second.getPosition().getRelativePos(1, 3);
-		else if (w.getElemAtPosition(
-						second.getPosition().getRelativePos(1, 3)) == null)
-			posToSet = first.getPosition().getRelativePos(1, 3);
+		else if (w.getElemAtPosition(posAfterFirst) != null)
+			posToSet = posAfterSecond;
+		else if (w.getElemAtPosition(posAfterSecond) != null)
+			posToSet = posAfterFirst;
 		else {
 			if (util.RandomGen.randomNumber(2) == 0)
-				posToSet = first.getPosition().getRelativePos(1, 3);
+				posToSet = posAfterFirst;
 			else
-				posToSet = second.getPosition().getRelativePos(1, 3);
+				posToSet = posAfterSecond;
 		}
-			
+		
+		// this mate will success, reduce the energy
+		first.setMem(IDX.ENERGY, first.getMem(IDX.ENERGY) + energyBalanceFirst);
+		second.setMem(IDX.ENERGY, second.getMem(IDX.ENERGY) + energyBalanceSecond);
+		
+		
 		// assume the new critter's memory length is inherit randomly chosen 
 		// from father and mother
 		int[] mem = new int[randomPickMem(first, second, 0)];
@@ -460,8 +471,6 @@ public class Executor {
 		return e; 
 	}
 	
-	
-
 	
 	// TODO some more methods
 	//energy more than possible ,wait

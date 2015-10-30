@@ -1,0 +1,8 @@
+name world
+size 50 60
+
+food 2 2 100
+food 5 3 100
+food 3 7 200
+
+critter txt/SpiralMoveTest/critter.txt 6 6 0

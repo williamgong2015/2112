@@ -1,0 +1,10 @@
+species: Critter 2
+memsize: 9
+defense: 1
+offense: 1
+size: 1
+energy: 500
+posture: 0
+// this critter won't want to mate in the first turn, it would want to mate starting from the second turn
+POSTURE < 10 --> POSTURE := 10 wait;
+1 = 1 --> mate;

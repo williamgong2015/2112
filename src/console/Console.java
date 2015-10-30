@@ -116,21 +116,9 @@ public class Console {
      * @throws SyntaxError 
      * @throws IOException 
      */
-    public void loadCritters(String filename, int n) throws IOException, SyntaxError {
-    	// check there are enough slot to put the critter 
-    	if (n > world.availableSlot())
-        	n = world.availableSlot();
-    	for(int i = 0;i < n;) {
-        	Critter c = new Critter(filename);
-        	int a = RandomGen.randomNumber(world.getRow());
-        	int b = RandomGen.randomNumber(world.getColumn());
-        	Position pos = new Position(b, a);
-        	if(world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
-        		world.setElemAtPosition(c, pos);
-        		world.addCritterToList(c);
-        		i++;
-        	}
-        }
+    public void loadCritters(String filename, int n) throws IOException, 
+    SyntaxError {
+    	Critter.loadCrittersIntoWorld(world, filename, n);
     }
 
     /**

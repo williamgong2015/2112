@@ -1,0 +1,26 @@
+species: CritterMoveTest
+memsize: 12
+defense: 2
+offense: 3
+size: 1
+energy: 500
+posture: 17
+
+ahead[1] < 0 --> eat;  
+
+// mem[8], mem[9], mem[10] are all 0 at the beginning
+// formula: forward + right + forward * n + (right + forward * n) * 5, then n++
+
+mem[8] = 0 --> mem[8] := -1 forward;
+
+mem[8] = -1 --> mem[8] := -2 mem[10] := mem[9] right;
+
+mem[8] = -2 and mem[10] > 0 --> mem[10] := mem[10] - 1 forward;
+
+mem[8] = -2 --> mem[10] := mem[9] + 1 mem[9] := mem[9] + 1 mem[8] := 5;
+
+mem[10] = mem[9] --> mem[10] := mem[10] - 1 right;
+
+mem[10] = 0 --> mem[10] := mem[9] mem[8] := mem[8] - 1 forward;
+
+1 = 1 --> mem[10] := mem[10] - 1 forward;

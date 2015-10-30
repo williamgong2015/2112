@@ -1,0 +1,9 @@
+name world
+size 6 7
+
+
+// example_critter.txt should be in the working directory
+
+// create two critter facing at each other
+critter txt/MateTest/critter1.txt 2 2 0
+critter txt/MateTest/critter2.txt 2 3 3

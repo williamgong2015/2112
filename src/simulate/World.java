@@ -127,7 +127,6 @@ public class World {
     		int column = Integer.parseInt(temp[1]);
     		int row = Integer.parseInt(temp[2]);
     		world = new World(column,row,name);
-    		System.out.println(name);
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
     				continue;
@@ -195,7 +194,7 @@ public class World {
 			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(c.getProgram());
-				System.out.println("Critter will: " + outcomes);
+//				System.out.println(c.getName() + " will: " + outcomes);
 				
 				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
 				if (outcomes.hasAction())
@@ -271,8 +270,8 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-		Element e = hexes.get(pos);
-		e.setPosition(null);
+//		Element e = hexes.get(pos);
+//		e.setPosition(null);
 		hexes.remove(pos);
 		return true;
 	}

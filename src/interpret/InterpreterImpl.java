@@ -35,16 +35,16 @@ public class InterpreterImpl implements Interpreter {
 		// finds the first rule in its list of rules whose condition is true
 		for (Rule r : pro.getChildren()) {
 			c.setLastRuleExe(r);
-			System.out.print("interpreting rule: ");
-			System.out.print(r.toString());
-			System.out.print("Result: ");
+//			System.out.print(c.getName() + " is interpreting rule: ");
+//			System.out.print(r.toString());
+//			System.out.print("Result: ");
 			if (this.eval(r.getCondition())) {
-				System.out.println("true \n");
+//				System.out.println("true \n");
 				result = eval(r.getCommand());
 				break;
 			}
-			else
-				System.out.println("false \n");
+//			else
+//				System.out.println("false \n");
 		}
 		// If no rule’s condition is true, the critter perform a wait
 		if (result == null)

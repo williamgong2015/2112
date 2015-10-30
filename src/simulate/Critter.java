@@ -11,6 +11,7 @@ import constant.Constant;
 import exceptions.SyntaxError;
 import parse.ParserImpl;
 import parse.Tokenizer;
+import util.RandomGen;
 import constant.IDX;
 /**
  * A critter object in the world, store the properties of the critter
@@ -94,6 +95,35 @@ public class Critter extends Element {
 		orientation = util.RandomGen.randomNumber(Constant.ORI_RANGE);
 		f.close();
 	}
+	
+	/**
+	 * Load a critter file, insert {@code n} number of critter created with 
+	 * the critter file {@code filename} into the world {@code world}
+	 * @param world
+	 * @param filename
+	 * @param n
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
+	public static void loadCrittersIntoWorld(World world, String filename, 
+			int n) throws IOException, SyntaxError {
+    	// check there are enough slot to put the critter 
+    	if (n > world.availableSlot())
+        	n = world.availableSlot();
+    	for(int i = 0;i < n;) {
+        	Critter c = new Critter(filename);
+        	int a = RandomGen.randomNumber(world.getRow());
+        	int b = RandomGen.randomNumber(world.getColumn());
+        	Position pos = new Position(b, a);
+        	if(world.checkPosition(pos) &&
+        			world.getElemAtPosition(pos) == null) {
+        		world.setElemAtPosition(c, pos);
+        		world.addCritterToList(c);
+        		i++;
+        	}
+        }
+    }
+	
 	/**
 	 * set the specified memory {@code mem[index]} to
 	 * specified value {@code val}, 
@@ -182,6 +212,14 @@ public class Critter extends Element {
 	public int getDir() {
 		return orientation;
 	}
+	
+	/**
+	 * @return inverse direction of the critter
+	 */
+	public int getInvDir() {
+		return (3 + orientation) % 6;
+	}
+	
 	/**
 	 * @return the calculated appearance of the critter
 	 */
