@@ -1,5 +1,5 @@
 species: critter2
-memsize: 3
+memsize: 9
 defense: 2
 offense: 3
 size: 1

@@ -6,9 +6,7 @@ import java.util.Scanner;
 
 import exceptions.SyntaxError;
 import simulate.Critter;
-import simulate.Position;
 import simulate.World;
-import util.RandomGen;
 
 /** The console user interface for Assignment 5. */
 public class Console {

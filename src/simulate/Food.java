@@ -1,6 +1,5 @@
 package simulate;
 
-import constant.Constant;
 import util.RandomGen;
 
 /**

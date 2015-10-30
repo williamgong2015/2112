@@ -45,6 +45,8 @@ public class Position {
 	 */
 	public static boolean checkPosition(Position position, int cBound, 
 			int rBound) {
+		if (position == null)
+			return false;
 		int temp = position.getRow() * 2 - position.getColumn();
 		if(position.getRow() < 0 || position.getRow() >= rBound ||
 		   position.getColumn() < 0 || position.getColumn() >= cBound ||

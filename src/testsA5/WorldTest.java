@@ -1,6 +1,5 @@
 package testsA5;
 
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 

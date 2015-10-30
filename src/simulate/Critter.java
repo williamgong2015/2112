@@ -15,8 +15,6 @@ import util.RandomGen;
 import constant.IDX;
 /**
  * A critter object in the world, store the properties of the critter
- * 
- * 
  */
 public class Critter extends Element {
 

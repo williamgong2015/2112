@@ -18,8 +18,9 @@ import simulate.Position;
 import simulate.World;
 import util.Formula;
 import constant.IDX;
+
 /**
- * A executor have a Mediator to communicate to execute critter commands
+ * A executor to execute a list of commands on the critter and world
  *
  */
 public class Executor {
@@ -429,6 +430,15 @@ public class Executor {
 		resultList.toInsert.add(newCritter);
 	}
 	
+	/**
+	 * Randomly pick the rule with index {@code index} from rule list 
+	 * {@code r1} or rule list {@code r2}
+	 * 
+	 * @param r1
+	 * @param r2
+	 * @param index
+	 * @return 
+	 */
 	public String randomPickRule(ArrayList<Rule> r1, ArrayList<Rule> r2, 
 			int index) {
 		if (r1.size() <= index)
@@ -440,7 +450,15 @@ public class Executor {
 		return r2.get(index).toString();
 	}
 	
-	
+	/**
+	 * Random pick a memory with index {@code index} from critter {@code first}
+	 * and critter {@code second}
+	 * 
+	 * @param first
+	 * @param second
+	 * @param index
+	 * @return
+	 */
 	public int randomPickMem(Critter first, Critter second, int index) {
 		if (util.RandomGen.randomNumber(2) == 0)
 			return first.getMem(index);
@@ -449,7 +467,11 @@ public class Executor {
 	}
 	
 	/**
-	 * Turn dead critter into food
+	 * Turn dead critter into food, delete it from the world 
+	 * add it to the list of critter need to be deleted,
+	 * these dead critters will be removed from the list that 
+	 * record the order of critters to take action after this turn
+	 * of the world
 	 */
 	public void handleCritterDeath(Critter critter, World world) {
 		Food food = new Food(critter.getMem(IDX.SIZE) * 

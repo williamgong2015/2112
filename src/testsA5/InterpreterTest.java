@@ -10,8 +10,10 @@ import org.junit.Test;
 import ast.Command;
 import ast.Condition;
 import ast.Expr;
+import ast.ProgramImpl;
 import exceptions.SyntaxError;
 import interpret.InterpreterImpl;
+import interpret.Outcome;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import simulate.Critter;
@@ -100,21 +102,27 @@ public class InterpreterTest {
 	}
 	
 	
-	
 	/**
-	 * Test the interpreter can return proper outcome after interpret a 
-	 * critter
+	 * Create a program by mutate it for a thousand times,
+	 * then interpret it with interpreter
 	 * @throws SyntaxError 
 	 * @throws IOException 
 	 */
 	@Test 
-	public void testGetProperOutcome() throws IOException, SyntaxError {
-		console.Console c = new console.Console();
-		c.loadWorld("world.txt");
-		c.loadCritters("critter1.txt", 1);
+	public void testMutatedThousandTimesRule() throws IOException, 
+	SyntaxError {
+		World world = new World();
+		Critter.loadCrittersIntoWorld(world, "example_critter.txt", 1);
+		Critter critter = world.order.get(0);
 		System.out.println("world and critters have been load");
-		c.worldInfo();
-		c.advanceTime(1);
+		InterpreterImpl in = new InterpreterImpl(world, critter);
+		ProgramImpl pro = critter.getProgram();
+		for (int i = 0; i < 1000; ++i) 
+			pro = (ProgramImpl) pro.mutate();
+		System.out.println(pro);
+		Outcome outcome = in.interpret(pro);
+		for (String s : outcome)
+			System.out.println(s);
 	}
 
 }

@@ -19,6 +19,8 @@ public class RandomGen {
 
 	/** @return a integer in [0..size) */
 	public static int randomNumber(int size) {
+		if (size <= 0)
+			return 0;
 		return rand.nextInt(size);
 	}
 	

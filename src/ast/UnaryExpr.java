@@ -98,6 +98,9 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 		t = (T) newType;
 	}
 
+	/**
+	 * Evaluate the expression and return a String as the result
+	 */
 	@Override
 	public String eval(Critter c,World w) {
 		UnaryExpr.T type = t;
