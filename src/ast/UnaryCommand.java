@@ -80,4 +80,9 @@ public class UnaryCommand extends Command implements UnaryOperation,
 		else
 			return "t" + ep;
 	}
+
+	@Override
+	public Node copy() {
+		return new UnaryCommand(e,t);
+	}
 }

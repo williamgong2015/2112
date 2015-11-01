@@ -155,5 +155,10 @@ public class BinaryCondition extends Condition implements BinaryOperation, Gener
 				return "false";
 		}
 	}
+
+	@Override
+	public Node copy() {
+		return new BinaryCondition(left,op,right);
+	}
 	
 }

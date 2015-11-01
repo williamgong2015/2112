@@ -151,4 +151,9 @@ public class BinaryExpr extends Expr implements BinaryOperation, GenericOperatio
 		}
 		return "0";
 	}
+
+	@Override
+	public Node copy() {
+		return new BinaryExpr(e1,e2,o);
+	}
 }

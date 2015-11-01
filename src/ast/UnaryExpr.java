@@ -140,4 +140,9 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 			return -1 - ((Food)e).getAmount();
 		return 0;
 	}
+
+	@Override
+	public Node copy() {
+		return new UnaryExpr(e,t);
+	}
 }

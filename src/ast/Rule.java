@@ -74,4 +74,9 @@ public class Rule extends MutableNode {
 	public String eval(Critter c, World w) {
 		return null;
 	}
+
+	@Override
+	public Node copy() {
+		return new Rule(con,com);
+	}
 }

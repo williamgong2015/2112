@@ -130,4 +130,9 @@ public class Relation extends Condition implements BinaryOperation,
 		}
 		return "false";
 	}
+
+	@Override
+	public Node copy() {
+		return new Relation(ep1,ep2,r);
+	}
 }

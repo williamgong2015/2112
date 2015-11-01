@@ -136,6 +136,11 @@ public class Commands extends Command implements Placeholder {
 			sb.append(act.eval(c, w));
 		return sb.toString();
 	}
+
+	@Override
+	public Node copy() {
+		return new Commands(up,act);
+	}
 	
 	
 

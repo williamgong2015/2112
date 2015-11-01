@@ -92,4 +92,9 @@ public class BinaryCommand extends Command implements BinaryOperation {
 	public String eval(Critter c,World w) {
 		return "u" + e1.eval(c, w) + "," + e2.eval(c, w);
 	}
+
+	@Override
+	public Node copy() {
+		return new BinaryCommand(e1,e2);
+	}
 }

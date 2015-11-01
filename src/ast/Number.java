@@ -46,4 +46,9 @@ public class Number extends Expr{
 	public String eval(Critter c,World w) {
 		return "" + val;
 	}
+
+	@Override
+	public Node copy() {
+		return new Number(val);
+	}
 }

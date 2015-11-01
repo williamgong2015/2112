@@ -13,6 +13,7 @@ public class NullaryCommand extends Command implements GenericOperation {
 	public NullaryCommand(TokenType s) {
 		a = s;
 	}
+	
 	@Override
 	public int size() {
 		return 1;
@@ -52,6 +53,10 @@ public class NullaryCommand extends Command implements GenericOperation {
 	@Override
 	public String eval(Critter c,World w) {
 		return a.toString();
+	}
+	@Override
+	public Node copy() {
+		return new NullaryCommand(a);
 	}
 	
 }
