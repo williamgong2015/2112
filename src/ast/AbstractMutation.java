@@ -1,9 +1,8 @@
 package ast;
 
 import java.io.StringReader;
-import java.util.LinkedHashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import parse.Tokenizer;
 
@@ -87,15 +86,10 @@ public abstract class AbstractMutation implements Mutation{
 			root = ((MutableNode) root).getParent();
 		// generate a random sequence of checking order to check all the nodes
 		int size = root.size();
-		Random rng = new Random(System.currentTimeMillis());
-		// Note: use LinkedHashSet to maintain insertion order
-		Set<Integer> generated = new LinkedHashSet<Integer>();
-		while (generated.size() < size)
-		{
-		    Integer next = rng.nextInt(size);
-		    // As we're adding to a set, this will automatically do a containment check
-		    generated.add(next);
-		}
+		ArrayList<Integer> generated = new ArrayList<Integer>();
+		for (int i = 0; i < size; ++i)
+			generated.add(i);
+		Collections.shuffle(generated);
 		for (Integer i : generated) {
 			if (root.nodeAt(i).toString().equals(n.toString()))
 				continue;
@@ -134,15 +128,10 @@ public abstract class AbstractMutation implements Mutation{
 			
 		// generate a random sequence of checking order to check all the nodes
 		int size = root.size();
-		Random rng = new Random();
-		// Note: use LinkedHashSet to maintain insertion order
-		Set<Integer> generated = new LinkedHashSet<Integer>();
-		while (generated.size() < size)
-		{
-		    Integer next = rng.nextInt(size);
-		    // As we're adding to a set, this will automatically do a containment check
-		    generated.add(next);
-		}
+		ArrayList<Integer> generated = new ArrayList<Integer>();
+		for (int i = 0; i < size; ++i)
+			generated.add(i);
+		Collections.shuffle(generated);
 		for (Integer i : generated) {
 			if (!root.nodeAt(i).toString().equals(n.toString()) && 
 				cls.isAssignableFrom(root.nodeAt(i).getClass()) &&
