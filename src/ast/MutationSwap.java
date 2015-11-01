@@ -1,5 +1,8 @@
 package ast;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * The order of two children of the node is switched. 
  * For example, this allows swapping the positions of two rules,
@@ -53,21 +56,21 @@ public class MutationSwap extends AbstractMutation {
 	@Override
 	public boolean mutate(ProgramImpl n) {
 		if (n.numOfChildren() > 1) {
-			int[] indexes = new int[2];
-			for (int i = 0; i < n.numOfChildren(); ++i) {
-				for (int j = i+1; j < n.numOfChildren(); ++j) {
-					indexes[0] = i;
-					indexes[1] = j;
-					// if the two rules are the same
-					if (n.getChild(indexes[0]).toString()
-							.equals(n.getChild(indexes[1]).toString()))
-						continue;
-					Node tmp = n.getChild(indexes[0]);
-					n.setChild(indexes[0], n.getChild(indexes[1]));
-					n.setChild(indexes[1], tmp);
-					return true;
-				}
-			}	
+			ArrayList<TwoIndexes> indexes = new ArrayList<>();
+			for (int i = 0; i < n.numOfChildren(); ++i) 
+				for (int j = i+1; j < n.numOfChildren(); ++j) 
+					indexes.add(new TwoIndexes(i,j));
+			Collections.shuffle(indexes);
+			for (TwoIndexes index : indexes) {
+				// if the two rules are the same
+				if (n.getChild(index.first).toString()
+						.equals(n.getChild(index.second).toString()))
+					continue;
+				Node tmp = n.getChild(index.first);
+				n.setChild(index.first, n.getChild(index.second));
+				n.setChild(index.second, tmp);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -77,21 +80,21 @@ public class MutationSwap extends AbstractMutation {
 	public boolean mutate(Commands n) {
 		int size = n.getUpdates().size();
 		if (size > 1) {
-			int[] indexes = new int[2];
-			for (int i = 0; i < size; ++i) {
-				for (int j = i+1; j < size; ++j) {
-					indexes[0] = i;
-					indexes[1] = j;
-					// if the two command are the same, the tree doesn't change
-					// try other swap
-					if (n.getChild(indexes[0]).toString()
-							.equals(n.getChild(indexes[1]).toString()))
-						continue;
-					Node tmp = n.getChild(indexes[0]);
-					n.setChild(indexes[0], n.getChild(indexes[1]));
-					n.setChild(indexes[1], tmp);
-					return true;
-				}
+			ArrayList<TwoIndexes> indexes = new ArrayList<>();
+			for (int i = 0; i < n.numOfChildren(); ++i) 
+				for (int j = i+1; j < n.numOfChildren(); ++j) 
+					indexes.add(new TwoIndexes(i,j));
+			Collections.shuffle(indexes);
+			for (TwoIndexes index : indexes) {
+				// if the two command are the same, the tree doesn't change
+				// try other swap
+				if (n.getChild(index.first).toString()
+						.equals(n.getChild(index.second).toString()))
+					continue;
+				Node tmp = n.getChild(index.first);
+				n.setChild(index.first, n.getChild(index.second));
+				n.setChild(index.second, tmp);
+				return true;
 			}
 		}
 		return false;
@@ -100,6 +103,16 @@ public class MutationSwap extends AbstractMutation {
 	@Override
 	public String getClassName() {
 		return "Swap";
+	}
+	
+	private class TwoIndexes {
+		int first;
+		int second;
+		
+		TwoIndexes(int i, int j) {
+			first = i;
+			second = j;
+		}
 	}
 	
 }

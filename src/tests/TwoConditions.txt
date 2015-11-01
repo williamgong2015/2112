@@ -1,5 +1,0 @@
-{ahead[1] != 1 or
- ahead[1] != 2} and
-ahead[1] != 0-1 --> attack;
-
-ahead[1] > 0 --> tag[1];

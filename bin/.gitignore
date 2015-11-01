@@ -1,12 +1,5 @@
-/console/
-/simulate/
-/execute/
-/executor/
-/testexecutor/
-/interpret/
 /testsA5/
-/ast/
-/intial/
-/constant/
-/parse/
 /util/
+/ast/
+/tests/
+/testsA4/

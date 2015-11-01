@@ -62,7 +62,6 @@ public class ExecutorTest {
 			assertTrue("memory " + i + " doesn't get initialized as expected",
 					c.getMem(i) == refMem[i]);
 	}
-//
 	/**
 	 * Test single critter MOVE forward and backward
 	 * @throws SyntaxError 
