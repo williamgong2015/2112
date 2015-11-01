@@ -20,4 +20,5 @@ public abstract class Command extends MutableNode{
 		}
 	}
 	
+	public abstract Command copy();
 }

@@ -75,8 +75,7 @@ public class Rule extends MutableNode {
 		return null;
 	}
 
-	@Override
-	public Node copy() {
-		return new Rule(con,com);
+	public Rule copy() {
+		return new Rule(con.copy(),com.copy());
 	}
 }

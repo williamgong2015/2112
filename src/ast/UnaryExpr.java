@@ -142,7 +142,7 @@ public class UnaryExpr extends Expr implements UnaryOperation,
 	}
 
 	@Override
-	public Node copy() {
-		return new UnaryExpr(e,t);
+	public UnaryExpr copy() {
+		return new UnaryExpr(e.copy(),t);
 	}
 }

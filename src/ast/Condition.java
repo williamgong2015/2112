@@ -16,5 +16,7 @@ public abstract class Condition extends MutableNode {
 			e.printStackTrace();
 			return null;
 		}
+		
 	}
+	public abstract Condition copy();
 }

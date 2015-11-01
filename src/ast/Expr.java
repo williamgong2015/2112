@@ -17,4 +17,6 @@ public abstract class Expr extends MutableNode {
 			return null;
 		}
 	}
+	
+	public abstract Expr copy();
 }

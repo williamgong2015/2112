@@ -47,8 +47,7 @@ public class Number extends Expr{
 		return "" + val;
 	}
 
-	@Override
-	public Node copy() {
+	public Number copy() {
 		return new Number(val);
 	}
 }

@@ -156,9 +156,8 @@ public class BinaryCondition extends Condition implements BinaryOperation, Gener
 		}
 	}
 
-	@Override
-	public Node copy() {
-		return new BinaryCondition(left,op,right);
+	public BinaryCondition copy() {
+		return new BinaryCondition(left.copy(),op,right.copy());
 	}
 	
 }

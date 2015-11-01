@@ -137,11 +137,11 @@ public class Commands extends Command implements Placeholder {
 		return sb.toString();
 	}
 
-	@Override
-	public Node copy() {
-		return new Commands(up,act);
+	public Commands copy() {
+		ArrayList<Command> newCopy = new ArrayList<Command>();
+		for(Command c : up) {
+			newCopy.add(c.copy());
+		}
+		return new Commands(newCopy,act.copy());
 	}
-	
-	
-
 }

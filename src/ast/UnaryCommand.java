@@ -81,8 +81,7 @@ public class UnaryCommand extends Command implements UnaryOperation,
 			return "t" + ep;
 	}
 
-	@Override
-	public Node copy() {
-		return new UnaryCommand(e,t);
+	public UnaryCommand copy() {
+		return new UnaryCommand(e.copy(),t);
 	}
 }

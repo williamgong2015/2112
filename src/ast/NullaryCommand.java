@@ -54,8 +54,8 @@ public class NullaryCommand extends Command implements GenericOperation {
 	public String eval(Critter c,World w) {
 		return a.toString();
 	}
-	@Override
-	public Node copy() {
+	
+	public NullaryCommand copy() {
 		return new NullaryCommand(a);
 	}
 	

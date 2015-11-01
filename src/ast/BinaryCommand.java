@@ -93,8 +93,7 @@ public class BinaryCommand extends Command implements BinaryOperation {
 		return "u" + e1.eval(c, w) + "," + e2.eval(c, w);
 	}
 
-	@Override
-	public Node copy() {
-		return new BinaryCommand(e1,e2);
+	public BinaryCommand copy() {
+		return new BinaryCommand(e1.copy(),e2.copy());
 	}
 }
