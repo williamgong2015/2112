@@ -224,18 +224,9 @@ public class ParserImpl implements Parser {
         	return ep;
         }
         if(temp.getType().equals(TokenType.LPAREN)) {
-        	int count = 0;
-        	while(t.peek().getType().equals(TokenType.LPAREN)) {
         	consume(t,TokenType.LPAREN);
-        	count++;
-        	}
         	Expr e = parseExpression(t);
-        	while(count > 0) {
-        		consume(t,TokenType.RPAREN);
-        		count--;
-        	}
-        	if(t.peek().getType().equals(TokenType.RPAREN))
-        		throw new SyntaxError();
+        	consume(t,TokenType.RPAREN);
         	Expr f = new UnaryExpr(e,UnaryExpr.T.paren);
         	e.setParent(f);
         	return f;
