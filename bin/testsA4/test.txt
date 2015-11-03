@@ -1,0 +1,3 @@
+{POSTURE != (POSTURE + 17) * -(ahead[3] +  5)} and//hello
+{ 17 < mem[1 *5] or 17 mod 5 = 3) —>
+POSTURE := 2 * POSTURE ENERGY :=  12 tag[3*5];

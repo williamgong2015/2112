@@ -1,0 +1,1 @@
+mem[mem[3] + 10] mod 6 <= 3 --> right;

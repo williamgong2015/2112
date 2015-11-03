@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <items>
+      <VBox fx:id="root_vbox">
+         <children>
+            <HBox fx:id="secondary_hbox">
+               <children>
+                  <MenuButton fx:id="newworld_manubutton" mnemonicParsing="false" text="New World">
+                    <items>
+                      <MenuItem fx:id="newworld_default_manuitem" mnemonicParsing="false" text="Default World" />
+                      <MenuItem fx:id="newworld_custom_manuitem" mnemonicParsing="false" text="Customized" />
+                    </items>
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </MenuButton>
+                  <Button fx:id="loadworld_button" mnemonicParsing="false" text="Load Critter">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="addcritter_button" mnemonicParsing="false" text="Add">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <TextField fx:id="critternum_textfield" minWidth="-Infinity" prefWidth="30.0">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="critters" wrappingWidth="40.84959411621094" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets left="3.0" top="2.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="12.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="insertcritter_button" mnemonicParsing="false" text="Insert Critter">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Simulation Speed:">
+                     <HBox.margin>
+                        <Insets left="10.0" top="3.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="11.0" />
+                     </font>
+                  </Text>
+                  <Slider fx:id="simulationspeed_slider" minHeight="-Infinity" minWidth="-Infinity" prefWidth="50.0">
+                     <HBox.margin>
+                        <Insets left="5.0" top="2.0" />
+                     </HBox.margin>
+                  </Slider>
+                  <Button fx:id="run_button" mnemonicParsing="false" text="Run">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="stop_button" mnemonicParsing="false" text="Stop">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="step_button" mnemonicParsing="false" text="Step">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+            <SplitPane fx:id="secondary_splitpane" dividerPositions="0.5" prefHeight="392.0" prefWidth="445.0" VBox.vgrow="ALWAYS">
+               <items>
+                  <VBox fx:id="thirdary_vbox" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <SplitPane fx:id="underthirdaryvbox_splitpane" dividerPositions="0.6763848396501457" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
+                          <items>
+                              <AnchorPane fx:id="worldframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <ScrollPane fx:id="worldframe_scrollpane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <Pane fx:id="world_pane" prefHeight="200.0" prefWidth="200.0" />
+                                       </content>
+                                    </ScrollPane>
+                                    <Slider fx:id="worldframe_slider" minHeight="100.0" opacity="0.5" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" />
+                                    <Label opacity="0.5" text="Zoom" AnchorPane.bottomAnchor="110.0" AnchorPane.rightAnchor="6.0">
+                                       <font>
+                                          <Font size="10.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </AnchorPane>
+                              <ScrollPane fx:id="critterinfoframe_scrollpane">
+                                 <content>
+                                    <AnchorPane fx:id="critterinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="World Info" />
+                                          <TextFlow fx:id="critterinfo_textflow" layoutY="22.0" minHeight="100.0" minWidth="100.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </ScrollPane>
+                          </items>
+                        </SplitPane>
+                     </children>
+                  </VBox>
+                  <ScrollPane fx:id="worldinfoframe_scrollpane" prefHeight="345.0" prefWidth="81.0">
+                     <content>
+                        <AnchorPane fx:id="worldinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Critter Info" />
+                              <TextFlow fx:id="worldinfo_textflow" layoutY="22.0" minHeight="100.0" minWidth="100.0" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+         </children>
+      </VBox>
+   </items>
+</SplitPane>

@@ -1,0 +1,14 @@
+// Hiarchy contained
+
+// 1. Program -> rules
+// 2. Rule -> Commands, Condition
+// 3. Commands -> BinaryCommand, UnaryCommand, NunaryCommand
+// 4. Expr -> BinaryExpr, UnaryExpr, Number
+// 5. Condtion -> BinaryCondition(or, and), Relation
+
+
+mem[5]=1 --> mem[6] := mem[4]
+             mem[5] := 2;
+
+mem[6] mod 1000 < 6 --> mem[5]:=1 
+                        eat;
