@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Controller">
    <items>
       <VBox fx:id="root_vbox">
          <children>
@@ -101,6 +101,14 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Button>
+                  <Button mnemonicParsing="false" text="Help">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
                </children>
             </HBox>
             <SplitPane fx:id="secondary_splitpane" dividerPositions="0.5" prefHeight="392.0" prefWidth="445.0" VBox.vgrow="ALWAYS">
@@ -116,8 +124,8 @@
                                           <Pane fx:id="world_pane" prefHeight="200.0" prefWidth="200.0" />
                                        </content>
                                     </ScrollPane>
-                                    <Slider fx:id="worldframe_slider" minHeight="100.0" opacity="0.5" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" />
-                                    <Label opacity="0.5" text="Zoom" AnchorPane.bottomAnchor="110.0" AnchorPane.rightAnchor="6.0">
+                                    <Slider fx:id="worldframe_slider" max="80.0" min="10.0" minHeight="100.0" opacity="0.5" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
+                                    <Label opacity="0.5" text="Zoom" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
                                        <font>
                                           <Font size="10.0" />
                                        </font>

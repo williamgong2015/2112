@@ -1,89 +1,71 @@
 package gui;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.Pane;
 
 /**
- * Actually not used yet
- * @author yuxin
+ * Control the zoom in and zoom out of world frame
  *
+ * Ref: http://hg.openjdk.java.net/openjfx/8u-dev/rt/file/36a59c629605
+ *      /apps/scenebuilder/samples/AirportApp/src/airportapp/Controller.java
  */
 public class Controller {
 
-	// root element
-	@FXML
-    private VBox root_vbox;
 	
-	// elements under root_vbox
-    @FXML
-    private HBox secondary_hbox;
-    @FXML
-    private SplitPane secondary_splitpane;
-    
-    // elements under secondary_hbox
-    @FXML
-    private MenuButton newworld_manubutton;
-    @FXML
-    private MenuItem newworld_default_manuitem;
-    @FXML
-    private MenuItem newworld_custom_manuitem;
-    @FXML
-    public Button loadworld_button;
-    @FXML
-    private Button addcritter_button;
-    @FXML
-    private TextField critternum_textfield;
-    @FXML
-    private Button insertcritter_button;
-    @FXML
-    private Slider simulationspeed_slider;
-    @FXML
-    private Button run_button;
-    @FXML
-    private Button stop_button;
-    @FXML
-    private Button step_button;
-    // elements under secondar_hbox end here
-    
-    // elements under secondary_splitpane
-    @FXML
-    private VBox thirdary_vbox;
-    @FXML
-    private ScrollPane worldinfoframe_scrollpane;
-    
-    // elements under thirdary_vbox
-    @FXML
-    private SplitPane underthirdaryvbox_splitpane;
-    @FXML
-    private AnchorPane worldframe_anchorpane;
-    @FXML
-    private ScrollPane worldframe_scrollpane;
-    @FXML 
+	@FXML 
     private Slider worldframe_slider;
     @FXML
-    private AnchorPane world_anchorpane;
+    private Pane world_pane;
     @FXML
-    private ScrollPane critterinfoframe_scrollpane;
-    @FXML
-    private AnchorPane critterinfoframe_anchorpane;
-    @FXML
-    private TextFlow critterinfo_textflow;
-    // elements under thirdary_vbox end here
+    private ScrollPane worldframe_scrollpane;
     
-    // elements under worldinfoframe_scrollpane
+    Group zoomGroup;
+    
+    private boolean assertLoaded(Node n, String name) {
+    	if (n == null) {
+    		System.out.println(name + " hasn't been loaded");
+    		return false;
+    	}
+    	return true;
+    }
+    
+
     @FXML
-    private AnchorPane worldinfoframe_anchorpane;
-    @FXML
-    private TextFlow worldinfo_textflow;
-    // elements under thirdary_scrollpane end here
+    void initialize() {
+        System.out.println("Controller has been initialized");
+        if (!assertLoaded(worldframe_slider, "worldframe_slider")) 
+        	return;
+        if (!assertLoaded(world_pane, "world_pane"))
+        	return;
+        if (!assertLoaded(worldframe_scrollpane, "worldframe_scrollpane"))
+        	return;
+        
+        // Wrap scroll content in a Group so ScrollPane re-computes scroll bars
+        Group contentGroup = new Group();
+        zoomGroup = new Group();
+        contentGroup.getChildren().add(zoomGroup);
+        zoomGroup.getChildren().add(worldframe_scrollpane.getContent());
+        worldframe_scrollpane.setContent(contentGroup);
+        
+        // TODO: may need to adjust the range and step size of the slider based 
+        //       on world size
+        worldframe_slider.setValue(30);
+        
+        worldframe_slider.valueProperty().addListener((o, oldVal, newVal) -> 
+        zoom((Double) newVal));
+    }
+    
+    private void zoom(double scaleValue) {
+          double scrollH = worldframe_scrollpane.getHvalue();
+          double scrollV = worldframe_scrollpane.getVvalue();
+          zoomGroup.setScaleX(scaleValue/10);
+          zoomGroup.setScaleY(scaleValue/10);
+          worldframe_scrollpane.setHvalue(scrollH);
+          worldframe_scrollpane.setVvalue(scrollV);
+      }
+
 }
