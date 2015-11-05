@@ -134,7 +134,8 @@ public class Critter extends Element {
         	Position pos = new Position(b, a);
         	if(world.checkPosition(pos) &&
         			world.getElemAtPosition(pos) == null) {
-        		result.add(new HexToUpdate(HEXType.CRITTER, pos, 0));
+        		result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, 
+        				c.getSize()));
         		world.setElemAtPosition(c, pos);
         		world.addCritterToList(c);
         		i++;
@@ -168,7 +169,7 @@ public class Critter extends Element {
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {
-			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0));
+			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, c.getSize()));
 			world.setElemAtPosition(c, pos);
     		world.addCritterToList(c);
 		}
@@ -210,6 +211,13 @@ public class Critter extends Element {
 		if (complexity == -1)
 			setComplexity();
 		return complexity;
+	}
+	
+	/**
+	 * @return the size of the critter
+	 */
+	public int getSize() {
+		return mem[IDX.SIZE];
 	}
 	
 	public void setWantToMate(boolean wantToMate) {

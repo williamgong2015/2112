@@ -31,6 +31,8 @@
     private Button stop_button;
     @FXML
     private Button step_button;
+    @FXML
+    private Button help_button;
     // elements under secondar_hbox end here
     
     // elements under secondary_splitpane

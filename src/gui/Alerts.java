@@ -4,7 +4,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 /**
- * Alerts show in GUI
+ * A bunch of alerts used in GUI to help user using this application.  
  *
  */
 public class Alerts {
@@ -74,6 +74,25 @@ public class Alerts {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("Hasn't select a legal hex to insert critter");
 		String s ="Please select an empty hex to insert critter";
+		alert.setContentText(s);
+		alert.show();
+    }
+    
+    /**
+     * Display instruction of how to use this app after user click help button
+     */
+    public static void alertDisplayHelpInfo() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("Welcome to the Critter World");
+		String s ="Click 'New World' Button to generate or load a new world.\n"
+				+ "Click 'Load Critter' Button to load a critter file.\n"
+				+ "Specify an amount. Then click 'Add' to add some critters.\n"
+				+ "Click a hex. Then click 'Insert' to insert critter at "
+				+ "that specific hex.\n"
+				+ "Click 'Run' to start simulation, you may adjust the "
+				+ "simulation speed using the slider.\n"
+				+ "Click 'Stop' to stop the simulation.\n"
+				+ "Click 'Step' to proceeed one step of the simulation.\n";
 		alert.setContentText(s);
 		alert.show();
     }

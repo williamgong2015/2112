@@ -72,7 +72,7 @@
                         <Font size="11.0" />
                      </font>
                   </Text>
-                  <Slider fx:id="simulationspeed_slider" minHeight="-Infinity" minWidth="-Infinity" prefWidth="50.0">
+                  <Slider fx:id="simulationspeed_slider" blockIncrement="1.0" max="30.0" min="1.0" minHeight="-Infinity" minWidth="-Infinity" prefWidth="50.0" value="1.0">
                      <HBox.margin>
                         <Insets left="5.0" top="2.0" />
                      </HBox.margin>
@@ -101,7 +101,7 @@
                         <Insets left="10.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" text="Help">
+                  <Button fx:id="help_button" mnemonicParsing="false" text="Help">
                      <font>
                         <Font size="10.0" />
                      </font>

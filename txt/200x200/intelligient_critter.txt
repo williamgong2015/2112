@@ -1,0 +1,18 @@
+species: attactive
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 500
+posture: 17
+
+ahead[1] > 0 --> attack;
+random[6] = 1 --> left;
+random[6] = 2 --> right;
+ahead[1] < -1 and ENERGY < 500 * SIZE --> eat;
+{ENERGY > SIZE * 400 and SIZE < 7} --> grow;
+nearby[3] = 0 and ENERGY > 2500 --> bud;
+ahead[1] = 0 --> forward;
+ahead[1] = 0 --> forward;
+ahead[1] = 0 --> forward;
+1 = 1 --> wait; // mostly soak up the rays

@@ -113,7 +113,7 @@ public class World {
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0));
+				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0));
 			}
 		}
 	}
@@ -146,7 +146,6 @@ public class World {
     				if (world.checkPosition(pos) && 
     						world.getElemAtPosition(pos) == null) {
     					world.setElemAtPosition(new Rock(), pos);
-    					world.hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0));
     				}
     			}
     			if(temp[0].equals("food")) {
@@ -155,7 +154,6 @@ public class World {
     				if (world.checkPosition(pos) && 
     						world.getElemAtPosition(pos) == null) {
 	    				world.setElemAtPosition(new Food(amount), pos);
-	    				world.hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0));
     				}
     			}
     			if(temp[0].equals("critter")) {
@@ -168,8 +166,6 @@ public class World {
     						world.getElemAtPosition(pos) == null) {
 	    				world.setElemAtPosition(c, pos);
 	    				world.addCritterToList(c);
-	    				world.hexToUpdate.add(
-	    						new HexToUpdate(HEXType.CRITTER, pos, 0));
     				}
     			}
     		}
@@ -230,7 +226,7 @@ public class World {
 				if (outcomes.hasAction())
 					hasAction = true;
 				
-				ResultList tmp = executor.execute(outcomes);
+				ResultList tmp = executor.execute(outcomes, hexToUpdate);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
 				for (Critter critter : tmp.toInsert)
@@ -239,7 +235,7 @@ public class World {
 			c.setMem(IDX.PASS, Constant.INIT_PASS);
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
-				executor.execute(new Outcome("wait"));
+				executor.execute(new Outcome("wait"), hexToUpdate);
 		}
 		
 		// remove the critter need to be delete and insert the critter need 
@@ -282,6 +278,21 @@ public class World {
 			return false;
 		if(hexes.get(pos) != null)
 			removeElemAtPosition(pos);
+		switch (elem.getType()) {
+			case "CRITTER":
+				hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, pos, 
+						((Critter)elem).getDir(), ((Critter)elem).getSize()));
+				break;
+			case "FOOD":
+				hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0, 0));
+				break;
+			case "ROCK":
+				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0));
+				break;
+			default:
+				System.out.println("can't resolve the type for update");
+				break;
+		}
 		elem.setPosition(pos);
 		hexes.put(pos, elem);
 		return true;
@@ -289,19 +300,21 @@ public class World {
 
 	
 	/**
-	 * Remove the element at the {@code pos} in the world
+	 * Remove the element at the {@code pos} in the world 
+	 * this remove affect both the underlying critter program and the 
+	 * GUI display of the world
 	 * @param pos the position to check
 	 * @return {@code false} if the position is out of the boundary, 
 	 *         {@code false} if there is no element at the {@code pos}
 	 *         {@code true} otherwise
+	 *
 	 */
 	public boolean removeElemAtPosition(Position pos) {
 		if (!checkPosition(pos))
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-//		Element e = hexes.get(pos);
-//		e.setPosition(null);
+		hexToUpdate.add(new HexToUpdate(HEXType.EMPTY, pos, 0, 0));
 		hexes.remove(pos);
 		return true;
 	}

@@ -11,7 +11,8 @@ import javafx.scene.shape.StrokeType;
 
 
 /**
- * A hex pane placed in the world 
+ * A hex Polygon placed in the world that has an id, and location,
+ * critters/foods/rocks are draw inside of it using ImagePattern
  *
  */
 public class Hex extends Polygon {
@@ -37,12 +38,7 @@ public class Hex extends Polygon {
 		public static final double HEX_SIZE = 30;
 		private static final double SQRT_THREE = Math.sqrt(3);
 		
-		private final Image critterImg = 
-				new Image(getClass().getResource("Critter.png").toExternalForm());
-		private final Image rockImg = 
-				new Image(getClass().getResource("Rock.png").toExternalForm());
-		private final Image foodImg = 
-				new Image(getClass().getResource("Food.png").toExternalForm());
+
 		
 		public Hex(int column, int row, int worldRow) {
 			this.loc = new HexLocation(row, column, worldRow, HEX_SIZE);
@@ -126,8 +122,36 @@ public class Hex extends Polygon {
 		 *              all other number are illegal and will set the critter
 		 *              to facing up
 		 */
-		public void setCritter(int dir) {
-			this.setFill(new ImagePattern(critterImg));
+		public void setCritter(int dir, int size) {
+			if (size <= 0)
+				this.setFill(new ImagePattern(Resource.critterImgS1));
+			else if (size >7)
+				this.setFill(new ImagePattern(Resource.critterImgS7));
+			else {
+				switch(size) {
+				case 1:
+					this.setFill(new ImagePattern(Resource.critterImgS1));
+					break;
+				case 2:
+					this.setFill(new ImagePattern(Resource.critterImgS2));
+					break;
+				case 3:
+					this.setFill(new ImagePattern(Resource.critterImgS3));
+					break;
+				case 4:
+					this.setFill(new ImagePattern(Resource.critterImgS4));
+					break;
+				case 5:
+					this.setFill(new ImagePattern(Resource.critterImgS5));
+					break;
+				case 6:
+					this.setFill(new ImagePattern(Resource.critterImgS6));
+					break;
+				case 7:
+					this.setFill(new ImagePattern(Resource.critterImgS7));
+					break;
+				}
+			}
 			if (dir <= 5 && dir >= 0)
 				this.setRotate(60 * dir);
 			else
@@ -138,14 +162,21 @@ public class Hex extends Polygon {
 		 * Set a food image into this hex
 		 */
 		public void setFood() {
-			this.setFill(new ImagePattern(foodImg));
+			this.setFill(new ImagePattern(Resource.foodImg));
 		}
 		
 		/**
 		 * Set a rock image into this hex
 		 */
 		public void setRock() {
-			this.setFill(new ImagePattern(rockImg));
+			this.setFill(new ImagePattern(Resource.rockImg));
+		}
+		
+		/**
+		 * Set the hex to become empty
+		 */
+		public void setEmpty() {
+			this.setFill(Color.WHITE);
 		}
 	
 }

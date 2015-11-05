@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import ast.ProgramImpl;
 import ast.Rule;
 import exceptions.SyntaxError;
+import gui.HexToUpdate;
+import gui.HexToUpdate.HEXType;
 import interpret.Outcome;
 import constant.Constant;
 import constant.DIR;
@@ -34,7 +36,17 @@ public class Executor {
 		c = critter;
 	}
 	
-	public ResultList execute(Outcome out) {
+	/**
+	 * Execute the data update of the world, and add GUI related to the 
+	 * size change of critters and turning of the critters. (Other GUI updates
+	 * has been handled in {@code setElemAtPosition} and 
+	 * {@code removeElemAtPosition} in {@code World} class
+	 * @param out
+	 * @param hexToUpdate
+	 * @return
+	 */
+	public ResultList execute(Outcome out, 
+			ArrayList<HexToUpdate> hexToUpdate) {
 		resultList = new ResultList();
 		for(String i : out) {
 			char ch = i.charAt(0);
@@ -68,15 +80,15 @@ public class Executor {
 				else if (i.equals("backward"))
 					critterMove(false);
 				else if (i.equals("left"))
-					critterTurn(true);
+					critterTurn(true, hexToUpdate);
 				else if (i.equals("right"))
-					critterTurn(false);
+					critterTurn(false, hexToUpdate);
 				else if (i.equals("eat"))
 					critterEat();
 				else if (i.equals("attack"))
 					critterAttack();
 				else if (i.equals("grow"))
-					critterGrow();
+					critterGrow(hexToUpdate);
 				else if (i.equals("bud"))
 					critterBud();
 				else if (i.equals("mate"))
@@ -147,14 +159,19 @@ public class Executor {
 	 * equals to the critter's size
 	 * @param direction true denotes turn left, 
 	 *                  false denotes turn right
+	 * @param hexToUpdate - a list of updates need to be executed
+	 *                      in GUI world
 	 */
-	public void critterTurn(boolean left) {
+	public void critterTurn(boolean left, 
+			ArrayList<HexToUpdate> hexToUpdate) {
 		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
 			handleCritterDeath(c, w);
 			return;
 		}
 		c.Turn(left);
+		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
+				c.getDir(), c.getSize()));
 	}
 
 	
@@ -272,7 +289,7 @@ public class Executor {
 	/**
 	 * A critter may use energy to increase its size by one unit.
 	 */
-	public void critterGrow() {
+	public void critterGrow(ArrayList<HexToUpdate> hexToUpdate) {
 		c.increaseEnergy(-Constant.GROW_COST * c.getMem(IDX.SIZE)
 				* c.getComplexity());
 		if (!c.stillAlive()) {
@@ -280,6 +297,8 @@ public class Executor {
 			return;
 		}
 		c.setMem(IDX.SIZE, c.getMem(IDX.SIZE) + 1);
+		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
+				c.getDir(), c.getSize()));
 	}
 	
 	/**

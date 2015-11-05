@@ -11,8 +11,9 @@ import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
 
 /**
- * Control the zoom in and zoom out of world frame
- *
+ * Implementation of controller methods that interact with the view but doesn't
+ * need to interact with the underlying data of critter program. 
+ * 
  * Ref: http://hg.openjdk.java.net/openjfx/8u-dev/rt/file/36a59c629605
  *      /apps/scenebuilder/samples/AirportApp/src/airportapp/Controller.java
  */

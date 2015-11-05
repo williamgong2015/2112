@@ -10,5 +10,9 @@ public class Rock extends Element {
 		super("ROCK");
 	}
 	
+	public String toString() {
+		return "this is a rock";
+	}
+	
 
 }
