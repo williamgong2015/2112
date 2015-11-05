@@ -10,6 +10,8 @@ import constant.Constant;
 import constant.IDX;
 import execute.Executor;
 import execute.ResultList;
+import gui.HexToUpdate;
+import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
 import util.RandomGen;
@@ -44,6 +46,8 @@ public class World {
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order;
 	
+	// record the change of state in each turn
+	private ArrayList<HexToUpdate> hexToUpdate;
 	
 	
 	/**
@@ -101,6 +105,7 @@ public class World {
 		turns = 0;
 		name = "Default World";
 		order = new ArrayList<Critter>();
+		hexToUpdate = new ArrayList<>();
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); i++) {
 			int a = Math.abs(RandomGen.randomNumber(row));
@@ -108,6 +113,7 @@ public class World {
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
+				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0));
 			}
 		}
 	}
@@ -115,10 +121,10 @@ public class World {
 	/**
 	 * Create and return a world with a world file
 	 */
-	public static World loadWorld(String filename) {
+	public static World loadWorld(File filename) {
 		World world;
     	try{
-    		FileReader r = new FileReader(new File(filename));
+    		FileReader r = new FileReader(filename);
 			BufferedReader br = new BufferedReader(r);
     		String s = br.readLine();
     		String name = s.substring(5);
@@ -127,6 +133,7 @@ public class World {
     		int column = Integer.parseInt(temp[1]);
     		int row = Integer.parseInt(temp[2]);
     		world = new World(column,row,name);
+    		world.hexToUpdate = new ArrayList<>();
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
     				continue;
@@ -136,12 +143,20 @@ public class World {
     			Position pos;
     			if(temp[0].equals("rock")) {
     				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
-    				world.setElemAtPosition(new Rock(), pos);
+    				if (world.checkPosition(pos) && 
+    						world.getElemAtPosition(pos) == null) {
+    					world.setElemAtPosition(new Rock(), pos);
+    					world.hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0));
+    				}
     			}
     			if(temp[0].equals("food")) {
     				int amount = Integer.parseInt(temp[3]);
     				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
-    				world.setElemAtPosition(new Food(amount), pos);
+    				if (world.checkPosition(pos) && 
+    						world.getElemAtPosition(pos) == null) {
+	    				world.setElemAtPosition(new Food(amount), pos);
+	    				world.hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0));
+    				}
     			}
     			if(temp[0].equals("critter")) {
     				String file = temp[1];
@@ -149,9 +164,12 @@ public class World {
     				int dir = Integer.parseInt(temp[4]);
     				Critter c = new Critter(file);
     				c.setDir(dir);
-    				if (world.checkPosition(pos) && world.getElemAtPosition(pos) == null) {
+    				if (world.checkPosition(pos) && 
+    						world.getElemAtPosition(pos) == null) {
 	    				world.setElemAtPosition(c, pos);
 	    				world.addCritterToList(c);
+	    				world.hexToUpdate.add(
+	    						new HexToUpdate(HEXType.CRITTER, pos, 0));
     				}
     			}
     		}
@@ -165,11 +183,22 @@ public class World {
     	
     }
 	
+	public static World loadWorld(String filename) {
+		return loadWorld(new File(filename));
+	}
+	
 	/**
 	 * add a critter to the arraylist
 	 */
 	public void addCritterToList(Critter c) {
 		order.add(c);
+	}
+	
+	/**
+	 * @return all the update to hex should be enforced after this turn
+	 */
+	public ArrayList<HexToUpdate> getHexToUpdate() {
+		return hexToUpdate;
 	}
 	
 	
@@ -180,6 +209,7 @@ public class World {
 	public void lapse() {
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
+		hexToUpdate = new ArrayList<>();
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
 		int i = 0;
@@ -425,5 +455,16 @@ public class World {
 	 */
 	public int availableSlot() {
 		return size - hexes.size();
+	}
+	
+	/**
+	 * For GUI, return a string to inform user how many turn the world has
+	 * step through and how many critter are alive in the world
+	 * @return
+	 */
+	public String getWorldInfo() {
+		return "The world has step " + turns + " turns.\n" 
+				+ "There are " + order.size() + " critters living "
+						+ "in this world";
 	}
 }

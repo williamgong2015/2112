@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="656.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Controller">
+<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Controller">
    <items>
       <VBox fx:id="root_vbox">
          <children>
@@ -23,7 +23,7 @@
                         <Font size="10.0" />
                      </font>
                   </MenuButton>
-                  <Button fx:id="loadworld_button" mnemonicParsing="false" text="Load Critter">
+                  <Button fx:id="loadcritter_button" mnemonicParsing="false" text="Load Critter">
                      <font>
                         <Font size="10.0" />
                      </font>
@@ -111,11 +111,11 @@
                   </Button>
                </children>
             </HBox>
-            <SplitPane fx:id="secondary_splitpane" dividerPositions="0.5" prefHeight="392.0" prefWidth="445.0" VBox.vgrow="ALWAYS">
+            <SplitPane fx:id="secondary_splitpane" dividerPositions="0.7688442211055276" prefHeight="392.0" prefWidth="445.0" VBox.vgrow="ALWAYS">
                <items>
                   <VBox fx:id="thirdary_vbox" prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <SplitPane fx:id="underthirdaryvbox_splitpane" dividerPositions="0.6763848396501457" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" VBox.vgrow="ALWAYS">
+                        <SplitPane fx:id="underthirdaryvbox_splitpane" dividerPositions="0.7636022514071295" orientation="VERTICAL" prefHeight="535.0" prefWidth="607.0" VBox.vgrow="ALWAYS">
                           <items>
                               <AnchorPane fx:id="worldframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
                                  <children>
@@ -124,8 +124,8 @@
                                           <Pane fx:id="world_pane" prefHeight="200.0" prefWidth="200.0" />
                                        </content>
                                     </ScrollPane>
-                                    <Slider fx:id="worldframe_slider" max="80.0" min="10.0" minHeight="100.0" opacity="0.5" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
-                                    <Label opacity="0.5" text="Zoom" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
+                                    <Slider fx:id="worldframe_slider" blockIncrement="1.0" max="20.0" min="1.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" value="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
+                                    <Label text="Zoom" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
                                        <font>
                                           <Font size="10.0" />
                                        </font>
@@ -137,7 +137,7 @@
                                     <AnchorPane fx:id="critterinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
                                        <children>
                                           <Label text="World Info" />
-                                          <TextFlow fx:id="critterinfo_textflow" layoutY="22.0" minHeight="100.0" minWidth="100.0" />
+                                          <Label fx:id="worldinfodetails_label" layoutY="16.0" />
                                        </children>
                                     </AnchorPane>
                                  </content>
@@ -151,7 +151,7 @@
                         <AnchorPane fx:id="worldinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
                            <children>
                               <Label text="Critter Info" />
-                              <TextFlow fx:id="worldinfo_textflow" layoutY="22.0" minHeight="100.0" minWidth="100.0" />
+                              <Label fx:id="critterinfodetails_label" layoutY="16.0" />
                            </children>
                         </AnchorPane>
                      </content>

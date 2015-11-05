@@ -1,10 +1,13 @@
 package gui;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
+import javafx.scene.control.SplitPane;
+import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
 
 /**
@@ -50,10 +53,14 @@ public class Controller {
         contentGroup.getChildren().add(zoomGroup);
         zoomGroup.getChildren().add(worldframe_scrollpane.getContent());
         worldframe_scrollpane.setContent(contentGroup);
-        
-        // TODO: may need to adjust the range and step size of the slider based 
-        //       on world size
-        worldframe_slider.setValue(30);
+        worldframe_slider.setValue(10);
+        world_pane.setOnZoom(new EventHandler<ZoomEvent>() {
+        	@Override 
+        	public void handle(ZoomEvent t) { 
+        		worldframe_slider.setValue(t.getZoomFactor() * 
+        				worldframe_slider.getValue()); 
+        	} 
+        });
         
         worldframe_slider.valueProperty().addListener((o, oldVal, newVal) -> 
         zoom((Double) newVal));

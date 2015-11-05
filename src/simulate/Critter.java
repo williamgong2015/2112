@@ -4,11 +4,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ast.ProgramImpl;
 import ast.Rule;
 import constant.Constant;
 import exceptions.SyntaxError;
+import gui.Hex;
+import gui.HexLocation;
+import gui.HexToUpdate;
+import gui.HexToUpdate.HEXType;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import util.RandomGen;
@@ -54,9 +59,9 @@ public class Critter extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public Critter(String file) throws IOException, SyntaxError {
+	public Critter(File file) throws IOException, SyntaxError {
 		super("CRITTER");
-		FileReader f = new FileReader(new File(file));
+		FileReader f = new FileReader(file);
 		BufferedReader br = new BufferedReader(f);
 		String n = br.readLine();
 		int i = 0;
@@ -95,6 +100,17 @@ public class Critter extends Element {
 	}
 	
 	/**
+	 * Create a new Critter object by reading a critter file, 
+	 * randomly set the {@code orientation} of the critter 
+	 * @param file
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
+	public Critter(String file) throws IOException, SyntaxError {
+		this(new File(file));
+	}
+	
+	/**
 	 * Load a critter file, insert {@code n} number of critter created with 
 	 * the critter file {@code filename} into the world {@code world}
 	 * @param world
@@ -102,9 +118,12 @@ public class Critter extends Element {
 	 * @param n
 	 * @throws IOException
 	 * @throws SyntaxError
+	 * @return an array of Position the critter are inserted into
 	 */
-	public static void loadCrittersIntoWorld(World world, String filename, 
+	public static ArrayList<HexToUpdate> 
+	loadCrittersIntoWorld(World world, File filename, 
 			int n) throws IOException, SyntaxError {
+		ArrayList<HexToUpdate> result = new ArrayList<>();
     	// check there are enough slot to put the critter 
     	if (n > world.availableSlot())
         	n = world.availableSlot();
@@ -115,12 +134,47 @@ public class Critter extends Element {
         	Position pos = new Position(b, a);
         	if(world.checkPosition(pos) &&
         			world.getElemAtPosition(pos) == null) {
+        		result.add(new HexToUpdate(HEXType.CRITTER, pos, 0));
         		world.setElemAtPosition(c, pos);
         		world.addCritterToList(c);
         		i++;
         	}
         }
+    	return result;
     }
+	
+	
+	public static ArrayList<HexToUpdate> 
+	loadCrittersIntoWorld(World world, String filename, 
+			int n) throws IOException, SyntaxError {
+		return loadCrittersIntoWorld(world, new File(filename), n);
+	}
+	
+	/**
+	 * Insert a critter to a specified location into the world
+	 * @param world
+	 * @param filename
+	 * @param column
+	 * @param row
+	 * @return true if the insertion succeed
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
+	public static ArrayList<HexToUpdate> 
+	insertCritterIntoWorld(World world, File filename,
+			int column, int row) throws IOException, SyntaxError {
+		ArrayList<HexToUpdate> result = new ArrayList<>();
+		Critter c = new Critter(filename);
+		Position pos = new Position(column, row);
+		if(world.checkPosition(pos) &&
+    			world.getElemAtPosition(pos) == null) {
+			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0));
+			world.setElemAtPosition(c, pos);
+    		world.addCritterToList(c);
+		}
+		return result;
+	}
+	
 	
 	/**
 	 * set the specified memory {@code mem[index]} to
