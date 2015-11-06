@@ -6,7 +6,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
-import javafx.scene.control.SplitPane;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.Pane;
 
