@@ -53,6 +53,15 @@ public class Main extends Application {
     private int worldCol;
     private int worldRow;
     private double intialStepsPerSecond = 1;
+    
+    // - if the speed <= 30, each cycle lapse the world, draw the world, 
+    //   so counterWorldLapse = counterWorldDraw
+    // - if the speed > 30, each cycle lapse the world but 
+    //   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
+    //   and have counterWorldDraw++ after drawing the world
+    private double speed;
+    private int counterWorldLapse;
+    private int counterWorldDraw;
     Timeline timeline;
 	
     @Override
@@ -157,8 +166,10 @@ public class Main extends Application {
     		timeline.play();
     }
     
-    
     private KeyFrame getWorldSimulationKeyFrame(double stepsPerSecond) {
+    	speed = stepsPerSecond;
+    	counterWorldLapse = 0;
+    	counterWorldDraw = 0;
     	KeyValue tmp = null;
     	return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
     			"world lapse",
@@ -198,8 +209,29 @@ public class Main extends Application {
      * Have the underlying world proceed for one turn and update the GUI
      */
     private void worldStepAhead() {
+//    	System.out.println("Speed: " + speed);
+//    	System.out.println("World Lapse: " + counterWorldLapse);
+//    	System.out.println("World Draw: " + counterWorldDraw);
+		// no need to bother with the counter if speed <= 30
+		// because always lapse and draw the world at the same time
+    	if (speed <= 30) {
+	    	world.lapse();
+	    	executeHexUpdate(world.getHexToUpdate());
+	    	return;
+    	} 
+    	// detect overflow, lose a little precision of interval here
+    	if (counterWorldLapse == Integer.MAX_VALUE) {
+    		world.lapse();
+    		counterWorldLapse = 0;
+    		counterWorldDraw = 0;
+    		return;
+    	}
     	world.lapse();
-    	executeHexUpdate(world.getHexToUpdate());
+    	counterWorldLapse++;
+    	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
+    		executeHexUpdate(world.getHexToUpdate());
+    		counterWorldDraw++;
+    	}
     }
     
     /**

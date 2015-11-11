@@ -72,7 +72,7 @@
                         <Font size="11.0" />
                      </font>
                   </Text>
-                  <Slider fx:id="simulationspeed_slider" blockIncrement="1.0" max="30.0" min="1.0" minHeight="-Infinity" minWidth="-Infinity" prefWidth="50.0" value="1.0">
+                  <Slider fx:id="simulationspeed_slider" blockIncrement="1.0" max="120.0" minHeight="-Infinity" minWidth="-Infinity" prefWidth="50.0" value="1.0">
                      <HBox.margin>
                         <Insets left="5.0" top="2.0" />
                      </HBox.margin>

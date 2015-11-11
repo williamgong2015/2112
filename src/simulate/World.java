@@ -194,7 +194,9 @@ public class World {
 	 * @return all the update to hex should be enforced after this turn
 	 */
 	public ArrayList<HexToUpdate> getHexToUpdate() {
-		return hexToUpdate;
+		ArrayList<HexToUpdate> tmp = hexToUpdate;
+		hexToUpdate = new ArrayList<>();
+		return tmp;
 	}
 	
 	
@@ -205,7 +207,6 @@ public class World {
 	public void lapse() {
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
-		hexToUpdate = new ArrayList<>();
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
 		int i = 0;
