@@ -4,7 +4,6 @@ package gui;
 
 import java.util.ArrayList;
 
-import javafx.scene.paint.Color;
 
 /**
  * A hex Polygon placed in the world that has an id, and location,
@@ -19,17 +18,10 @@ public class NewHex {
 	private final HexLocation loc;
 	// 6 points that define the boundary of the hex
 	// each point need two double number to represent it
+	public final Point[] points;
+	public final Point centroid;
 	public final double[] xPoints;
 	public final double[] yPoints;
-	private final String ID;
-
-	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
-	private static final Color HOVER_STROCK_COLOR = Color.web("#3AD53A");
-	private static final Color SELECTED_STROCK_COLOR = Color.RED;
-	private static final double DEFAULT_STROCK_WIDTH = 1.0;
-	private static final double HOVER_STROCK_WIDTH = 3.0;
-	private static final double SELECTED_STROCK_WIDTH = 5.0;
-	private static final double ANGLE_STEPSIZE = 60;
 	// there are 6 vertexes in a polygon
 	public static final int POINTSNUMBER = 6;
 	// size of the hex, 
@@ -39,9 +31,27 @@ public class NewHex {
 
 	public NewHex(int column, int row, int worldRow) {
 		this.loc = new HexLocation(column, row, worldRow, HEX_SIZE);
-		ID = HexLocation.getID(loc.c, loc.r);
+		centroid = new Point(loc.xPos, loc.yPos);
 		xPoints = getXPoints();
 		yPoints = getYPoints();
+		points = getPoints();
+	}
+	
+	/**
+	 * Compute and return boundary of the hex
+	 * @param worldRow - number of row the world has, 
+	 *                   to compute the offset from top
+	 * @return 6 points that define the boundary of the hex
+	 */
+	private Point[] getPoints() {
+		return new Point[] {
+			new Point(xPoints[0], yPoints[0]),
+			new Point(xPoints[1], yPoints[1]),
+			new Point(xPoints[2], yPoints[2]),
+			new Point(xPoints[3], yPoints[3]),
+			new Point(xPoints[4], yPoints[4]),
+			new Point(xPoints[5], yPoints[5])
+		};
 	}
 
 	/**

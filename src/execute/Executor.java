@@ -171,7 +171,7 @@ public class Executor {
 		}
 		c.Turn(left);
 		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
-				c.getDir(), c.getSize()));
+				c.getDir(), c.getSize(), c.getMem(IDX.POSTURE)));
 	}
 
 	
@@ -298,7 +298,7 @@ public class Executor {
 		}
 		c.setMem(IDX.SIZE, c.getMem(IDX.SIZE) + 1);
 		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
-				c.getDir(), c.getSize()));
+				c.getDir(), c.getSize(), c.getMem(IDX.POSTURE)));
 	}
 	
 	/**

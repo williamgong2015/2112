@@ -113,7 +113,7 @@ public class World {
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0));
+				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
 			}
 		}
 	}
@@ -281,14 +281,15 @@ public class World {
 			removeElemAtPosition(pos);
 		switch (elem.getType()) {
 			case "CRITTER":
+				Critter tmp = (Critter) elem;
 				hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, pos, 
-						((Critter)elem).getDir(), ((Critter)elem).getSize()));
+						tmp.getDir(), tmp.getSize(), tmp.getMem(IDX.POSTURE)));
 				break;
 			case "FOOD":
-				hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0, 0));
+				hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0, 0, 0));
 				break;
 			case "ROCK":
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0));
+				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
 				break;
 			default:
 				System.out.println("can't resolve the type for update");
@@ -315,7 +316,7 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-		hexToUpdate.add(new HexToUpdate(HEXType.EMPTY, pos, 0, 0));
+		hexToUpdate.add(new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
 	}

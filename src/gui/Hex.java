@@ -22,7 +22,6 @@ public class Hex extends Polygon {
 		// 6 points that define the boundary of the hex
 		// each point need two double number to represent it
 		private final Double[] points;
-		private final String ID;
 		
 		private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 		private static final Color HOVER_STROCK_COLOR = Color.web("#3AD53A");
@@ -40,7 +39,6 @@ public class Hex extends Polygon {
 		
 		public Hex(int column, int row, int worldRow) {
 			this.loc = new HexLocation(row, column, worldRow, HEX_SIZE);
-			ID = HexLocation.getID(loc.c, loc.r);
 			points = getBoundary();
 			this.getPoints().addAll(points);
 			this.setStroke(DEFAULT_STROCK_COLOR);

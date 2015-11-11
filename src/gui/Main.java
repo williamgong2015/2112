@@ -2,6 +2,7 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import exceptions.SyntaxError;
 import javafx.animation.Animation.Status;
@@ -21,12 +22,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -59,6 +58,7 @@ public class Main extends Application {
     private int worldRow;
     private double intialStepsPerSecond = 1;
     private GraphicsContext gc;
+    private HashMap<Integer, Color> speciesColor;
     
     // - if the speed <= 30, each cycle lapse the world, draw the world, 
     //   so counterWorldLapse = counterWorldDraw
@@ -73,6 +73,8 @@ public class Main extends Application {
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color HOVER_STROCK_COLOR = Color.web("#3AD53A");
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
+	public static final double SQRT_THREE = Math.sqrt(3);
+	
 	
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -80,6 +82,8 @@ public class Main extends Application {
         primaryStage.setTitle("Critter World");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        
+        speciesColor = new HashMap<>();
         
         worldPane = (Pane) root.lookup("#world_pane"); 
         worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
@@ -192,7 +196,7 @@ public class Main extends Application {
         		new EventHandler<ActionEvent>() {
         		    @Override 
         		    public void handle(ActionEvent e) {
-        		    	worldStepAhead();
+        		    	worldRunAhead();
         		    }
         		}, tmp);
     }
@@ -229,8 +233,9 @@ public class Main extends Application {
     
     /**
      * Have the underlying world proceed for one turn and update the GUI
+     * with a maximum speed limitation of 30
      */
-    private void worldStepAhead() {
+    private void worldRunAhead() {
 //    	System.out.println("Speed: " + speed);
 //    	System.out.println("World Lapse: " + counterWorldLapse);
 //    	System.out.println("World Draw: " + counterWorldDraw);
@@ -257,6 +262,14 @@ public class Main extends Application {
     }
     
     /**
+     * Have the underlying world proceed for one turn and update the GUI
+     */
+    private void worldStepAhead() {
+    	world.lapse();
+    	executeHexUpdate(world.getHexToUpdate());
+    }
+    
+    /**
      * Effect: execute a list of Hex update and refresh world info and 
      *         clear the critter info (because it may has changed)
      */
@@ -268,7 +281,7 @@ public class Main extends Application {
     		switch (update.type) {
 	    		case CRITTER:
 	    			drawCritterAt(gc, loc, 
-	    					update.direction, update.size);
+	    					update.direction, update.size, update.species);
 	    			break;
 	    			
 	    		case ROCK:
@@ -348,47 +361,89 @@ public class Main extends Application {
      * @param gc
      * @param loc
      */
-    public void drawCritterAt(GraphicsContext gc, HexLocation loc, 
-    		int dir, int size) {
-    	ImagePattern toSet;
-		if (size <= 0)
-			toSet = new ImagePattern(Resource.critterImgS1);
-		else {
-			switch(size) {
-			case 1:
-				toSet = new ImagePattern(Resource.critterImgS1);
-				break;
-			case 2:
-				toSet = new ImagePattern(Resource.critterImgS2);
-				break;
-			case 3:
-				toSet = new ImagePattern(Resource.critterImgS3);
-				break;
-			case 4:
-				toSet = new ImagePattern(Resource.critterImgS4);
-				break;
-			case 5:
-				toSet = new ImagePattern(Resource.critterImgS5);
-				break;
-			case 6:
-				toSet = new ImagePattern(Resource.critterImgS6);
-				break;
-			case 7:
-				toSet = new ImagePattern(Resource.critterImgS7);
-				break;
-			default:
-				toSet = new ImagePattern(Resource.critterImgS7);
-				break;
-			}
+    private void drawCritterAt(GraphicsContext gc, HexLocation loc, 
+    		int dir, int size, int species) {
+    	NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+		double radio = getRadio(size);
+		
+		// body
+		gc.setFill(getColorOfSpecies(species));
+		gc.fillOval(tmp.getLoc().xPos - NewHex.HEX_SIZE*3/4*radio, 
+				tmp.getLoc().yPos - NewHex.HEX_SIZE*3/4*radio, 
+				NewHex.HEX_SIZE*3/2*radio, NewHex.HEX_SIZE*3/2*radio);
+		
+		// eyes (with 0.5 width border)
+		Point[] eyes = getEyesPos(dir, tmp, radio);
+		gc.setFill(Color.BLACK);
+		if (eyes == null || eyes[0] == null || eyes[1] == null) {
+			System.out.println("eyes is null");
+			System.out.println("dir: " + dir + ", radio: " + radio + 
+					"Hex cen: " + tmp.centroid + ", Hex c,r: " + 
+					tmp.getLoc().c + "," + tmp.getLoc().r);
+			return;
 		}
-		gc.setFill(toSet);
-		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
-		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
-				NewHex.POINTSNUMBER+1);
-		gc.setStroke(DEFAULT_STROCK_COLOR);
-		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-				NewHex.POINTSNUMBER+1);
-	}
+		gc.fillOval(eyes[0].x - 1.5*radio - 0.5, eyes[0].y - 1.5*radio - 0.5, 
+				3*radio + 1, 3*radio + 1);
+		gc.fillOval(eyes[1].x - 1.5*radio - 0.5, eyes[1].y - 1.5*radio - 0.5, 
+				3*radio + 1, 3*radio + 1);
+		
+		gc.setFill(Color.WHITE);
+		gc.fillOval(eyes[0].x - 1.5*radio, eyes[0].y - 1.5*radio, 
+				3*radio, 3*radio);
+		gc.fillOval(eyes[1].x - 1.5*radio, eyes[1].y - 1.5*radio, 
+				3*radio, 3*radio);
+    }
+    
+    private Color getColorOfSpecies(int species) {
+    	// the color of given species has been defined
+    	if (speciesColor.containsKey(species))
+    		return speciesColor.get(species);
+    	// specify a random color for the species
+    	int r = util.RandomGen.randomNumber(256);
+    	int g = util.RandomGen.randomNumber(256);
+    	int b = util.RandomGen.randomNumber(236);
+    	Color tmp = Color.rgb(r, g, b);
+    	speciesColor.put(species, tmp);
+    	return tmp;
+    }
+    
+    /**
+     * Get the radio to draw a critter given the real {@code size} 
+     * of the critter
+     * 
+     * Equation:
+     * {@code size} = 1  -->  0.50
+     * {@code size} = 2  -->  0.55
+     * {@code size} = 3  -->  0.60
+     * ...
+     * {@code size} > 10 -->  1.00
+     * @param size
+     * @return
+     */
+    private double getRadio(int size) {
+    	if (size > 10)
+    		return 1.0;
+    	return 0.5 + (size-1.0) / 20;
+    }
+    
+    /**
+     * Get the two eyes location of the critter facing at {@code dir} direction
+     * and located at the given {@code centroid}
+     * @param dir - 0-5
+     * @param hex - the hex want to fill in two eyes
+     * @return {centroidOfLeftEye, centroidOfRightEye}
+     */
+    private Point[] getEyesPos(int dir, NewHex hex, double radio) {
+    	Point[] result = new Point[2];
+    	result[0] = Point.getMiddlePoint(hex.centroid, hex.points[dir%6]);
+    	result[0] = Point.getMiddlePointWithWeight(result[0], hex.centroid, 
+    			radio);
+    	result[1] = Point.getMiddlePoint(hex.centroid, hex.points[(dir+1)%6]);
+    	result[1] = Point.getMiddlePointWithWeight(result[1], hex.centroid, 
+    			radio);
+    	return result;
+    }
+
     
     private void addCritter(String critterNumStr) {
     	if(critterFile == null) {

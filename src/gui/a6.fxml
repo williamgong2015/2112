@@ -124,7 +124,7 @@
                                           <Pane fx:id="world_pane" prefHeight="200.0" prefWidth="200.0" />
                                        </content>
                                     </ScrollPane>
-                                    <Slider fx:id="worldframe_slider" blockIncrement="1.0" max="20.0" min="1.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" value="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
+                                    <Slider fx:id="worldframe_slider" blockIncrement="1.0" max="50.0" min="1.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" value="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
                                     <Label text="Zoom" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
                                        <font>
                                           <Font size="10.0" />

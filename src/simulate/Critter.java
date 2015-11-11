@@ -10,8 +10,6 @@ import ast.ProgramImpl;
 import ast.Rule;
 import constant.Constant;
 import exceptions.SyntaxError;
-import gui.Hex;
-import gui.HexLocation;
 import gui.HexToUpdate;
 import gui.HexToUpdate.HEXType;
 import parse.ParserImpl;
@@ -135,7 +133,7 @@ public class Critter extends Element {
         	if(world.checkPosition(pos) &&
         			world.getElemAtPosition(pos) == null) {
         		result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, 
-        				c.getSize()));
+        				c.getSize(), c.getMem(IDX.POSTURE)));
         		world.setElemAtPosition(c, pos);
         		world.addCritterToList(c);
         		i++;
@@ -169,7 +167,8 @@ public class Critter extends Element {
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {
-			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, c.getSize()));
+			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, c.getSize(),
+					c.getMem(IDX.POSTURE)));
 			world.setElemAtPosition(c, pos);
     		world.addCritterToList(c);
 		}
