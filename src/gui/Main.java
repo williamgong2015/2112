@@ -21,9 +21,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -47,7 +49,7 @@ public class Main extends Application {
 	private final static int CUSTOM_WORLD_IDX = 1;
 	private File worldFile = null;  // path to world file 
 	private File critterFile = null;  // path to critter file
-    private Hex current = null; // current selected hex
+    private NewHex current = null; // current selected hex
 	private Parent root;
 	private Pane worldPane;
 	private Label worldInfoLabel;
@@ -99,9 +101,9 @@ public class Main extends Application {
 				.setOnAction(e -> {
 				        world = new World();
 				        drawWorldLayout();
-//				        ArrayList<HexToUpdate> hexToUpdate = 
-//        	    				world.getHexToUpdate();
-//        	    		executeHexUpdate(hexToUpdate);
+				        ArrayList<HexToUpdate> hexToUpdate = 
+        	    				world.getHexToUpdate();
+        	    		executeHexUpdate(hexToUpdate);
 				    });
         
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
@@ -109,9 +111,9 @@ public class Main extends Application {
         		        worldFile = loadFile(primaryStage);
         		        world = World.loadWorld(worldFile);
         		        drawWorldLayout(); 
-//        		        ArrayList<HexToUpdate> hexToUpdate = 
-//        	    				world.getHexToUpdate();
-//        	    		executeHexUpdate(hexToUpdate);
+        		        ArrayList<HexToUpdate> hexToUpdate = 
+        	    				world.getHexToUpdate();
+        	    		executeHexUpdate(hexToUpdate);
         		    });
         
         Button critterFileBtn = (Button) root.lookup("#loadcritter_button");
@@ -139,7 +141,13 @@ public class Main extends Application {
         
         Button worldStopButton =
         		(Button) root.lookup("#stop_button");
-        worldStopButton.setOnAction(e -> timeline.stop());
+        worldStopButton.setOnAction(e -> {
+        	// execute update to keep the View - Model synchronized
+        	timeline.stop();
+        	ArrayList<HexToUpdate> hexToUpdate = 
+    				world.getHexToUpdate();
+    		executeHexUpdate(hexToUpdate);
+        });
         
         Slider simulationSpeedSlider = 
         		(Slider) root.lookup("#simulationspeed_slider");
@@ -256,24 +264,23 @@ public class Main extends Application {
     	for (HexToUpdate update : list) {
     		HexLocation loc = HexLocation.positionToLocation(
     				update.pos, worldCol, worldRow);
-    		Hex tmp = (Hex) root.lookup("#" + 
-					HexLocation.getID(loc.c, loc.r));
     		
     		switch (update.type) {
 	    		case CRITTER:
-	    			tmp.setCritter(update.direction, update.size);
+	    			drawCritterAt(gc, loc, 
+	    					update.direction, update.size);
 	    			break;
 	    			
 	    		case ROCK:
-	    			tmp.setRock();
+	    			drawRockAt(gc, loc);
 	    			break;
 	    			
 	    		case FOOD:
-	    			tmp.setFood();
+	    			drawFoodAt(gc, loc);
 	    			break;
 	    			
 	    		case EMPTY:
-	    			tmp.setEmpty();
+	    			drawEmptyAt(gc, loc);
 	    			break;
     		}
     	}
@@ -282,7 +289,106 @@ public class Main extends Application {
     	critterInfoLabel.setText("");
     }
     
+    /**
+     * Draw a blank slot into the given HexLocation {@code loc} at the given
+     * GraphicsContext {@code gc}
+     * 
+     * @param gc
+     * @param loc
+     */
+    private void drawEmptyAt(GraphicsContext gc, HexLocation loc) {
+		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+		gc.setFill(Color.WHITE);
+		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
+					NewHex.POINTSNUMBER+1);
+		gc.setStroke(DEFAULT_STROCK_COLOR);
+		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
+				NewHex.POINTSNUMBER+1);
+    }
+   
+    /**
+     * Draw a rock into the given HexLocation {@code loc} at the given
+     * GraphicsContext {@code gc}
+     * 
+     * @param gc
+     * @param loc
+     */
+    private void drawRockAt(GraphicsContext gc, HexLocation loc) {
+		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+		gc.setFill(new ImagePattern(Resource.rockImg));
+		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
+					NewHex.POINTSNUMBER+1);
+		gc.setStroke(DEFAULT_STROCK_COLOR);
+		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
+				NewHex.POINTSNUMBER+1);
+    }
     
+    /**
+     * Draw a food into the given HexLocation {@code loc} at the given
+     * GraphicsContext {@code gc}
+     * 
+     * @param gc
+     * @param loc
+     */
+    private void drawFoodAt(GraphicsContext gc, HexLocation loc) {
+		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+		gc.setFill(new ImagePattern(Resource.foodImg));
+		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
+					NewHex.POINTSNUMBER+1);
+		gc.setStroke(DEFAULT_STROCK_COLOR);
+		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
+				NewHex.POINTSNUMBER+1);
+    }
+    
+    /**
+     * Draw a critter into the given HexLocation {@code loc} at the given
+     * GraphicsContext {@code gc}
+     * @param dir - direction of the critter facing at 
+     * @param size - size of the critter
+     * @param gc
+     * @param loc
+     */
+    public void drawCritterAt(GraphicsContext gc, HexLocation loc, 
+    		int dir, int size) {
+    	ImagePattern toSet;
+		if (size <= 0)
+			toSet = new ImagePattern(Resource.critterImgS1);
+		else {
+			switch(size) {
+			case 1:
+				toSet = new ImagePattern(Resource.critterImgS1);
+				break;
+			case 2:
+				toSet = new ImagePattern(Resource.critterImgS2);
+				break;
+			case 3:
+				toSet = new ImagePattern(Resource.critterImgS3);
+				break;
+			case 4:
+				toSet = new ImagePattern(Resource.critterImgS4);
+				break;
+			case 5:
+				toSet = new ImagePattern(Resource.critterImgS5);
+				break;
+			case 6:
+				toSet = new ImagePattern(Resource.critterImgS6);
+				break;
+			case 7:
+				toSet = new ImagePattern(Resource.critterImgS7);
+				break;
+			default:
+				toSet = new ImagePattern(Resource.critterImgS7);
+				break;
+			}
+		}
+		gc.setFill(toSet);
+		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
+				NewHex.POINTSNUMBER+1);
+		gc.setStroke(DEFAULT_STROCK_COLOR);
+		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
+				NewHex.POINTSNUMBER+1);
+	}
     
     private void addCritter(String critterNumStr) {
     	if(critterFile == null) {
@@ -341,36 +447,45 @@ public class Main extends Application {
 
 		@Override
 		public void handle(MouseEvent event) {
-//			double x = event.getX();
-//			double y = event.getY();
+			double x = event.getX();
+			double y = event.getY();
 //			System.out.println("You click x: " + x + ", y: " + y);
-//			int[] nearestHexIndex = 
-//					NewHex.classifyPoint(x, y, worldRow, worldCol);
+			int[] nearestHexIndex = 
+					NewHex.classifyPoint(x, y, worldRow, worldCol);
 //			System.out.println("the point is col: " + nearestHexIndex[0]
 //					+ ", row: " + nearestHexIndex[1]);
-			drawPolyLineAt(event.getX(), event.getY(), SELECTED_STROCK_COLOR);
-			
-//			Hex tmp = (Hex) event.getSource();
-//			// un-select click
-//			if (tmp == current) {
-//				current = null;
-//				tmp.setHoverStrock();
-//			}
-//			// select click
-//			else {
-//				if (current != null)
-//					current.setDefaultStrock();
-//				current = tmp;
-//				tmp.setSelectedStrock();
-//			}
-//			// check if there is a critter in the selected hex,
-//			// if so, need to display the critter info
-//			Position pos = HexLocation.locationToPosition(tmp.getLoc());
-//			Element elem = world.getElemAtPosition(pos);
-//			if (elem != null)
-//				critterInfoLabel.setText(elem.toString());
-//			else
-//				critterInfoLabel.setText("");
+			if (nearestHexIndex[0] == -1 ||
+					nearestHexIndex[1] == -1)
+				return;
+			NewHex tmp = new NewHex(nearestHexIndex[0],
+					nearestHexIndex[1], worldRow);
+			// un-select click
+			if (tmp == current) {
+				current = null;
+				gc.setStroke(DEFAULT_STROCK_COLOR);
+				gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
+						NewHex.POINTSNUMBER+1);
+			}
+			// select click
+			else {
+				if (current != null) {
+					gc.setStroke(DEFAULT_STROCK_COLOR);
+					gc.strokePolyline(current.xPoints, current.yPoints, 
+							NewHex.POINTSNUMBER+1);
+				}
+				current = tmp;
+				gc.setStroke(SELECTED_STROCK_COLOR);
+				gc.strokePolyline(current.xPoints, current.yPoints, 
+						NewHex.POINTSNUMBER+1);
+			}
+			// check if there is a critter in the selected hex,
+			// if so, need to display the critter info
+			Position pos = HexLocation.locationToPosition(tmp.getLoc());
+			Element elem = world.getElemAtPosition(pos);
+			if (elem != null)
+				critterInfoLabel.setText(elem.toString());
+			else
+				critterInfoLabel.setText("");
 		}
 	}
 	
@@ -409,7 +524,6 @@ public class Main extends Application {
 				nearestHexIndex[1] == -1)
 			return;
 		System.out.println("draw: " + COLOR);
-		gc.setStroke(SELECTED_STROCK_COLOR);
 		gc.setStroke(COLOR);
 		System.out.println("Drawing col: " + nearestHexIndex[0]
 				+ ", row: " + nearestHexIndex[1]);
