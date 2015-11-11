@@ -14,6 +14,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
@@ -22,6 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -53,6 +56,7 @@ public class Main extends Application {
     private int worldCol;
     private int worldRow;
     private double intialStepsPerSecond = 1;
+    private GraphicsContext gc;
     
     // - if the speed <= 30, each cycle lapse the world, draw the world, 
     //   so counterWorldLapse = counterWorldDraw
@@ -63,6 +67,10 @@ public class Main extends Application {
     private int counterWorldLapse;
     private int counterWorldDraw;
     Timeline timeline;
+    
+	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
+	private static final Color HOVER_STROCK_COLOR = Color.web("#3AD53A");
+	private static final Color SELECTED_STROCK_COLOR = Color.RED;
 	
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -74,7 +82,7 @@ public class Main extends Application {
         worldPane = (Pane) root.lookup("#world_pane"); 
         worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
         critterInfoLabel = (Label) root.lookup("#critterinfodetails_label");
-        Alerts.alertWellcome();
+//        Alerts.alertWellcome();
         // set the iteration count to be as large as it can
         timeline = new Timeline();
         timeline.setCycleCount(Integer.MAX_VALUE);
@@ -91,9 +99,9 @@ public class Main extends Application {
 				.setOnAction(e -> {
 				        world = new World();
 				        drawWorldLayout();
-				        ArrayList<HexToUpdate> hexToUpdate = 
-        	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+//				        ArrayList<HexToUpdate> hexToUpdate = 
+//        	    				world.getHexToUpdate();
+//        	    		executeHexUpdate(hexToUpdate);
 				    });
         
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
@@ -101,9 +109,9 @@ public class Main extends Application {
         		        worldFile = loadFile(primaryStage);
         		        world = World.loadWorld(worldFile);
         		        drawWorldLayout(); 
-        		        ArrayList<HexToUpdate> hexToUpdate = 
-        	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+//        		        ArrayList<HexToUpdate> hexToUpdate = 
+//        	    				world.getHexToUpdate();
+//        	    		executeHexUpdate(hexToUpdate);
         		    });
         
         Button critterFileBtn = (Button) root.lookup("#loadcritter_button");
@@ -190,19 +198,25 @@ public class Main extends Application {
 	    System.out.println("worldRow: " + worldRow);
 	    world.printCoordinatesASCIIMap();
     	worldPane.getChildren().clear();
-        Hex poly;
+    	final Canvas canvas = 
+    			new Canvas(worldCol*NewHex.HEX_SIZE*3/2 + 0.5*NewHex.HEX_SIZE,
+    					(worldRow+1)*NewHex.HEX_SIZE*NewHex.SQRT_THREE/2);
+    	gc = canvas.getGraphicsContext2D();
+
+    	gc.setStroke(DEFAULT_STROCK_COLOR);
+        NewHex poly;
         for (int i = 0; i < worldRow; ++i) {
         	for (int j = 0; j < worldCol; ++j) {
         		if (i % 2 != j % 2)
         			continue;
-        		poly = new Hex(i, j, worldRow);
-        		poly.setFill(Color.WHITE);
-                poly.setOnMouseClicked(new ClickHexHandler());
-                poly.setOnMouseEntered(new EnterHexHandler());
-                poly.setOnMouseExited(new ExitHexHandler());
-                worldPane.getChildren().add(poly);
+        		poly = new NewHex(j, i, worldRow);
+        		gc.setFill(Color.WHITE);
+        		gc.strokePolyline(poly.xPoints, poly.yPoints, 
+        				NewHex.POINTSNUMBER+1);
         	}
         }
+        worldPane.getChildren().add(canvas);
+        canvas.setOnMouseClicked(new ClickHexHandler());
     }
     
     /**
@@ -327,54 +341,82 @@ public class Main extends Application {
 
 		@Override
 		public void handle(MouseEvent event) {
-			Hex tmp = (Hex) event.getSource();
-			// un-select click
-			if (tmp == current) {
-				current = null;
-				tmp.setHoverStrock();
-			}
-			// select click
-			else {
-				if (current != null)
-					current.setDefaultStrock();
-				current = tmp;
-				tmp.setSelectedStrock();
-			}
-			// check if there is a critter in the selected hex,
-			// if so, need to display the critter info
-			Position pos = HexLocation.locationToPosition(tmp.getLoc());
-			Element elem = world.getElemAtPosition(pos);
-			if (elem != null)
-				critterInfoLabel.setText(elem.toString());
-			else
-				critterInfoLabel.setText("");
+//			double x = event.getX();
+//			double y = event.getY();
+//			System.out.println("You click x: " + x + ", y: " + y);
+//			int[] nearestHexIndex = 
+//					NewHex.classifyPoint(x, y, worldRow, worldCol);
+//			System.out.println("the point is col: " + nearestHexIndex[0]
+//					+ ", row: " + nearestHexIndex[1]);
+			drawPolyLineAt(event.getX(), event.getY(), SELECTED_STROCK_COLOR);
+			
+//			Hex tmp = (Hex) event.getSource();
+//			// un-select click
+//			if (tmp == current) {
+//				current = null;
+//				tmp.setHoverStrock();
+//			}
+//			// select click
+//			else {
+//				if (current != null)
+//					current.setDefaultStrock();
+//				current = tmp;
+//				tmp.setSelectedStrock();
+//			}
+//			// check if there is a critter in the selected hex,
+//			// if so, need to display the critter info
+//			Position pos = HexLocation.locationToPosition(tmp.getLoc());
+//			Element elem = world.getElemAtPosition(pos);
+//			if (elem != null)
+//				critterInfoLabel.setText(elem.toString());
+//			else
+//				critterInfoLabel.setText("");
 		}
 	}
 	
-	/** Handler for arrow keys to trigger moves. */
+	/** 
+	 * Change the color of strock to {@code HOVER_STROCK_COLOR} when
+	 * the mouse enter that hex
+	 */
 	class EnterHexHandler implements EventHandler<MouseEvent> {
-
 		@Override
 		public void handle(MouseEvent event) {
-			// TODO Auto-generated method stub
-			System.out.println("you enter a hex");
-			Hex tmp = (Hex) event.getSource();
-			if (tmp != current)
-				tmp.setHoverStrock();
+			drawPolyLineAt(event.getX(), event.getY(), HOVER_STROCK_COLOR);
 		}
 	}
 	
-	/** Handler for arrow keys to trigger moves. */
+	/** 
+	 * Change the color of strock to {@code DEFAULT_STROCK_COLOR} when
+	 * the mouse leave that hex
+	 */
 	class ExitHexHandler implements EventHandler<MouseEvent> {
-
 		@Override
 		public void handle(MouseEvent event) {
-			// TODO Auto-generated method stub
-			System.out.println("you exit a hex");
-			Hex tmp = (Hex) event.getSource();
-			if (tmp != current)
-				tmp.setDefaultStrock();
+			drawPolyLineAt(event.getX(), event.getY(), DEFAULT_STROCK_COLOR);
 		}
+	}
+	
+	/**
+	 * Draw a polyline with specified color that is the border of the 
+	 * hex located at the {@code x}, {@code y}
+	 * @param COLOR - the color used to draw the polyline
+	 */
+	private void drawPolyLineAt(double x, double y, Color COLOR) {
+		System.out.println("Event triggered by x: " + x + ", y: " + y);
+		int[] nearestHexIndex = 
+				NewHex.classifyPoint(x, y, worldRow, worldCol);
+		if (nearestHexIndex[0] == -1 ||
+				nearestHexIndex[1] == -1)
+			return;
+		System.out.println("draw: " + COLOR);
+		gc.setStroke(SELECTED_STROCK_COLOR);
+		gc.setStroke(COLOR);
+		System.out.println("Drawing col: " + nearestHexIndex[0]
+				+ ", row: " + nearestHexIndex[1]);
+		NewHex tmpHex = new NewHex(nearestHexIndex[0],
+				nearestHexIndex[1], worldRow);
+   		gc.strokePolyline(tmpHex.xPoints, tmpHex.yPoints, 
+				NewHex.POINTSNUMBER+1);
 	}
 
 }
