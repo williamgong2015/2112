@@ -50,6 +50,8 @@ public class World {
 	// record the change of state in each turn
 	private HashMap<Position, HexToUpdate> hexToUpdate;
 	
+	private volatile boolean hasStarted = false;
+	
 	
 	/**
 	 * Initialize a world
@@ -207,7 +209,12 @@ public class World {
 	 * A new turn of the world 
 	 * 
 	 */
-	public void lapse() {
+	synchronized public void lapse() {
+		System.out.println("Start Lapse");
+    	if (hasStarted) 
+    		for (int i = 0; i < 10000; ++i)
+    			System.out.println("BOOOOOOOOMMMM - start of simulation");
+    	hasStarted = true;
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
@@ -247,6 +254,11 @@ public class World {
 		for (Critter critter : toDelete) {
 			order.remove(critter);
 		}
+		System.out.println("End Lapse");
+    	if (!hasStarted) 
+    		for (int j = 0; j < 10000; ++j)
+    			System.out.println("BOOOOOOOOMMMM - end of simulation");
+    	hasStarted = false;
 	}
 	
 	/**

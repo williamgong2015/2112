@@ -1,7 +1,6 @@
 package gui;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -11,6 +10,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -66,9 +66,11 @@ public class Main extends Application {
     // - if the speed > 30, each cycle lapse the world but 
     //   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
     //   and have counterWorldDraw++ after drawing the world
-    private double speed;
-    private int counterWorldLapse;
-    private int counterWorldDraw;
+    private volatile double speed;
+    private volatile int counterWorldLapse;
+    private volatile int counterWorldDraw;
+    private volatile int tmpID;
+    private volatile boolean hasStarted = false;
     Timeline timeline;
     
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
@@ -114,6 +116,8 @@ public class Main extends Application {
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
         		.setOnAction(e -> {
         		        worldFile = loadFile(primaryStage);
+        		        if (worldFile == null)
+        		        	return;
         		        world = World.loadWorld(worldFile);
         		        drawWorldLayout(); 
         		        HashMap<Position, HexToUpdate> hexToUpdate = 
@@ -240,38 +244,81 @@ public class Main extends Application {
 		// no need to bother with the counter if speed <= 30
 		// because always lapse and draw the world at the same time
     	if (speed <= 30) {
-	    	world.lapse();
-	    	executeHexUpdate(world.getHexToUpdate().values());
+    		new Thread() { // Create a new background process
+    		    public void run() {
+    		        // world simulation in background
+    		    	tmpID = util.RandomGen.randomNumber();
+    		    	world.lapse();
+    		    	System.out.println("Simulation id: " + tmpID);
+    		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+    		            public void run() {
+    		                // Update UI to reflect changes to the model
+    		            	executeHexUpdate(world.getHexToUpdate().values());
+    		            	System.out.println("Drawing id: " + tmpID);
+    		            }
+    		        });
+    		    }
+    		}.start(); // Starts the background thread!
 	    	return;
-    	} 
+    	}
     	// detect overflow, lose a little precision of interval here
     	if (counterWorldLapse == Integer.MAX_VALUE) {
-    		world.lapse();
     		counterWorldLapse = 0;
     		counterWorldDraw = 0;
-    		return;
     	}
-    	world.lapse();
-    	counterWorldLapse++;
-    	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
-    		executeHexUpdate(world.getHexToUpdate().values());
-    		counterWorldDraw++;
-    	}
+		new Thread() { // Create a new background process
+		    public void run() {
+		    	tmpID = util.RandomGen.randomNumber();
+		    	System.out.println("Simulation id: " + tmpID);
+		        // world simulation in background
+		    	world.lapse();
+		    	counterWorldLapse++;
+		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+		            public void run() {
+		                // Update UI to reflect changes to the model
+		            	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
+		            		executeHexUpdate(world.getHexToUpdate().values());
+		            		counterWorldDraw++;
+		            		System.out.println("Drawing id: " + tmpID);
+		            	}
+		            }
+		        });
+		    }
+		}.start(); // Starts the background thread!
     }
     
     /**
      * Have the underlying world proceed for one turn and update the GUI
      */
     private void worldStepAhead() {
-    	world.lapse();
-    	executeHexUpdate(world.getHexToUpdate().values());
+		new Thread() { // Create a new background process
+		    public void run() {
+		        // world simulation in background
+		    	tmpID = util.RandomGen.randomNumber();
+		    	world.lapse();
+		    	System.out.println("Simulation id: " + tmpID);
+		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+		            public void run() {
+		                // Update UI to reflect changes to the model
+		            	executeHexUpdate(world.getHexToUpdate().values());
+		            	System.out.println("Drawing id: " + tmpID);
+		            }
+		        });
+		    }
+		}.start(); // Starts the background thread!
     }
     
     /**
      * Effect: execute a list of Hex update and refresh world info and 
      *         clear the critter info (because it may has changed)
+     * @throws Exception 
      */
-    private void executeHexUpdate(Collection<HexToUpdate> list) {
+    synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
+    	System.out.println("Start Update GUI");
+    	if (hasStarted) 
+    		for (int i = 0; i < 10000; ++i)
+    			System.out.println("BOOOOOOOOMMMM - start of draw");
+    	hasStarted = true;
     	for (HexToUpdate update : list) {
     		HexLocation loc = HexLocation.positionToLocation(
     				update.pos, worldCol, worldRow);
@@ -295,9 +342,13 @@ public class Main extends Application {
 	    			break;
     		}
     	}
-    	System.out.println(world.toString());
     	worldInfoLabel.setText(world.getWorldInfo());
     	critterInfoLabel.setText("");
+    	System.out.println("End Update GUI");
+    	if (!hasStarted)
+    		for (int i = 0; i < 10000; ++i)
+    			System.out.println("BOOOOOOOOMMMM - end of draw");
+    	hasStarted = false;
     }
     
     /**
@@ -450,9 +501,9 @@ public class Main extends Application {
     	}
     	try {
     		int n = Integer.parseInt(critterNumStr);
-    		ArrayList<HexToUpdate> hexToUpdate = 
+    		HashMap<Position, HexToUpdate> hexToUpdate = 
     				Critter.loadCrittersIntoWorld(world, critterFile, n);
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
     	} catch (SyntaxError err) {
     		Alerts.alertCritterFileIllegal();
     	} catch (Exception expt) {
@@ -471,11 +522,11 @@ public class Main extends Application {
     	}
     	try {
     		HexLocation loc = current.getLoc();
-    		ArrayList<HexToUpdate> hexToUpdate = 
+    		HashMap<Position, HexToUpdate> hexToUpdate = 
 	    		Critter.insertCritterIntoWorld(world, critterFile, 
 	    				Position.getC(loc.c, loc.r),
 	    				Position.getR(loc.c, loc.r));
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
     	} catch (Exception err) {
     		err.printStackTrace();
     		Alerts.alertCritterFileIllegal();
