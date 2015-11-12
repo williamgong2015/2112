@@ -2,6 +2,7 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import exceptions.SyntaxError;
@@ -105,9 +106,9 @@ public class Main extends Application {
 				.setOnAction(e -> {
 				        world = new World();
 				        drawWorldLayout();
-				        ArrayList<HexToUpdate> hexToUpdate = 
+				        HashMap<Position, HexToUpdate> hexToUpdate = 
         	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+        	    		executeHexUpdate(hexToUpdate.values());
 				    });
         
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
@@ -115,9 +116,9 @@ public class Main extends Application {
         		        worldFile = loadFile(primaryStage);
         		        world = World.loadWorld(worldFile);
         		        drawWorldLayout(); 
-        		        ArrayList<HexToUpdate> hexToUpdate = 
+        		        HashMap<Position, HexToUpdate> hexToUpdate = 
         	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+        	    		executeHexUpdate(hexToUpdate.values());
         		    });
         
         Button critterFileBtn = (Button) root.lookup("#loadcritter_button");
@@ -148,9 +149,9 @@ public class Main extends Application {
         worldStopButton.setOnAction(e -> {
         	// execute update to keep the View - Model synchronized
         	timeline.stop();
-        	ArrayList<HexToUpdate> hexToUpdate = 
+        	HashMap<Position, HexToUpdate> hexToUpdate = 
     				world.getHexToUpdate();
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
         });
         
         Slider simulationSpeedSlider = 
@@ -236,14 +237,11 @@ public class Main extends Application {
      * with a maximum speed limitation of 30
      */
     private void worldRunAhead() {
-//    	System.out.println("Speed: " + speed);
-//    	System.out.println("World Lapse: " + counterWorldLapse);
-//    	System.out.println("World Draw: " + counterWorldDraw);
 		// no need to bother with the counter if speed <= 30
 		// because always lapse and draw the world at the same time
     	if (speed <= 30) {
 	    	world.lapse();
-	    	executeHexUpdate(world.getHexToUpdate());
+	    	executeHexUpdate(world.getHexToUpdate().values());
 	    	return;
     	} 
     	// detect overflow, lose a little precision of interval here
@@ -256,7 +254,7 @@ public class Main extends Application {
     	world.lapse();
     	counterWorldLapse++;
     	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
-    		executeHexUpdate(world.getHexToUpdate());
+    		executeHexUpdate(world.getHexToUpdate().values());
     		counterWorldDraw++;
     	}
     }
@@ -266,14 +264,14 @@ public class Main extends Application {
      */
     private void worldStepAhead() {
     	world.lapse();
-    	executeHexUpdate(world.getHexToUpdate());
+    	executeHexUpdate(world.getHexToUpdate().values());
     }
     
     /**
      * Effect: execute a list of Hex update and refresh world info and 
      *         clear the critter info (because it may has changed)
      */
-    private void executeHexUpdate(ArrayList<HexToUpdate> list) {
+    private void executeHexUpdate(Collection<HexToUpdate> list) {
     	for (HexToUpdate update : list) {
     		HexLocation loc = HexLocation.positionToLocation(
     				update.pos, worldCol, worldRow);

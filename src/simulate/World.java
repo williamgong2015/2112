@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import constant.Constant;
@@ -47,7 +48,7 @@ public class World {
 	public ArrayList<Critter> order;
 	
 	// record the change of state in each turn
-	private ArrayList<HexToUpdate> hexToUpdate;
+	private HashMap<Position, HexToUpdate> hexToUpdate;
 	
 	
 	/**
@@ -105,15 +106,17 @@ public class World {
 		turns = 0;
 		name = "Default World";
 		order = new ArrayList<Critter>();
-		hexToUpdate = new ArrayList<>();
+		hexToUpdate = new HashMap<>();
 		// initialize some rocks into the world
-		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); i++) {
+		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
+				i++) {
 			int a = Math.abs(RandomGen.randomNumber(row));
 			int b = Math.abs(RandomGen.randomNumber(column));
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
+						0, 0, 0));
 			}
 		}
 	}
@@ -133,7 +136,7 @@ public class World {
     		int column = Integer.parseInt(temp[1]);
     		int row = Integer.parseInt(temp[2]);
     		world = new World(column,row,name);
-    		world.hexToUpdate = new ArrayList<>();
+    		world.hexToUpdate = new HashMap<>();
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
     				continue;
@@ -193,9 +196,9 @@ public class World {
 	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
-	public ArrayList<HexToUpdate> getHexToUpdate() {
-		ArrayList<HexToUpdate> tmp = hexToUpdate;
-		hexToUpdate = new ArrayList<>();
+	public HashMap<Position, HexToUpdate> getHexToUpdate() {
+		HashMap<Position, HexToUpdate> tmp = hexToUpdate;
+		hexToUpdate = new HashMap<>();
 		return tmp;
 	}
 	
@@ -282,14 +285,16 @@ public class World {
 		switch (elem.getType()) {
 			case "CRITTER":
 				Critter tmp = (Critter) elem;
-				hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, pos, 
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
 						tmp.getDir(), tmp.getSize(), tmp.getMem(IDX.POSTURE)));
 				break;
 			case "FOOD":
-				hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
+						0, 0, 0));
 				break;
 			case "ROCK":
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
+						0, 0, 0));
 				break;
 			default:
 				System.out.println("can't resolve the type for update");
@@ -316,7 +321,7 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-		hexToUpdate.add(new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
+		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
 	}
