@@ -15,7 +15,7 @@ import java.util.Random;
  */
 public class RandomGen {
 	
-	public static Random rand = new Random();
+	private static Random rand = new Random();
 
 	/** @return a integer in [0..size) */
 	public static int randomNumber(int size) {

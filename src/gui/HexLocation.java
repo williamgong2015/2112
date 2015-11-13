@@ -53,7 +53,7 @@ public class HexLocation {
     	return new HexLocation(Position.getV(pos.getColumn(), pos.getRow()),
     			Position.getH(pos.getColumn(), pos.getRow()), 
     			Position.getV(worldCol, worldRow), 
-    			Hex.HEX_SIZE);
+    			NewHex.HEX_SIZE);
 	}
 	
 	/**

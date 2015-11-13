@@ -50,9 +50,6 @@ public class World {
 	// record the change of state in each turn
 	private HashMap<Position, HexToUpdate> hexToUpdate;
 	
-	private volatile boolean hasStarted = false;
-	
-	
 	/**
 	 * Initialize a world
 	 * Check: {@code r} > 0, {@code c} > 0, 
@@ -84,6 +81,7 @@ public class World {
 		turns = 0;
 		hexes = new Hashtable<Position, Element>();
 		order = new ArrayList<Critter>();
+		hexToUpdate = new HashMap<>();
 	}
 	
 	/**
@@ -210,11 +208,6 @@ public class World {
 	 * 
 	 */
 	synchronized public void lapse() {
-		System.out.println("Start Lapse");
-    	if (hasStarted) 
-    		for (int i = 0; i < 10000; ++i)
-    			System.out.println("BOOOOOOOOMMMM - start of simulation");
-    	hasStarted = true;
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
@@ -231,7 +224,6 @@ public class World {
 			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(c.getProgram());
-//				System.out.println(c.getName() + " will: " + outcomes);
 				
 				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
 				if (outcomes.hasAction())
@@ -254,11 +246,6 @@ public class World {
 		for (Critter critter : toDelete) {
 			order.remove(critter);
 		}
-		System.out.println("End Lapse");
-    	if (!hasStarted) 
-    		for (int j = 0; j < 10000; ++j)
-    			System.out.println("BOOOOOOOOMMMM - end of simulation");
-    	hasStarted = false;
 	}
 	
 	/**
@@ -374,13 +361,14 @@ public class World {
 	 *                     {@code false} when printing coordinate
 	 * @param indent       the indent being used
 	 */
-	public void printASCII(boolean printElement, String indent) {
+	public String printASCII(boolean printElement, String indent) {
+		StringBuilder s = new StringBuilder();
 		int h; int v;
 		int horizonalBound = Position.getH(column, row);
 		int verticalBound = Position.getV(column, row);
 		for (h = horizonalBound-1; h >= 0; --h) {
 			if (h % 2 == 1) {
-				System.out.print(indent);
+				s.append(indent);
 				v = 1;
 			}
 			else 
@@ -388,32 +376,33 @@ public class World {
 			
 			for (; v < verticalBound; v += 2) {
 				if (printElement)
-					System.out.print(
+					s.append(
 							enquery(Position.getC(v,h),Position.getR(v,h)));
 				else 
-					System.out.print("(" + Position.getC(v,h) + "," + 
+					s.append("(" + Position.getC(v,h) + "," + 
 							Position.getR(v,h) + ")");
-				System.out.print(indent);
+				s.append(indent);
 			}
-			System.out.println();
+			s.append("\n");
 		}
+		return s.toString();
 	}
 	
 	/**
 	 * Effect: Print an ASCII-art map of the world
 	 */
-	public void printASCIIMap() {
+	public String printASCIIMap() {
 		String indent = " ";
-		printASCII(true, indent);
+		return printASCII(true, indent);
 	}
 	
 	/**
 	 * Effect: Print the coordinate representation of
 	 * the ASCII-art map of the world
 	 */
-	public void printCoordinatesASCIIMap() {
+	public String printCoordinatesASCIIMap() {
 		String indent = "      ";
-		printASCII(false, indent);
+		return printASCII(false, indent);
 	}
 	
 	private String enquery(int c, int r) {
@@ -497,6 +486,6 @@ public class World {
 	public String getWorldInfo() {
 		return "The world has step " + turns + " turns.\n" 
 				+ "There are " + order.size() + " critters living "
-						+ "in this world";
+						+ "in this world.";
 	}
 }

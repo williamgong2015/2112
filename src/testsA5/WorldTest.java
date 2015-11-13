@@ -55,7 +55,7 @@ public class WorldTest {
 		Food f = new Food(10);
 		w.setElemAtPosition(f, new Position(0,1));
 		w.printASCIIMap();
-		w.printCoordinatesASCIIMap();
+		System.out.println(w.printCoordinatesASCIIMap());
 	}
 	
 	/**
@@ -89,7 +89,7 @@ public class WorldTest {
 		
 		// delete critter
 		w.removeElemAtPosition(p);
-		w.printASCIIMap();
+		System.out.println(w.printASCIIMap());
 	}
 
 }

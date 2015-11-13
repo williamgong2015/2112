@@ -109,11 +109,8 @@ public class NewHex {
 		int[] closestPoint = new int[] {-1, -1};
 		double closestDistance = Double.MAX_VALUE;
 		for (HexLocation hexLoc : toCheck) {
-			System.out.print("checking col: " + hexLoc.c +
-					", row: " + hexLoc.r);
 			double tmp = distance(hexLoc.xPos, targetXPos, 
 					hexLoc.yPos, targetYPos);
-			System.out.println(".  the distance is " + tmp);
 			if (tmp < closestDistance) {
 				closestDistance = tmp;
 				closestPoint[0] = hexLoc.c;

@@ -43,6 +43,10 @@ import simulate.World;
  * - Execute the update of View based HexToUpdate passed from underlying 
  *   critter world
  *
+ * Reference: 
+ * - The zooming functionality is modified from: 
+ *   - http://hg.openjdk.java.net/openjfx/8u-dev/rt/rev/36a59c629605
+ *   - https://www.youtube.com/watch?v=ij0HwRAlCmo
  */
 public class Main extends Application {
     private final static int DEFAULT_WORLD_IDX = 0;
@@ -69,8 +73,6 @@ public class Main extends Application {
     private volatile double speed;
     private volatile int counterWorldLapse;
     private volatile int counterWorldDraw;
-    private volatile int tmpID;
-    private volatile boolean hasStarted = false;
     Timeline timeline;
     
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
@@ -91,7 +93,7 @@ public class Main extends Application {
         worldPane = (Pane) root.lookup("#world_pane"); 
         worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
         critterInfoLabel = (Label) root.lookup("#critterinfodetails_label");
-//        Alerts.alertWellcome();
+        Alerts.alertWellcome();
         // set the iteration count to be as large as it can
         timeline = new Timeline();
         timeline.setCycleCount(Integer.MAX_VALUE);
@@ -212,7 +214,6 @@ public class Main extends Application {
 	                 world.getRow());
 	    worldCol = Position.getV(world.getColumn(), 
 	       			 world.getRow());
-	    System.out.println("worldRow: " + worldRow);
 	    world.printCoordinatesASCIIMap();
     	worldPane.getChildren().clear();
     	final Canvas canvas = 
@@ -247,14 +248,11 @@ public class Main extends Application {
     		new Thread() { // Create a new background process
     		    public void run() {
     		        // world simulation in background
-    		    	tmpID = util.RandomGen.randomNumber();
     		    	world.lapse();
-    		    	System.out.println("Simulation id: " + tmpID);
     		        Platform.runLater(new Runnable() { // Go back to UI/application thread
     		            public void run() {
     		                // Update UI to reflect changes to the model
     		            	executeHexUpdate(world.getHexToUpdate().values());
-    		            	System.out.println("Drawing id: " + tmpID);
     		            }
     		        });
     		    }
@@ -268,8 +266,6 @@ public class Main extends Application {
     	}
 		new Thread() { // Create a new background process
 		    public void run() {
-		    	tmpID = util.RandomGen.randomNumber();
-		    	System.out.println("Simulation id: " + tmpID);
 		        // world simulation in background
 		    	world.lapse();
 		    	counterWorldLapse++;
@@ -279,7 +275,6 @@ public class Main extends Application {
 		            	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
 		            		executeHexUpdate(world.getHexToUpdate().values());
 		            		counterWorldDraw++;
-		            		System.out.println("Drawing id: " + tmpID);
 		            	}
 		            }
 		        });
@@ -294,14 +289,11 @@ public class Main extends Application {
 		new Thread() { // Create a new background process
 		    public void run() {
 		        // world simulation in background
-		    	tmpID = util.RandomGen.randomNumber();
 		    	world.lapse();
-		    	System.out.println("Simulation id: " + tmpID);
 		        Platform.runLater(new Runnable() { // Go back to UI/application thread
 		            public void run() {
 		                // Update UI to reflect changes to the model
 		            	executeHexUpdate(world.getHexToUpdate().values());
-		            	System.out.println("Drawing id: " + tmpID);
 		            }
 		        });
 		    }
@@ -314,11 +306,6 @@ public class Main extends Application {
      * @throws Exception 
      */
     synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
-    	System.out.println("Start Update GUI");
-    	if (hasStarted) 
-    		for (int i = 0; i < 10000; ++i)
-    			System.out.println("BOOOOOOOOMMMM - start of draw");
-    	hasStarted = true;
     	for (HexToUpdate update : list) {
     		HexLocation loc = HexLocation.positionToLocation(
     				update.pos, worldCol, worldRow);
@@ -342,13 +329,9 @@ public class Main extends Application {
 	    			break;
     		}
     	}
-    	worldInfoLabel.setText(world.getWorldInfo());
+    	worldInfoLabel.setText("World running at the speed of " + speed + 
+    			" steps per second. \n" + world.getWorldInfo());
     	critterInfoLabel.setText("");
-    	System.out.println("End Update GUI");
-    	if (!hasStarted)
-    		for (int i = 0; i < 10000; ++i)
-    			System.out.println("BOOOOOOOOMMMM - end of draw");
-    	hasStarted = false;
     }
     
     /**
@@ -540,9 +523,6 @@ public class Main extends Application {
         fileChooser.getExtensionFilters().add(
                 new ExtensionFilter("Text Files", "*.txt"));
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
-        if (selectedFile != null) {
-        	System.out.println("Select file: " + selectedFile);
-        }
         return selectedFile;
     }
     
@@ -553,11 +533,8 @@ public class Main extends Application {
 		public void handle(MouseEvent event) {
 			double x = event.getX();
 			double y = event.getY();
-//			System.out.println("You click x: " + x + ", y: " + y);
 			int[] nearestHexIndex = 
 					NewHex.classifyPoint(x, y, worldRow, worldCol);
-//			System.out.println("the point is col: " + nearestHexIndex[0]
-//					+ ", row: " + nearestHexIndex[1]);
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
@@ -621,16 +598,12 @@ public class Main extends Application {
 	 * @param COLOR - the color used to draw the polyline
 	 */
 	private void drawPolyLineAt(double x, double y, Color COLOR) {
-		System.out.println("Event triggered by x: " + x + ", y: " + y);
 		int[] nearestHexIndex = 
 				NewHex.classifyPoint(x, y, worldRow, worldCol);
 		if (nearestHexIndex[0] == -1 ||
 				nearestHexIndex[1] == -1)
 			return;
-		System.out.println("draw: " + COLOR);
 		gc.setStroke(COLOR);
-		System.out.println("Drawing col: " + nearestHexIndex[0]
-				+ ", row: " + nearestHexIndex[1]);
 		NewHex tmpHex = new NewHex(nearestHexIndex[0],
 				nearestHexIndex[1], worldRow);
    		gc.strokePolyline(tmpHex.xPoints, tmpHex.yPoints, 
