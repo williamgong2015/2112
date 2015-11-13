@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Scanner;
 
+import constant.Constant;
 import exceptions.SyntaxError;
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
@@ -99,7 +101,6 @@ public class Main extends Application {
         worldPane = (Pane) root.lookup("#world_pane"); 
         worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
         critterInfoLabel = (Label) root.lookup("#critterinfodetails_label");
-        Alerts.alertWellcome();
         // set the iteration count to be as large as it can
         timeline = new Timeline();
         timeline.setCycleCount(Integer.MAX_VALUE);
@@ -108,8 +109,18 @@ public class Main extends Application {
         timeline.getKeyFrames().add(
         		getWorldSimulationKeyFrame(intialStepsPerSecond));
         
-        // initialize button
         
+        // initialize the default world and load default critter file
+        world = new World();
+        drawWorldLayout();
+        HashMap<Position, HexToUpdate> tmp = 
+				world.getHexToUpdate();
+		executeHexUpdate(tmp.values());
+		critterFile = new File(Main.class.
+				getResource("colorful_critter.txt").getPath());
+        
+		
+		// initialize button
         MenuButton worldFileBtn = 
         		(MenuButton) root.lookup("#newworld_manubutton");
         worldFileBtn.getItems().get(DEFAULT_WORLD_IDX)
@@ -120,6 +131,7 @@ public class Main extends Application {
         	    				world.getHexToUpdate();
         	    		executeHexUpdate(hexToUpdate.values());
 				    });
+        
         
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
         		.setOnAction(e -> {

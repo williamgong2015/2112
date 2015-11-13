@@ -6,4 +6,4 @@ size: 1
 energy: 500
 posture: 17
 
-0 = 1 --> forward; // mostly soak up the rays
+1 = 1 --> right; // always right turn
