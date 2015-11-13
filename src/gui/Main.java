@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Scanner;
-
-import constant.Constant;
 import exceptions.SyntaxError;
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;

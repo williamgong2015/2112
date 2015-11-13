@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 
 /**
- * A hex Polygon placed in the world that has an id, and location,
- * critters/foods/rocks are draw inside of it using ImagePattern
- *
+ * A hex placed in the world GUI, it keeps all 6 points making up its boundary 
+ * Provide method to classify a Point the world GUI to a specific hex that it
+ * belongs to. 
  */
 public class NewHex {
 
