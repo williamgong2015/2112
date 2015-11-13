@@ -1,6 +1,7 @@
 package gui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -82,8 +83,13 @@ public class Main extends Application {
 	
 	
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        root = FXMLLoader.load(getClass().getResource("a6.fxml"));
+    public void start(Stage primaryStage) {
+        try {
+			root = FXMLLoader.load(getClass().getResource("a6.fxml"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			System.out.println("can't find the fxml file");
+		}
         primaryStage.setTitle("Critter World");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
@@ -303,7 +309,6 @@ public class Main extends Application {
     /**
      * Effect: execute a list of Hex update and refresh world info and 
      *         clear the critter info (because it may has changed)
-     * @throws Exception 
      */
     synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
     	for (HexToUpdate update : list) {
