@@ -2,6 +2,7 @@ package constant;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Scanner;
 
 /**
@@ -86,8 +87,8 @@ public class Constant {
 	 * @throws IOException
 	 */
 	public static void init() throws IOException {
-		Scanner in = new Scanner(new File(Constant.class.
-				getResource("constant.txt").getPath())); 
+		Scanner in = new Scanner(Constant.class.
+				getResourceAsStream("constant.txt")); 
 
 		while (in.hasNextLine()) {
 			String newConstant = in.nextLine();
