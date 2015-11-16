@@ -1,22 +1,0 @@
-1.
-public TVBool or(TVBool that) {TVBool result = new TVBool();result.state = Math.max(this.state, that.state); return result;}
-2.
-In normalize, change the representation of the object doesn’t change its value, that is true, false or unknown . 
-In not, because the state of the instance is not initialized, so we need to assign a value to initialize it.
-3.
-Because the state isn’t normalized. So two TVBool which are logically equal will have different hashCode.
-public int hashCode() {
-    normalize();
-    return state;
-}
-public boolean equals(Object o) {
-     if(o == null)
-	return false;
-     if(o instance of TVBool) {
-       TVBool temp = (TVBool)o;
-       temp.normalize();
-       this.normalize();
-       return this.state == temp.state;
-     }
-     return false;
-}
