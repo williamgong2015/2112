@@ -2,6 +2,7 @@ package execute;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ast.ProgramImpl;
 import ast.Rule;
@@ -46,7 +47,7 @@ public class Executor {
 	 * @return
 	 */
 	public ResultList execute(Outcome out, 
-			ArrayList<HexToUpdate> hexToUpdate) {
+			HashMap<Position, HexToUpdate> hexToUpdate) {
 		resultList = new ResultList();
 		for(String i : out) {
 			char ch = i.charAt(0);
@@ -163,15 +164,16 @@ public class Executor {
 	 *                      in GUI world
 	 */
 	public void critterTurn(boolean left, 
-			ArrayList<HexToUpdate> hexToUpdate) {
+			HashMap<Position, HexToUpdate> hexToUpdate) {
 		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
 			handleCritterDeath(c, w);
 			return;
 		}
 		c.Turn(left);
-		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
-				c.getDir(), c.getSize(), c.getMem(IDX.POSTURE)));
+		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
+				c.getPosition(), c.getDir(), c.getSize(), 
+				c.getMem(IDX.POSTURE)));
 	}
 
 	
@@ -289,7 +291,7 @@ public class Executor {
 	/**
 	 * A critter may use energy to increase its size by one unit.
 	 */
-	public void critterGrow(ArrayList<HexToUpdate> hexToUpdate) {
+	public void critterGrow(HashMap<Position, HexToUpdate> hexToUpdate) {
 		c.increaseEnergy(-Constant.GROW_COST * c.getMem(IDX.SIZE)
 				* c.getComplexity());
 		if (!c.stillAlive()) {
@@ -297,8 +299,9 @@ public class Executor {
 			return;
 		}
 		c.setMem(IDX.SIZE, c.getMem(IDX.SIZE) + 1);
-		hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, c.getPosition(), 
-				c.getDir(), c.getSize(), c.getMem(IDX.POSTURE)));
+		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
+				c.getPosition(), c.getDir(), c.getSize(), 
+				c.getMem(IDX.POSTURE)));
 	}
 	
 	/**

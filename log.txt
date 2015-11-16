@@ -1,3 +1,48 @@
+<<<<<<< HEAD
+=======
+commit 9cb6f64b1b4e82acfb5b8cfdc21ce3152fa6ecba
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 23:21:59 2015 -0500
+
+    change reading constant.txt to inputstream to accommodate with java JAR
+
+commit 9f855a70ab426b0cca8c2689ee7e6ae9fa4f70bc
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 23:06:55 2015 -0500
+
+    add some comments
+
+commit 2692e1335754318f52cfb437f950d5b428c657b8
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 22:10:48 2015 -0500
+
+    adjust folder hierachy before submitting
+
+commit 015aeb2b70cafa448e1fbf9b0046710b473bae4e
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 19:23:31 2015 -0500
+
+    Main in package 'gui' shouldn't throw exception
+
+commit a7cc6725e57bc8cc8b72224c91ae4227979de97d
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 19:17:06 2015 -0500
+
+    delete dead code, fixs some bugs in a5 mentioned in a5 feedback
+
+commit 09e19ea576a5c92ad6f2f4765fad54d673ecd9ac
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 15:19:12 2015 -0500
+
+    finished adding lock on single timeline version
+
+commit 6413352df40a1cae94a657092b155e3be2b1b713
+Author: yuxin <cys32524@gmail.com>
+Date:   Thu Nov 12 08:56:52 2015 -0500
+
+    change the update stack to impl to hashmap
+
+>>>>>>> b0cea49dcaf7f10ab00393c0544cb2f76e209a79
 commit 05296b667b6d5f4b8640d6ab99664ed7844858c7
 Author: yuxin <cys32524@gmail.com>
 Date:   Wed Nov 11 18:09:57 2015 -0500

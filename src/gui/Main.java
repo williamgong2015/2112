@@ -1,15 +1,16 @@
 package gui;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
-
 import exceptions.SyntaxError;
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -42,6 +43,10 @@ import simulate.World;
  * - Execute the update of View based HexToUpdate passed from underlying 
  *   critter world
  *
+ * Reference: 
+ * - The zooming functionality is modified from: 
+ *   - http://hg.openjdk.java.net/openjfx/8u-dev/rt/rev/36a59c629605
+ *   - https://www.youtube.com/watch?v=ij0HwRAlCmo
  */
 public class Main extends Application {
     private final static int DEFAULT_WORLD_IDX = 0;
@@ -65,9 +70,9 @@ public class Main extends Application {
     // - if the speed > 30, each cycle lapse the world but 
     //   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
     //   and have counterWorldDraw++ after drawing the world
-    private double speed;
-    private int counterWorldLapse;
-    private int counterWorldDraw;
+    private volatile double speed;
+    private volatile int counterWorldLapse;
+    private volatile int counterWorldDraw;
     Timeline timeline;
     
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
@@ -77,8 +82,13 @@ public class Main extends Application {
 	
 	
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        root = FXMLLoader.load(getClass().getResource("a6.fxml"));
+    public void start(Stage primaryStage) {
+        try {
+			root = FXMLLoader.load(getClass().getResource("a6.fxml"));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			System.out.println("can't find the fxml file");
+		}
         primaryStage.setTitle("Critter World");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
@@ -88,7 +98,6 @@ public class Main extends Application {
         worldPane = (Pane) root.lookup("#world_pane"); 
         worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
         critterInfoLabel = (Label) root.lookup("#critterinfodetails_label");
-//        Alerts.alertWellcome();
         // set the iteration count to be as large as it can
         timeline = new Timeline();
         timeline.setCycleCount(Integer.MAX_VALUE);
@@ -97,27 +106,40 @@ public class Main extends Application {
         timeline.getKeyFrames().add(
         		getWorldSimulationKeyFrame(intialStepsPerSecond));
         
-        // initialize button
         
+        // initialize the default world and load default critter file
+        world = new World();
+        drawWorldLayout();
+        HashMap<Position, HexToUpdate> tmp = 
+				world.getHexToUpdate();
+		executeHexUpdate(tmp.values());
+		critterFile = new File(Main.class.
+				getResource("colorful_critter.txt").getPath());
+        
+		
+		// initialize button
         MenuButton worldFileBtn = 
         		(MenuButton) root.lookup("#newworld_manubutton");
         worldFileBtn.getItems().get(DEFAULT_WORLD_IDX)
 				.setOnAction(e -> {
 				        world = new World();
 				        drawWorldLayout();
-				        ArrayList<HexToUpdate> hexToUpdate = 
+				        HashMap<Position, HexToUpdate> hexToUpdate = 
         	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+        	    		executeHexUpdate(hexToUpdate.values());
 				    });
+        
         
         worldFileBtn.getItems().get(CUSTOM_WORLD_IDX)
         		.setOnAction(e -> {
         		        worldFile = loadFile(primaryStage);
+        		        if (worldFile == null)
+        		        	return;
         		        world = World.loadWorld(worldFile);
         		        drawWorldLayout(); 
-        		        ArrayList<HexToUpdate> hexToUpdate = 
+        		        HashMap<Position, HexToUpdate> hexToUpdate = 
         	    				world.getHexToUpdate();
-        	    		executeHexUpdate(hexToUpdate);
+        	    		executeHexUpdate(hexToUpdate.values());
         		    });
         
         Button critterFileBtn = (Button) root.lookup("#loadcritter_button");
@@ -148,9 +170,9 @@ public class Main extends Application {
         worldStopButton.setOnAction(e -> {
         	// execute update to keep the View - Model synchronized
         	timeline.stop();
-        	ArrayList<HexToUpdate> hexToUpdate = 
+        	HashMap<Position, HexToUpdate> hexToUpdate = 
     				world.getHexToUpdate();
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
         });
         
         Slider simulationSpeedSlider = 
@@ -207,7 +229,6 @@ public class Main extends Application {
 	                 world.getRow());
 	    worldCol = Position.getV(world.getColumn(), 
 	       			 world.getRow());
-	    System.out.println("worldRow: " + worldRow);
 	    world.printCoordinatesASCIIMap();
     	worldPane.getChildren().clear();
     	final Canvas canvas = 
@@ -236,44 +257,69 @@ public class Main extends Application {
      * with a maximum speed limitation of 30
      */
     private void worldRunAhead() {
-//    	System.out.println("Speed: " + speed);
-//    	System.out.println("World Lapse: " + counterWorldLapse);
-//    	System.out.println("World Draw: " + counterWorldDraw);
 		// no need to bother with the counter if speed <= 30
 		// because always lapse and draw the world at the same time
     	if (speed <= 30) {
-	    	world.lapse();
-	    	executeHexUpdate(world.getHexToUpdate());
+    		new Thread() { // Create a new background process
+    		    public void run() {
+    		        // world simulation in background
+    		    	world.lapse();
+    		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+    		            public void run() {
+    		                // Update UI to reflect changes to the model
+    		            	executeHexUpdate(world.getHexToUpdate().values());
+    		            }
+    		        });
+    		    }
+    		}.start(); // Starts the background thread!
 	    	return;
-    	} 
+    	}
     	// detect overflow, lose a little precision of interval here
     	if (counterWorldLapse == Integer.MAX_VALUE) {
-    		world.lapse();
     		counterWorldLapse = 0;
     		counterWorldDraw = 0;
-    		return;
     	}
-    	world.lapse();
-    	counterWorldLapse++;
-    	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
-    		executeHexUpdate(world.getHexToUpdate());
-    		counterWorldDraw++;
-    	}
+		new Thread() { // Create a new background process
+		    public void run() {
+		        // world simulation in background
+		    	world.lapse();
+		    	counterWorldLapse++;
+		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+		            public void run() {
+		                // Update UI to reflect changes to the model
+		            	if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
+		            		executeHexUpdate(world.getHexToUpdate().values());
+		            		counterWorldDraw++;
+		            	}
+		            }
+		        });
+		    }
+		}.start(); // Starts the background thread!
     }
     
     /**
      * Have the underlying world proceed for one turn and update the GUI
      */
     private void worldStepAhead() {
-    	world.lapse();
-    	executeHexUpdate(world.getHexToUpdate());
+		new Thread() { // Create a new background process
+		    public void run() {
+		        // world simulation in background
+		    	world.lapse();
+		        Platform.runLater(new Runnable() { // Go back to UI/application thread
+		            public void run() {
+		                // Update UI to reflect changes to the model
+		            	executeHexUpdate(world.getHexToUpdate().values());
+		            }
+		        });
+		    }
+		}.start(); // Starts the background thread!
     }
     
     /**
      * Effect: execute a list of Hex update and refresh world info and 
      *         clear the critter info (because it may has changed)
      */
-    private void executeHexUpdate(ArrayList<HexToUpdate> list) {
+    synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
     	for (HexToUpdate update : list) {
     		HexLocation loc = HexLocation.positionToLocation(
     				update.pos, worldCol, worldRow);
@@ -297,8 +343,8 @@ public class Main extends Application {
 	    			break;
     		}
     	}
-    	System.out.println(world.toString());
-    	worldInfoLabel.setText(world.getWorldInfo());
+    	worldInfoLabel.setText("World running at the speed of " + speed + 
+    			" steps per second. \n" + world.getWorldInfo());
     	critterInfoLabel.setText("");
     }
     
@@ -452,9 +498,9 @@ public class Main extends Application {
     	}
     	try {
     		int n = Integer.parseInt(critterNumStr);
-    		ArrayList<HexToUpdate> hexToUpdate = 
+    		HashMap<Position, HexToUpdate> hexToUpdate = 
     				Critter.loadCrittersIntoWorld(world, critterFile, n);
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
     	} catch (SyntaxError err) {
     		Alerts.alertCritterFileIllegal();
     	} catch (Exception expt) {
@@ -473,11 +519,11 @@ public class Main extends Application {
     	}
     	try {
     		HexLocation loc = current.getLoc();
-    		ArrayList<HexToUpdate> hexToUpdate = 
+    		HashMap<Position, HexToUpdate> hexToUpdate = 
 	    		Critter.insertCritterIntoWorld(world, critterFile, 
 	    				Position.getC(loc.c, loc.r),
 	    				Position.getR(loc.c, loc.r));
-    		executeHexUpdate(hexToUpdate);
+    		executeHexUpdate(hexToUpdate.values());
     	} catch (Exception err) {
     		err.printStackTrace();
     		Alerts.alertCritterFileIllegal();
@@ -491,9 +537,6 @@ public class Main extends Application {
         fileChooser.getExtensionFilters().add(
                 new ExtensionFilter("Text Files", "*.txt"));
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
-        if (selectedFile != null) {
-        	System.out.println("Select file: " + selectedFile);
-        }
         return selectedFile;
     }
     
@@ -504,11 +547,8 @@ public class Main extends Application {
 		public void handle(MouseEvent event) {
 			double x = event.getX();
 			double y = event.getY();
-//			System.out.println("You click x: " + x + ", y: " + y);
 			int[] nearestHexIndex = 
 					NewHex.classifyPoint(x, y, worldRow, worldCol);
-//			System.out.println("the point is col: " + nearestHexIndex[0]
-//					+ ", row: " + nearestHexIndex[1]);
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
@@ -572,16 +612,12 @@ public class Main extends Application {
 	 * @param COLOR - the color used to draw the polyline
 	 */
 	private void drawPolyLineAt(double x, double y, Color COLOR) {
-		System.out.println("Event triggered by x: " + x + ", y: " + y);
 		int[] nearestHexIndex = 
 				NewHex.classifyPoint(x, y, worldRow, worldCol);
 		if (nearestHexIndex[0] == -1 ||
 				nearestHexIndex[1] == -1)
 			return;
-		System.out.println("draw: " + COLOR);
 		gc.setStroke(COLOR);
-		System.out.println("Drawing col: " + nearestHexIndex[0]
-				+ ", row: " + nearestHexIndex[1]);
 		NewHex tmpHex = new NewHex(nearestHexIndex[0],
 				nearestHexIndex[1], worldRow);
    		gc.strokePolyline(tmpHex.xPoints, tmpHex.yPoints, 

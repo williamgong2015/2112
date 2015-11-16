@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 
 /**
- * A hex Polygon placed in the world that has an id, and location,
- * critters/foods/rocks are draw inside of it using ImagePattern
- *
+ * A hex placed in the world GUI, it keeps all 6 points making up its boundary 
+ * Provide method to classify a Point the world GUI to a specific hex that it
+ * belongs to. 
  */
 public class NewHex {
 
@@ -109,11 +109,8 @@ public class NewHex {
 		int[] closestPoint = new int[] {-1, -1};
 		double closestDistance = Double.MAX_VALUE;
 		for (HexLocation hexLoc : toCheck) {
-			System.out.print("checking col: " + hexLoc.c +
-					", row: " + hexLoc.r);
 			double tmp = distance(hexLoc.xPos, targetXPos, 
 					hexLoc.yPos, targetYPos);
-			System.out.println(".  the distance is " + tmp);
 			if (tmp < closestDistance) {
 				closestDistance = tmp;
 				closestPoint[0] = hexLoc.c;

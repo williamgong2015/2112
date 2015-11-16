@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import constant.Constant;
@@ -47,8 +48,7 @@ public class World {
 	public ArrayList<Critter> order;
 	
 	// record the change of state in each turn
-	private ArrayList<HexToUpdate> hexToUpdate;
-	
+	private HashMap<Position, HexToUpdate> hexToUpdate;
 	
 	/**
 	 * Initialize a world
@@ -81,6 +81,7 @@ public class World {
 		turns = 0;
 		hexes = new Hashtable<Position, Element>();
 		order = new ArrayList<Critter>();
+		hexToUpdate = new HashMap<>();
 	}
 	
 	/**
@@ -105,15 +106,17 @@ public class World {
 		turns = 0;
 		name = "Default World";
 		order = new ArrayList<Critter>();
-		hexToUpdate = new ArrayList<>();
+		hexToUpdate = new HashMap<>();
 		// initialize some rocks into the world
-		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); i++) {
+		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
+				i++) {
 			int a = Math.abs(RandomGen.randomNumber(row));
 			int b = Math.abs(RandomGen.randomNumber(column));
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
+						0, 0, 0));
 			}
 		}
 	}
@@ -133,7 +136,7 @@ public class World {
     		int column = Integer.parseInt(temp[1]);
     		int row = Integer.parseInt(temp[2]);
     		world = new World(column,row,name);
-    		world.hexToUpdate = new ArrayList<>();
+    		world.hexToUpdate = new HashMap<>();
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
     				continue;
@@ -193,9 +196,9 @@ public class World {
 	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
-	public ArrayList<HexToUpdate> getHexToUpdate() {
-		ArrayList<HexToUpdate> tmp = hexToUpdate;
-		hexToUpdate = new ArrayList<>();
+	public HashMap<Position, HexToUpdate> getHexToUpdate() {
+		HashMap<Position, HexToUpdate> tmp = hexToUpdate;
+		hexToUpdate = new HashMap<>();
 		return tmp;
 	}
 	
@@ -204,7 +207,7 @@ public class World {
 	 * A new turn of the world 
 	 * 
 	 */
-	public void lapse() {
+	synchronized public void lapse() {
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
@@ -221,7 +224,6 @@ public class World {
 			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(c.getProgram());
-//				System.out.println(c.getName() + " will: " + outcomes);
 				
 				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
 				if (outcomes.hasAction())
@@ -282,14 +284,16 @@ public class World {
 		switch (elem.getType()) {
 			case "CRITTER":
 				Critter tmp = (Critter) elem;
-				hexToUpdate.add(new HexToUpdate(HEXType.CRITTER, pos, 
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
 						tmp.getDir(), tmp.getSize(), tmp.getMem(IDX.POSTURE)));
 				break;
 			case "FOOD":
-				hexToUpdate.add(new HexToUpdate(HEXType.FOOD, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
+						0, 0, 0));
 				break;
 			case "ROCK":
-				hexToUpdate.add(new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
+				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
+						0, 0, 0));
 				break;
 			default:
 				System.out.println("can't resolve the type for update");
@@ -316,7 +320,7 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-		hexToUpdate.add(new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
+		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
 	}
@@ -357,13 +361,14 @@ public class World {
 	 *                     {@code false} when printing coordinate
 	 * @param indent       the indent being used
 	 */
-	public void printASCII(boolean printElement, String indent) {
+	public String printASCII(boolean printElement, String indent) {
+		StringBuilder s = new StringBuilder();
 		int h; int v;
 		int horizonalBound = Position.getH(column, row);
 		int verticalBound = Position.getV(column, row);
 		for (h = horizonalBound-1; h >= 0; --h) {
 			if (h % 2 == 1) {
-				System.out.print(indent);
+				s.append(indent);
 				v = 1;
 			}
 			else 
@@ -371,32 +376,33 @@ public class World {
 			
 			for (; v < verticalBound; v += 2) {
 				if (printElement)
-					System.out.print(
+					s.append(
 							enquery(Position.getC(v,h),Position.getR(v,h)));
 				else 
-					System.out.print("(" + Position.getC(v,h) + "," + 
+					s.append("(" + Position.getC(v,h) + "," + 
 							Position.getR(v,h) + ")");
-				System.out.print(indent);
+				s.append(indent);
 			}
-			System.out.println();
+			s.append("\n");
 		}
+		return s.toString();
 	}
 	
 	/**
 	 * Effect: Print an ASCII-art map of the world
 	 */
-	public void printASCIIMap() {
+	public String printASCIIMap() {
 		String indent = " ";
-		printASCII(true, indent);
+		return printASCII(true, indent);
 	}
 	
 	/**
 	 * Effect: Print the coordinate representation of
 	 * the ASCII-art map of the world
 	 */
-	public void printCoordinatesASCIIMap() {
+	public String printCoordinatesASCIIMap() {
 		String indent = "      ";
-		printASCII(false, indent);
+		return printASCII(false, indent);
 	}
 	
 	private String enquery(int c, int r) {
@@ -480,6 +486,6 @@ public class World {
 	public String getWorldInfo() {
 		return "The world has step " + turns + " turns.\n" 
 				+ "There are " + order.size() + " critters living "
-						+ "in this world";
+						+ "in this world.";
 	}
 }

@@ -14,16 +14,29 @@ public class Console {
     public boolean done;
     public World world;
 
-    public static void main(String[] args) throws IOException, SyntaxError {
+    public static void main(String[] args) {
         Console console = new Console();
-        String current = new java.io.File( "." ).getCanonicalPath();
+        String current;
+		try {
+			current = new java.io.File( "." ).getCanonicalPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("can't find the file");
+			return;
+		}
         System.out.println("Current dir:"+current);
         String currentDir = System.getProperty("user.dir");
         System.out.println("Current dir using System:" +currentDir);
 
         while (!console.done) {
             System.out.print("Enter a command or \"help\" for a list of commands.\n> ");
-            console.handleCommand();
+            try {
+				console.handleCommand();
+			} catch (IOException | SyntaxError e) {
+				e.printStackTrace();
+				System.out.println("fail to handle command");
+				return;
+			}
         }
     }
 
@@ -133,8 +146,8 @@ public class Console {
      * map of the simulation.
      */
     public void worldInfo() {
-        world.printASCIIMap();
-        world.printCoordinatesASCIIMap();
+        System.out.println(world.printASCIIMap());
+        System.out.println(world.printCoordinatesASCIIMap());
     }
 
     /**

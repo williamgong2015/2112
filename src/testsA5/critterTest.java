@@ -12,12 +12,12 @@ public class critterTest {
 
 	@Test
 	public void test() throws IOException, SyntaxError {
-		String file = "critter1.txt";
+		String file = critterTest.class.getResource("critter1.txt").getPath();
 		Critter c = new Critter(file);
 		System.out.println(c);
 		
 		//test if the memory size will be set to MIN_MEMORY
-		file = "critter2.txt";
+		file = critterTest.class.getResource("critter2.txt").getPath();
 		c = new Critter(file);
 		System.out.println(c);
 	}

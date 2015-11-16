@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import ast.ProgramImpl;
 import ast.Rule;
@@ -118,10 +118,10 @@ public class Critter extends Element {
 	 * @throws SyntaxError
 	 * @return an array of Position the critter are inserted into
 	 */
-	public static ArrayList<HexToUpdate> 
+	public static HashMap<Position, HexToUpdate> 
 	loadCrittersIntoWorld(World world, File filename, 
 			int n) throws IOException, SyntaxError {
-		ArrayList<HexToUpdate> result = new ArrayList<>();
+		HashMap<Position, HexToUpdate> result = new HashMap<>();
     	// check there are enough slot to put the critter 
     	if (n > world.availableSlot())
         	n = world.availableSlot();
@@ -132,7 +132,7 @@ public class Critter extends Element {
         	Position pos = new Position(b, a);
         	if(world.checkPosition(pos) &&
         			world.getElemAtPosition(pos) == null) {
-        		result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, 
+        		result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
         				c.getSize(), c.getMem(IDX.POSTURE)));
         		world.setElemAtPosition(c, pos);
         		world.addCritterToList(c);
@@ -143,7 +143,7 @@ public class Critter extends Element {
     }
 	
 	
-	public static ArrayList<HexToUpdate> 
+	public static HashMap<Position, HexToUpdate> 
 	loadCrittersIntoWorld(World world, String filename, 
 			int n) throws IOException, SyntaxError {
 		return loadCrittersIntoWorld(world, new File(filename), n);
@@ -159,16 +159,16 @@ public class Critter extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public static ArrayList<HexToUpdate> 
+	public static HashMap<Position, HexToUpdate> 
 	insertCritterIntoWorld(World world, File filename,
 			int column, int row) throws IOException, SyntaxError {
-		ArrayList<HexToUpdate> result = new ArrayList<>();
+		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		Critter c = new Critter(filename);
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {
-			result.add(new HexToUpdate(HEXType.CRITTER, pos, 0, c.getSize(),
-					c.getMem(IDX.POSTURE)));
+			result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
+					c.getSize(), c.getMem(IDX.POSTURE)));
 			world.setElemAtPosition(c, pos);
     		world.addCritterToList(c);
 		}

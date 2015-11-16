@@ -569,7 +569,8 @@ public class ExecutorTest {
 	@Test
 	public void testThousandSteps() throws IOException, SyntaxError {
 		World w = new World();
-		Critter.loadCrittersIntoWorld(w, "txt/ThousandSteps/critter.txt", 200);
+		Critter.loadCrittersIntoWorld(w, 
+				"txt/ThousandSteps/critter.txt", 200);
 		Food.loadFoodIntoWorld(w, 10, 20);
 		w.printASCIIMap();
 		
