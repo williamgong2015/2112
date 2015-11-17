@@ -34,7 +34,8 @@ public class smellTests {
 		assertTrue(s.eval(c, world).equals("1000000"));
 		
 		//test when we have rocks
-		
+		c.setPosition(new Position(6,4));
+		assertTrue(s.eval(c, world).equals("6000"));
 	}
 
 }
