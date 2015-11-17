@@ -16,6 +16,7 @@ import ast.Relation;
 import ast.Rule;
 import ast.UnaryCommand;
 import ast.UnaryExpr;
+import ast.smell;
 import exceptions.SyntaxError;
 import ast.BinaryExpr;
 import ast.Number;
@@ -281,8 +282,7 @@ public class ParserImpl implements Parser {
         }
         //not sure...
         if(temp.getType().equals(TokenType.SMELL)) {
-        	Number n = new Number(0);
-        	return n;
+        	return new smell();
         }
         throw new SyntaxError();
     }
