@@ -7,7 +7,18 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
-
+	
+	private E[] data;
+	private int head;
+	private int tail;
+	
+	@SuppressWarnings("unchecked")
+	public RingBuffer(int size) {
+		head = 0;
+		tail = 0;
+		data = (E[])(new Object[size]);
+	}
+	
 	@Override
 	public int size() {
 		// TODO Auto-generated method stub  1
@@ -33,44 +44,9 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	}
 
 	@Override
-	public Object[] toArray() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public <T> T[] toArray(T[] a) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean add(E e) {
 		// TODO Auto-generated method stub  1
 		return false;
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void clear() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -104,19 +80,9 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	}
 
 	@Override
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void put(E e) throws InterruptedException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -144,5 +110,51 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	public int drainTo(Collection<? super E> c, int maxElements) {
 		throw new UnsupportedOperationException();
 	}
+	
+	@Override
+	public Object[] toArray() {
+		throw new UnsupportedOperationException();
+	}
 
+	@Override
+	public <T> T[] toArray(T[] a) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+		throw new UnsupportedOperationException();
+	}
+	
+
+	@Override
+	public boolean remove(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
 }
