@@ -71,7 +71,7 @@ public class smell extends Expr{
 		DetailedPosition p = BFS(w, start);
 		if(p == null)
 			return "1000000";
-		return "" + (p.distance*1000 + p.initialDirection);
+		return "" + ((p.distance-1)*1000 + p.initialDirection);
 	}
 
 	@Override
@@ -89,29 +89,26 @@ public class smell extends Expr{
 		HashSet<DetailedPosition> visited = new HashSet<>();
 		visited.add(start);
 		LinkedList<DetailedPosition> queue = new LinkedList<>();
-		DetailedPosition left = new DetailedPosition(start.pos,
-												(start.direction+1)%6,
-												(start.direction+1)%6,1);
-		DetailedPosition right = new DetailedPosition(start.pos,
-												  (start.direction+5)%6,
-												  (start.direction+5)%6,1);
+		DetailedPosition left = new DetailedPosition(start.pos, 5,
+												(start.direction + 5)%6, 1);
+		DetailedPosition right = new DetailedPosition(start.pos, 1,
+												  (start.direction + 1)%6, 1);
 		queue.add(left);
 		queue.add(right);
 		
 		Position ahead = start.pos.getNextStep(start.direction);
-		DetailedPosition front = new DetailedPosition(ahead,
-													start.direction,
+		DetailedPosition front = new DetailedPosition(ahead, 0,
 													start.direction, 1);
 		if(world.getElemAtPosition(ahead) == null 
 				|| world.getElemAtPosition(ahead).getType().equals("FOOD"))
 			queue.add(front);
 		
-		Position back = start.pos.getNextStep((start.direction+3)%6);
-		DetailedPosition backward = new DetailedPosition(back,
-														start.direction, 
-														start.direction,1);
-		if(world.getElemAtPosition(back) == null)
-			queue.add(backward);
+//		Position back = start.pos.getNextStep((start.direction+3)%6);
+//		DetailedPosition backward = new DetailedPosition(back,
+//														start.direction, 
+//														start.direction,1);
+//		if(world.getElemAtPosition(back) == null)
+//			queue.add(backward);
 		while(!queue.isEmpty()) {
 			DetailedPosition temp = queue.removeFirst();
 			if(temp.distance > Constant.MAX_SMELL_DISTANCE)
@@ -141,14 +138,14 @@ public class smell extends Expr{
 					|| world.getElemAtPosition(ahead).getType().equals("FOOD")
 					&& !visited.contains(front))
 				queue.add(front);
-			back = temp.pos.getNextStep((temp.direction+3)%6);
-			backward = new DetailedPosition(back,
-											temp.direction,
-											temp.initialDirection,
-											temp.distance+1);
-			if(world.getElemAtPosition(back) == null
-				&& !visited.contains(back))
-				queue.add(backward);
+//			back = temp.pos.getNextStep((temp.direction+3)%6);
+//			backward = new DetailedPosition(back,
+//											temp.direction,
+//											temp.initialDirection,
+//											temp.distance+1);
+//			if(world.getElemAtPosition(back) == null
+//				&& !visited.contains(back))
+//				queue.add(backward);
 		}
 		return null;
 	}

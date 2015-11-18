@@ -283,6 +283,7 @@ public class ParserImpl implements Parser {
         //not sure...
         if(temp.getType().equals(TokenType.SMELL)) {
         	return new smell();
+        	
         }
         throw new SyntaxError();
     }
