@@ -1,7 +1,9 @@
 package util;
 
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +18,10 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	public Object[] data;
 	private int head = 0;
 	private int tail = 0;
-	private int modCount = 0;
+	private volatile int modCount = 0;
 	private int size;
+	
+
 	private RingBufferLock lock = new RingBufferLock();
 	
 	/**
@@ -93,7 +97,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 					remove_held_count--;
 					if (remove_held_count > 0) return; // still holding it!
 					remover = null;
-					head = (head+1)%size;
+					head = (head + 1) % size;
 					RingBufferLock.this.notifyAll();
 				}
 			}
@@ -103,9 +107,11 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 			public void lock() {
 				Thread me = Thread.currentThread();
 				synchronized (RingBufferLock.this) {
-					if (writer == me) { writer_held_count++; return; } // already holding the lock
+					if (writer == me) 
+						{ writer_held_count++; return; } // already holding the lock
 
-					while (writer != null || reading != 0 || (tail + size + 1) % size == head) { 
+					while (writer != null || reading != 0 
+							|| (tail + size + 1) % size == head) { 
 						try {
 							RingBufferLock.this.wait();
 						} catch (Exception e) {}
@@ -130,7 +136,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 		modCount = 0;
 		if(size < 0)
 			throw new IllegalArgumentException("Illegal Capacity: "+size);
-		this.size = size;
+		this.size = size + 1;
 		data = new Object[size + 1];
 	}
 	
@@ -142,9 +148,13 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	@Override
 	public int size() {
 		lock.rdLock.lock();
-		int result = (tail - head) >= 0 ?  (tail - head) : (tail - head + size);
-		lock.rdLock.unlock();
-		return result;
+		try{
+			int result = (tail - head) >= 0 ?  (tail - head) : (tail - head + size);
+			return result;
+		}
+		finally{
+			lock.rdLock.unlock();
+		}
 	}
 
 	/**
@@ -155,60 +165,196 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	@Override
 	public boolean isEmpty() {
 		lock.rdLock.lock();
-		boolean result = head == tail;
-		lock.rdLock.unlock();
-		return result;
+		try{
+			return head == tail;
+		}
+		finally{
+			lock.rdLock.unlock();
+		}
 	}
 
 	/**
 	 * 
 	 * @param o
-	 * @return
+	 * @return true if the object{@code o} is in the ringbuffer
+	 * Override from {@code Collection}
 	 */
 	@Override
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub   1
-		return false;
+		lock.rdLock.lock();
+		try{
+			int end;
+			if(tail >= head)
+				end = tail;
+			else
+				end = tail + size;
+			for(int i = head; i < end; i++) {
+				if(data[(i) % size].equals(o))
+					return true;
+			}
+			return false;
+		}
+		finally {
+			lock.rdLock.unlock();
+		}
 	}
 
+	/**
+	 * Returns an iterator over the elements in this collection
+	 */
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub  1
-		return null;
+		return new Itr<E>();
+	}
+	
+	/**
+	 * implementation of the iterator,throw
+	 * {@code ConcurrentModificationException} if the
+	 * ring buffer is modified when iterating
+	 */
+	@SuppressWarnings("hiding")
+	private class Itr<E> implements Iterator<E> {
+
+		private int expectedModCount;
+		private int cur;
+		
+		Itr() {
+			expectedModCount = modCount;
+			cur = head;
+		}
+		
+		/**
+		 * @return true if there is one more element in the ringbuffer
+		 */
+		@Override
+		public boolean hasNext() {
+			if(expectedModCount != modCount)
+				throw new ConcurrentModificationException();
+			return cur != (tail + size) % size;
+		}
+
+		/**
+		 * Returns the next element in the iteration
+		 */
+		@SuppressWarnings("unchecked")
+		@Override
+		public E next() {
+			if(expectedModCount != modCount)
+				throw new ConcurrentModificationException();
+			E res =  (E)data[cur++];
+			cur %= size;
+			return res;
+		}
+		
+		@Override
+		public void remove() {
+			if(expectedModCount != modCount)
+				throw new ConcurrentModificationException();
+			RingBuffer.this.remove();
+		}
 	}
 
+	/**
+	 * if the ringbuffer is full, throw {@code IllegalStateException}
+	 * if the element {@code e} is already in the ringbuffer return false
+	 * otherwise return true
+	 */
 	@Override
 	public boolean add(E e) {
-		if(this.size() == size)
+		if(this.size() == size - 1)
 			throw new IllegalStateException();
+		if(contains(e))
+			return false;
 		lock.wrLock.lock();
-		data[tail] = e;
-		lock.wrLock.unlock();
-		return true;
+		try{
+			modCount++;
+			data[tail] = e;
+			return true;
+		}
+		finally{
+			lock.wrLock.unlock();
+		}
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public boolean offer(E e) {
-		// TODO Auto-generated method stub 1
-		return false;
+		if(size() == size)
+			return false;
+		lock.wrLock.lock();
+		try {
+			modCount++;
+			data[tail] = e;
+			return true;
+		}
+		finally{
+			lock.wrLock.unlock();
+		}
 	}
 
+	/**
+	 * Retrieves and removes the head of this queue. 
+	 * This method differs from poll only in that it throws 
+	 * an exception{@code NullPointerException} if this queue is empty
+	 * Override from {@code Queue}
+	 */
 	@Override
-	public E remove() {
-		// TODO Auto-generated method stub 1
-		return null;
+	@SuppressWarnings("unchecked")
+	public E remove() throws NullPointerException{
+		if(size() == 0)
+			throw new NullPointerException();
+		lock.rmLock.lock();
+		try{
+			E temp = (E)data[head];
+			modCount++;
+			return temp;
+		}
+		finally {
+			lock.rmLock.unlock();
+		}
 	}
 
+	/**
+	 * Retrieves and removes the head of this queue,
+	 *  or returns null if this queue is empty
+	 *  Override from {@code Queue}
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public E poll() {
-		// TODO Auto-generated method stub 1
-		return null;
+		if(size() == 0)
+			return null;
+		lock.rmLock.lock();
+		try{
+			Object result = data[head];
+			return (E)result;
+		}
+		finally{
+			lock.rmLock.unlock();
+		}
 	}
 
+	
+	/**
+	 * Retrieves, but does not remove, the head of this queue
+	 * if the ringbuffer is empty, throw {@code NoSuchElementException}
+	 * Override from {@code Queue}
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public E element() {
-		// TODO Auto-generated method stub 1
-		return null;
+		if(size() == 0)
+			throw new NoSuchElementException();
+		lock.rdLock.lock();
+		try{
+			Object temp = data[head];
+			return (E)temp;
+		}
+		finally{
+			lock.rdLock.unlock();
+		}
 	}
 
 	/**
@@ -219,14 +365,16 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public E peek() {
-		lock.rdLock.lock();
-		if(this.size == 0) {
-			lock.rdLock.unlock();
+		if(size() == 0)
 			return null;
+		lock.rdLock.lock();
+		try{
+			Object temp = data[head];
+			return (E)temp;
 		}
-		Object temp = data[head];
-		lock.rdLock.unlock();
-		return (E)temp;
+		finally{
+			lock.rdLock.unlock();
+		}
 	}
 
 	/**
@@ -239,22 +387,51 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	@Override
 	public void put(E e) throws InterruptedException {
 		lock.wrLock.lock();
-		data[tail] = e;
-		lock.wrLock.unlock();
-		return;
+		try{
+			data[tail] = e;
+			return;
+		}
+		finally{
+			lock.wrLock.unlock();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public E take() throws InterruptedException {
 		lock.rmLock.lock();
-		Object temp = data[head];
-		lock.rmLock.unlock();
-		return (E)temp;
+		try{
+			Object temp = data[head];
+			return (E)temp;
+		}
+		finally{
+			lock.rmLock.unlock();
+		}
 	}
 
+	public boolean equals(Object o) {
+		if(!(o instanceof RingBuffer))
+			return false;
+		RingBuffer r = (RingBuffer)o;
+		r.lock.rdLock.lock();
+		lock.rdLock.lock();
+		if(r.size != size)
+			return false;
+		Iterator<E> a = r.iterator();
+		Iterator<E> b = iterator();
+		while(a.hasNext() && b.hasNext()) {
+			if(a.next().equals(b.next()))
+				continue;
+			return false;
+		}
+		if(a.hasNext() || b.hasNext())
+			return false;
+		return true;
+	}
+	
 	@Override
-	public E poll(long timeout, TimeUnit unit) throws InterruptedException {
+	public E poll(long timeout, TimeUnit unit)
+			throws InterruptedException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -284,7 +461,8 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	}
 
 	@Override
-	public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+	public boolean offer(E e, long timeout, TimeUnit unit) 
+			throws InterruptedException {
 		throw new UnsupportedOperationException();
 	}
 	

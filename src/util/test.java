@@ -1,20 +1,12 @@
 package util;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
 
 public class test {
 	static RingBuffer<Integer> r = new RingBuffer<>( 1001);
 	static HashSet<Integer> removed = new HashSet<>();
-	
-	class TestRun implements Runnable{
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
 	
 	synchronized public static void testing() {
 			TestAddThread[] threads = new TestAddThread[10];
@@ -29,16 +21,16 @@ public class test {
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
-		testing();
-		Thread.sleep(1000);
-		validating();
+//		testing();
+//		Thread.sleep(1000);
+//		validating();
 //		testing2();
 //		Thread.sleep(1000);
 //		check();
+		testing3();
 	}
 	
 	synchronized static void check() {
-		HashSet<Integer> s = removed;
 		if(r.size() != 0)
 			System.out.println("FalSe");
 	}
@@ -151,5 +143,45 @@ public class test {
 			threads[i].start();
 			rthreads[i].start();
 		}
-}
+	}
+	
+	public static void  testing3() throws InterruptedException {
+		RingBuffer<Integer> rb = new RingBuffer<>(3);
+//		rb.poll();
+		System.out.println(rb.peek());//--------------------
+
+		rb.add(1);
+		System.out.println(rb.peek());//--------------------
+		if(!rb.contains(1))
+			System.out.println("testing3 fail");
+		rb.add(2);
+		System.out.println(rb.peek());//--------------------
+		if(rb.add(2))
+			System.out.println("testing3 fail");
+		rb.add(3);
+		if(rb.size() != 3)
+			System.out.println("testing3 fail");
+		if(rb.take() != 1)
+			System.out.println("testing3 fail");
+		if(rb.contains(1))
+			System.out.println("testing3 fail");
+		rb.add(4);
+		Iterator<Integer> i = rb.iterator();
+		System.out.println("start iterating");
+		while(i.hasNext())
+			System.out.println(i.next());
+		System.out.println("end iterating");
+		System.out.println(rb.peek());//--------------------
+		
+//		rb.add(5);
+	}
+	
+	public void randomTest() {
+		RingBuffer<Integer> rb = new RingBuffer<>(100);
+		int count = 0;
+		HashSet<Integer> set = new HashSet<>();
+		while(count < 100) {
+			
+		}
+	}
 }
