@@ -1,2 +1,5 @@
 /gui/
 /constant/
+/util/
+/ast/
+/parse/
