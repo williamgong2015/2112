@@ -1,6 +1,5 @@
 package util;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Queue;
@@ -14,10 +13,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	
-	public E[] data;
+	public Object[] data;
 	private int head = 0;
 	private int tail = 0;
-	private int modCount;
+	private int modCount = 0;
 	private int size;
 	private RingBufferLock lock = new RingBufferLock();
 	
@@ -106,7 +105,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 				synchronized (RingBufferLock.this) {
 					if (writer == me) { writer_held_count++; return; } // already holding the lock
 
-					while (writer != null || reading != 0 || (tail + size + 1)%size == head) { 
+					while (writer != null || reading != 0 || (tail + size + 1) % size == head) { 
 						try {
 							RingBufferLock.this.wait();
 						} catch (Exception e) {}
@@ -127,13 +126,12 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public RingBuffer(Class<E> clazz, int size) {
+	public RingBuffer(int size) {
 		modCount = 0;
 		if(size < 0)
 			throw new IllegalArgumentException("Illegal Capacity: "+size);
-		data = (E[]) Array.newInstance(clazz, size);
 		this.size = size;
+		data = new Object[size + 1];
 	}
 	
 	/**
@@ -218,6 +216,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	 * or returns null if this queue is empty.
 	 * Override from {@code Queue}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public E peek() {
 		lock.rdLock.lock();
@@ -225,9 +224,9 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 			lock.rdLock.unlock();
 			return null;
 		}
-		E temp = data[head];
+		Object temp = data[head];
 		lock.rdLock.unlock();
-		return temp;
+		return (E)temp;
 	}
 
 	/**
@@ -245,12 +244,13 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 		return;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public E take() throws InterruptedException {
 		lock.rmLock.lock();
-		E temp = data[head];
+		Object temp = data[head];
 		lock.rmLock.unlock();
-		return temp;
+		return (E)temp;
 	}
 
 	@Override

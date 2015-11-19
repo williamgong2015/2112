@@ -3,7 +3,7 @@ package util;
 import java.util.HashSet;
 
 public class test {
-	static RingBuffer<Integer> r = new RingBuffer<>(Integer.class, 1001);
+	static RingBuffer<Integer> r = new RingBuffer<>( 1001);
 	static HashSet<Integer> removed = new HashSet<>();
 	
 	class TestRun implements Runnable{
@@ -29,12 +29,12 @@ public class test {
 	}
 	
 	public static void main(String[] args) throws InterruptedException {
-//		testing();
-//		Thread.sleep(1000);
-//		validating();
-		testing2();
+		testing();
 		Thread.sleep(1000);
-		check();
+		validating();
+//		testing2();
+//		Thread.sleep(1000);
+//		check();
 	}
 	
 	synchronized static void check() {
@@ -46,7 +46,7 @@ public class test {
 	synchronized public static void validating() {
 		boolean[] test = new boolean[1001];
 		for(int i = 0; i < 1000; i++) {
-			int temp = (r.data[i]);
+			int temp = (int) (r.data[i]);
 			if(test[temp] == true)
 				System.out.println("False");
 			test[temp] = true;
