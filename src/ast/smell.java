@@ -103,12 +103,6 @@ public class smell extends Expr{
 				|| world.getElemAtPosition(ahead).getType().equals("FOOD"))
 			queue.add(front);
 		
-//		Position back = start.pos.getNextStep((start.direction+3)%6);
-//		DetailedPosition backward = new DetailedPosition(back,
-//														start.direction, 
-//														start.direction,1);
-//		if(world.getElemAtPosition(back) == null)
-//			queue.add(backward);
 		while(!queue.isEmpty()) {
 			DetailedPosition temp = queue.removeFirst();
 			if(temp.distance > Constant.MAX_SMELL_DISTANCE)
@@ -138,14 +132,6 @@ public class smell extends Expr{
 					|| world.getElemAtPosition(ahead).getType().equals("FOOD")
 					&& !visited.contains(front))
 				queue.add(front);
-//			back = temp.pos.getNextStep((temp.direction+3)%6);
-//			backward = new DetailedPosition(back,
-//											temp.direction,
-//											temp.initialDirection,
-//											temp.distance+1);
-//			if(world.getElemAtPosition(back) == null
-//				&& !visited.contains(back))
-//				queue.add(backward);
 		}
 		return null;
 	}

@@ -50,7 +50,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 			public void lock() {
 				synchronized (RingBufferLock.this) {
 					// can't read while someone is removing or writing it
-					while (remover != null || ( writer != null && head == tail)) { 
+					while (remover != null ||  writer != null) { 
 						try {
 							RingBufferLock.this.wait();
 						} catch (Exception e) {} }
@@ -261,10 +261,8 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	 */
 	@Override
 	public boolean add(E e) {
-		if(this.size() == size - 1)
+		if(size() == size - 1)
 			throw new IllegalStateException();
-		if(contains(e))
-			return false;
 		lock.wrLock.lock();
 		try{
 			modCount++;
@@ -277,11 +275,12 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	}
 
 	/**
-	 * 
+	 * insert an element to the ringbuffer
+	 * return false if the ringbuffer is full
 	 */
 	@Override
 	public boolean offer(E e) {
-		if(size() == size)
+		if(size() == size - 1)
 			return false;
 		lock.wrLock.lock();
 		try {
@@ -328,6 +327,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 			return null;
 		lock.rmLock.lock();
 		try{
+			modCount++;
 			Object result = data[head];
 			return (E)result;
 		}
@@ -388,6 +388,7 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	public void put(E e) throws InterruptedException {
 		lock.wrLock.lock();
 		try{
+			modCount++;
 			data[tail] = e;
 			return;
 		}
@@ -396,11 +397,18 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 		}
 	}
 
+	/**
+	 * Retrieves and removes the head of this queue, 
+	 * waiting if necessary until an element becomes available
+	 * @throws InterruptedException
+	 * Override from {@code BlockingQueue}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public E take() throws InterruptedException {
 		lock.rmLock.lock();
 		try{
+			modCount++;
 			Object temp = data[head];
 			return (E)temp;
 		}
@@ -409,24 +417,32 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 		}
 	}
 
+	/**
+	 * return true if the Object{@code o} is also
+	 * a ringbuffer and everything in o is equal to
+	 * that in this and in same order
+	 */
 	public boolean equals(Object o) {
 		if(!(o instanceof RingBuffer))
 			return false;
 		RingBuffer r = (RingBuffer)o;
 		r.lock.rdLock.lock();
 		lock.rdLock.lock();
-		if(r.size != size)
-			return false;
-		Iterator<E> a = r.iterator();
-		Iterator<E> b = iterator();
-		while(a.hasNext() && b.hasNext()) {
-			if(a.next().equals(b.next()))
-				continue;
-			return false;
+		try {
+			Iterator<E> a = r.iterator();
+			Iterator<E> b = iterator();
+			while(a.hasNext() && b.hasNext()) {
+				if(a.next().equals(b.next()))
+					continue;
+				return false;
+			}
+			if(a.hasNext() || b.hasNext())
+				return false;
+			return true;
+		}finally {
+			r.lock.rdLock.unlock();
+			lock.rdLock.unlock();
 		}
-		if(a.hasNext() || b.hasNext())
-			return false;
-		return true;
 	}
 	
 	@Override

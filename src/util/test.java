@@ -27,7 +27,9 @@ public class test {
 //		testing2();
 //		Thread.sleep(1000);
 //		check();
-		testing3();
+//		testing3();
+//		testing4();
+//		testingEquals();
 	}
 	
 	synchronized static void check() {
@@ -147,17 +149,15 @@ public class test {
 	
 	public static void  testing3() throws InterruptedException {
 		RingBuffer<Integer> rb = new RingBuffer<>(3);
-//		rb.poll();
+//		rb.take();
+		rb.poll();
 		System.out.println(rb.peek());//--------------------
-
 		rb.add(1);
 		System.out.println(rb.peek());//--------------------
 		if(!rb.contains(1))
 			System.out.println("testing3 fail");
 		rb.add(2);
 		System.out.println(rb.peek());//--------------------
-		if(rb.add(2))
-			System.out.println("testing3 fail");
 		rb.add(3);
 		if(rb.size() != 3)
 			System.out.println("testing3 fail");
@@ -173,15 +173,53 @@ public class test {
 		System.out.println("end iterating");
 		System.out.println(rb.peek());//--------------------
 		
-//		rb.add(5);
+//		rb.put(5);
 	}
 	
-	public void randomTest() {
-		RingBuffer<Integer> rb = new RingBuffer<>(100);
-		int count = 0;
-		HashSet<Integer> set = new HashSet<>();
-		while(count < 100) {
-			
+	public static void testing4() {
+		RingBuffer<Integer> rb = new RingBuffer<>(3);
+		try{
+			System.out.println(rb.remove());
+		} catch(Exception e) {
+			System.out.println("remove failed");
+			System.out.println(rb.poll());
+			rb.add(1);
+			rb.add(2);
+			rb.add(3);
+			try {
+				rb.add(4);
+			} catch(Exception ex) {
+				System.out.println("add failed");
+				System.out.println(rb.offer(4));
+				Iterator i = rb.iterator();
+				i.remove();
+				System.out.println(rb.peek());
+				rb.remove();
+				try{
+					if(i.hasNext())
+						i.next();
+				}catch (Exception ex2) {
+					System.out.println("Modified when iterating");
+				}
+			}
 		}
+	}
+	
+	public static void testingEquals() {
+		RingBuffer<String> rb = new RingBuffer<>(30);
+		RingBuffer<String> rb2 = new RingBuffer<>(100);
+		rb.add("2");
+		rb.add("4");
+		rb.add("5");
+		rb.poll();
+		rb.add("6");
+		rb.add("7");
+		rb2.add("4");
+		rb2.add("5");
+		rb2.add("6");
+		rb2.add("7");
+		System.out.println(rb.equals(rb2));
+		rb.remove();
+		System.out.println(rb.equals(rb2));
 	}
 }
