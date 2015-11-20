@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,9 +24,70 @@ import com.google.gson.JsonElement;
 
 /**
  * Servlet implementation class
+ * 
+ * The max client number is MAX_CAPACITY
  */
 @WebServlet("/") /* relative URL path to servlet (under package name 'demoServlet'). */
 public class Servlet extends HttpServlet {
+	
+	// define password for different level of user
+	private static final String ADMIN_PW = "admin";
+	private static final String WRITER_PW = "writer";
+	private static final String READER_PW = "reader";
+	private static final int ADMIN_LV = 1;
+	private static final int WRITER_LV = 2;
+	private static final int READER_LV = 3;
+	private static final int MAX_CAPACITY = 2 ^ 30;
+	
+	// the base url of the servlet are goint received
+	private static final String BASEURL = 
+			"http://localhost:8080/2112/servlet/servlet.Servlet/";
+	
+	// use synchronized java collection (mapping session id to level)
+	private Hashtable<Integer, Integer> sessionIdTable = new Hashtable<>();
+	
+	/**
+	 * Handle get session id request from client
+	 * {@code session_id} is a positive integer or 0
+	 * 
+	 * @return -1 if the password doesn't match
+	 *         -2 if current users have reach the max capacity
+	 *         positive number or 0 if succeed
+	 */
+	private int handleGetSessionID(String password, int level) {
+		if (sessionIdTable.size() > MAX_CAPACITY)
+			return -2;
+		boolean succeed = false;
+		switch (level) {
+			case ADMIN_LV:
+				if (password.equals(ADMIN_PW)) 
+					succeed = true;
+				break;
+			case WRITER_LV:
+				if (password.equals(WRITER_PW)) 
+					succeed = true;
+				break;
+			case READER_LV:
+				if (password.equals(READER_PW)) 
+					succeed = true;
+				break;
+		}
+		if (succeed) {
+			int tmp = Math.abs(util.RandomGen.randomNumber());
+			while (sessionIdTable.containsKey(tmp)) {
+				tmp = Math.abs(util.RandomGen.randomNumber());
+			}
+			sessionIdTable.put(tmp, level);
+			return tmp;
+		}
+		return -1;
+	}
+	
+	
+	
+	
+	
+	
 	private static final long serialVersionUID = 1L;
 	
 	private String message = "Hello world!";
@@ -61,7 +123,17 @@ public class Servlet extends HttpServlet {
 		Gson gson = new Gson();
 		response.addHeader("Content-Type", "application/json");
 		PrintWriter w = response.getWriter();
+		// it is the URI right after 'localhost:8080:'
 		String requestURI = request.getRequestURI();
+		
+	
+		System.out.println("parsed url: " + 
+				requestURI.substring(BASEURL.length()));
+
+		
+		
+		
+		
 		//bundle up all the info we want to send to the client
 		GetJsonBundle bundle = new GetJsonBundle(requestURI, message, otherParameter);
 		//convert the bundle to a JSON string

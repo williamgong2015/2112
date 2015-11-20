@@ -12,22 +12,8 @@ import com.google.gson.Gson;
 
 /** HTTP Client demo program. Can both GET and POST to a URL and read input back from the
  * server. Designed to be used with the demoServlet servlet.
- * Run as demoClient.Main http://localhost:8080/demoServlet/ to read the current message.
- * Run as demoClient.Main http://localhost:8080/demoServlet/ <msg> to change the message.
- * Run as demoClient.Main http://localhost:8080/demoServlet/ <msg> <other> to change 
- * the message and the other parameter
  */
 public class Client {
-	public static void main(String[] args) {
-		if (args.length < 1 || args.length > 3) {
-			usage();
-		}
-		new Client(args[0], args.length >= 2 ? args[1] : null,  args.length == 3 ? args[2] : null);
-	}
-	private static void usage() {
-		System.err.println("Usage: MyClient <URL> [<message>]");
-		System.exit(1);
-	}
 	
 	private static class GetJsonBundle {
 		  private String uri;
@@ -52,6 +38,7 @@ public class Client {
 			else
 				this.url = new URL(url + "?other_param=" + newOther);
 			
+			
 			HttpURLConnection connection = (HttpURLConnection) this.url.openConnection();
 			if (message == null) {
 				connection.connect();
@@ -69,14 +56,14 @@ public class Client {
 				PrintWriter w = new PrintWriter(connection.getOutputStream());
 				PostJsonBundle bundle = new PostJsonBundle();
 				bundle.message = message;
-				w.println(gson.toJson(bundle, PostJsonBundle.class));
+				String tmp = gson.toJson(bundle, PostJsonBundle.class);
+				System.out.println("Json from Client: " + tmp);
+				w.println(tmp);
 				w.flush();
 				BufferedReader r = new BufferedReader(new InputStreamReader(
 						connection.getInputStream()));
-				dumpResponse(r);				
+				dumpResponse(r);
 			}
-		} catch (MalformedURLException e) {
-			usage();
 		} catch (IOException e) {
 			System.err.println("IO exception: " + e.getMessage());
 		}
