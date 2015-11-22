@@ -36,14 +36,15 @@ import util.RandomGen;
 public class World {
 
 	// how many turns has passed in the world
-	private int turns;
+	public int turns;
 	
 	// the scale of the world
 	private int row;
 	private int column;
 	private String name;
 	private int size;
-	private int version_number;
+	public int version_number;
+	public int rate;
 	
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes;
@@ -507,7 +508,7 @@ public class World {
 						+ "in this world.";
 	}
 	//TODO
-	public JsonClasses.worldState getWorldState() {
+	public JsonClasses.worldState getWorldState(int session_id) {
 		JsonClasses.worldState s = new JsonClasses.worldState();
 		s.col = column;
 		s.current_timestep = turns;
@@ -517,7 +518,6 @@ public class World {
 		s.row = this.row;
 		s.update_since       =0;
 		s.rate               =0;
-		s.update_since         =0;
 		s.state = new JsonClasses.States[hexes.size()];
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = hexes.entrySet();

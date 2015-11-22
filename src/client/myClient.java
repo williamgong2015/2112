@@ -13,34 +13,16 @@ import json.JsonClasses;
 import json.PackJson;
 import json.UnpackJson;
 import simulate.Critter;
+import simulate.Food;
 import simulate.Position;
+import simulate.Rock;
+import simulate.World;
 
 public class myClient {
 	
-	private class Hex {
-		String type;
-		int value;
-		
-		Hex(String s) {
-			type = s;
-		}
-		
-		Hex(String s, int v) {
-			type = s;
-			value = v;
-		}
-	}
-	
 	private final String url;
 	private int session_id;
-	private int version_number;
-	private int timestep;
-	private int rate;
-	private String name;
-	private int population;
-	private int row;
-	private int col;
-	private HashMap<Position, Hex> map = new HashMap<>();
+	private World world;
 	
 	public myClient(String u) {
 		url = u;
@@ -119,25 +101,27 @@ public class myClient {
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
 			JsonClasses.worldState state = UnpackJson.unpackWorldState(r);
-			version_number = state.current_version_number;
-			col = state.col;
-			row = state.row;
-			rate = state.rate;
-			population = state.population;
-			name = state.name;
-			timestep = state.current_timestep;
+			String name = state.name;
+			int col = state.col;
+			int row = state.row;
+			world = new World(col, row, name);
+			world.version_number = state.current_version_number;
+			world.rate = state.rate;
+			world.turns = state.current_timestep;
 			for(JsonClasses.States s : state.state) {
 				switch(s.getType()) {
 				case "rock":
 					JsonClasses.RockStates rock = (JsonClasses.RockStates)s;
-					map.put(new Position(rock.col, rock.row), new Hex("rock"));
+					world.setElemAtPosition(new Rock(), new Position(rock.col, rock.row));
 					break;
 				case "food":
 					JsonClasses.FoodState food = (JsonClasses.FoodState)s;
-					map.put(new Position(food.col, food.row), new Hex("food", food.value));
+					world.setElemAtPosition(new Food(food.value),
+							new Position(food.col, food.row));
 					break;
 				case "critter":
 					JsonClasses.CritterStates critter = (JsonClasses.CritterStates)s;
+					
 					break;
 				}
 			}

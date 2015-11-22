@@ -108,7 +108,7 @@ public class PackJson {
 				tmp.add(new JsonClasses.critterWithAllFields(c, p));
 			} else {
 				Position p = w.getPositionFromCritter(c);
-				tmp.add(new JsonClasses.critterWithAllFields(c, p));
+				tmp.add(new JsonClasses.GetCritter(c, p));
 			}
 		}
 		return gson.toJson(tmp, JsonClasses.listOfCritters.class);
@@ -117,8 +117,8 @@ public class PackJson {
 	/**
 	 * Created by server: the information of current world
 	 */
-	public static String packStateOfWorld(World w) {
-		JsonClasses.worldState tmp = w.getWorldState();
+	public static String packStateOfWorld(World w, int session_id) {
+		JsonClasses.worldState tmp = w.getWorldState(session_id);
 		return gson.toJson(tmp, JsonClasses.worldState.class);
 	}
 	
