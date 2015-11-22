@@ -33,8 +33,9 @@ public class InterpreterImpl implements Interpreter {
 		String result = null;
 		ProgramImpl pro = (ProgramImpl) p;
 		// finds the first rule in its list of rules whose condition is true
+		int ruleCounter = 0;
 		for (Rule r : pro.getChildren()) {
-			c.setLastRuleExe(r);
+			c.setLastRuleExe(ruleCounter++);
 			if (this.eval(r.getCondition())) {
 				result = eval(r.getCommand());
 				break;

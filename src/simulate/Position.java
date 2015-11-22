@@ -5,18 +5,18 @@ package simulate;
  */
 public class Position {
 
-	// column and row index in the world
-	private int column;
+	// col and row index in the world
+	private int col;
 	private int row;
 	
 	public Position(int c, int r) {
 		row = r;
-		column = c;
+		col = c;
 	}
 	
 	/**
 	 * Randomly create a position with the boundary of world,
-	 * the world has a column boundary {@code cBound} and a 
+	 * the world has a col boundary {@code cBound} and a 
 	 * row boundary {@code rBound}
 	 * 
 	 * @param cBound 
@@ -39,7 +39,7 @@ public class Position {
 	/**
 	 * Check if the given position is within the given boundary
 	 * @param position the position to check
-	 * @param cBound the boundary of column
+	 * @param cBound the boundary of col
 	 * @param rBound the boundary of row
 	 * @return
 	 */
@@ -95,17 +95,17 @@ public class Position {
 	public Position getNextStep(int dir) {
 		switch(dir) {
 		case 0:
-			return new Position(column, row + 1);
+			return new Position(col, row + 1);
 		case 1:
-			return new Position(column + 1, row + 1);
+			return new Position(col + 1, row + 1);
 		case 2:
-			return new Position(column + 1, row);
+			return new Position(col + 1, row);
 		case 3:
-			return new Position(column, row - 1);
+			return new Position(col, row - 1);
 		case 4:
-			return new Position(column - 1, row - 1);
+			return new Position(col - 1, row - 1);
 		case 5:
-			return new Position(column - 1, row);
+			return new Position(col - 1, row);
 		}
 		return null;
 	}
@@ -121,11 +121,11 @@ public class Position {
 	 * return the row number of this position
 	 */
 	public int getColumn() {
-		return column;
+		return col;
 	}
 	
 	public int hashCode() {
-		return 37 * row + column;
+		return 37 * row + col;
 	}
 	
 	public boolean equals(Object o) {
@@ -137,6 +137,6 @@ public class Position {
 	}
 	
 	public String toString() {
-		return "" + column + ".." + row;
+		return "" + col + ".." + row;
 	}
 }
