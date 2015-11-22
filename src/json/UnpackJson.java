@@ -5,9 +5,6 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
-import simulate.Critter;
-import simulate.Position;
-import simulate.World;
 
 /**
  * A class contains static methods to create Java objects from JSON object.
@@ -36,7 +33,7 @@ public class UnpackJson {
 	 *  if the critter is not created by the session_id of the client,
 	 *  the program of the critter will be null
 	 */
-	public static JsonClasses.critterWithAllFields unpackCritter(String json) {
+	public static JsonClasses.critterWithAllFields unpackCritter(BufferedReader json) {
 		JsonClasses.critterWithAllFields tmp = gson.fromJson(json, 
 				JsonClasses.critterWithAllFields.class);
 		return tmp;
@@ -85,7 +82,7 @@ public class UnpackJson {
 	 * new critters
 	 */
 	public static JsonClasses.ResponseToCreateCritters 
-	unpackResponseToCreateCritters(String json) {
+	unpackResponseToCreateCritters(BufferedReader json) {
 		JsonClasses.ResponseToCreateCritters tmp = gson.fromJson(json, 
 				JsonClasses.ResponseToCreateCritters.class);
 		return tmp;

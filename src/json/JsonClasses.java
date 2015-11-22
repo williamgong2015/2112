@@ -216,6 +216,6 @@ public class JsonClasses {
 	}
 	
 	public class listOfCritters {
-		ArrayList<GetCritter> array;
+		ArrayList<critterWithAllFields> array;
 	}
 }

@@ -97,15 +97,18 @@ public class PackJson {
 		return gson.toJson(tmp, JsonClasses.ResponseToCreateCritters.class);
 	}
 	
+	/**
+	 * Created by server: the information of all the critters that is alive in the world
+	 */
 	public static String packListOfCritters(ArrayList<Critter> al, int session_id, World w) {
-		ArrayList<JsonClasses.GetCritter> tmp = new ArrayList<>();
+		ArrayList<JsonClasses.critterWithAllFields> tmp = new ArrayList<>();
 		for(Critter c : al) {
 			if(c.session_id == session_id) {
 				Position p = w.getPositionFromCritter(c);
 				tmp.add(new JsonClasses.critterWithAllFields(c, p));
 			} else {
 				Position p = w.getPositionFromCritter(c);
-				tmp.add(new JsonClasses.GetCritter(c, p));
+				tmp.add(new JsonClasses.critterWithAllFields(c, p));
 			}
 		}
 		return gson.toJson(tmp, JsonClasses.listOfCritters.class);
