@@ -532,7 +532,9 @@ public class World {
 				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
 				break;
 			case "CRITTER" :
-				s.state[index++] = new JsonClasses.CritterStates(p, ((Critter)e));
+				Critter c = (Critter)e;
+				if(c.session_id == session_id)
+					s.state[index++] = 
 				break;
 			}
 		}

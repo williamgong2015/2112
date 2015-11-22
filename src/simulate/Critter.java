@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 
 import ast.ProgramImpl;
@@ -12,6 +13,8 @@ import constant.Constant;
 import exceptions.SyntaxError;
 import gui.HexToUpdate;
 import gui.HexToUpdate.HEXType;
+import json.JsonClasses;
+import parse.ParserFactory;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import util.RandomGen;
@@ -108,6 +111,22 @@ public class Critter extends Element {
 	 */
 	public Critter(String file) throws IOException, SyntaxError {
 		this(new File(file));
+	}
+	
+	public Critter(JsonClasses.critterWithAllFields c) throws SyntaxError {
+		super("CRITTER");
+		this.ID = c.id;
+		name = c.species_id;
+		setDir(c.direction);
+		this.setPosition(new Position(c.col, c.row));
+		this.mem = c.mem;
+		if(c.program == null) {
+			this.pro = null;
+		} else {
+			StringReader s = new StringReader(c.program);
+			Tokenizer t = new Tokenizer(s);
+			pro = ParserImpl.parseProgram(t);
+		}
 	}
 	
 	/**

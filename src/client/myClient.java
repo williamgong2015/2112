@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import exceptions.SyntaxError;
 import json.JsonClasses;
 import json.PackJson;
 import json.UnpackJson;
@@ -72,7 +73,7 @@ public class myClient {
 				UnpackJson.unpackResponseToCreateCritters(r);
 	}
 	
-	public JsonClasses.GetCritter retrieveCritter(int id) throws IOException{
+	public JsonClasses.critterWithAllFields retrieveCritter(int id) throws IOException{
 		URL l = new URL(url + "id?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
@@ -121,12 +122,18 @@ public class myClient {
 					break;
 				case "critter":
 					JsonClasses.CritterStates critter = (JsonClasses.CritterStates)s;
-					
+					try {
+						Critter tmp = new Critter(critter.cr);
+						world.setElemAtPosition(tmp,
+								new Position(critter.cr.col, critter.cr.row));
+					} catch (SyntaxError e) {
+						e.printStackTrace();
+					}
 					break;
 				}
 			}
 		} else{
-			
+			//TODO
 		}
 	}
 }

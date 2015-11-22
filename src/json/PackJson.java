@@ -36,17 +36,9 @@ public class PackJson {
 	/**
 	 *  Used by Server: List all critters / Retrieve a critter
 	 */
-	public static String packCritter(Critter c, Position p) {
-		JsonClasses.GetCritter tmp = new JsonClasses.GetCritter(c, p);
-		return gson.toJson(tmp, JsonClasses.GetCritter.class);
-	}
-	
-	/**
-	 *  Used by Server: List all critters / Retrieve a critter
-	 */
 	public static String packCritterWithAllFields(Critter c, Position p) {
 		JsonClasses.critterWithAllFields tmp = 
-				new JsonClasses.critterWithAllFields(c, p);
+				new JsonClasses.critterWithAllFields(c);
 		return gson.toJson(tmp, JsonClasses.critterWithAllFields.class);
 	}
 	
@@ -100,15 +92,17 @@ public class PackJson {
 	/**
 	 * Created by server: the information of all the critters that is alive in the world
 	 */
-	public static String packListOfCritters(ArrayList<Critter> al, int session_id, World w) {
+	public static String packListOfCritters(ArrayList<Critter> al, int session_id) {
 		ArrayList<JsonClasses.critterWithAllFields> tmp = new ArrayList<>();
 		for(Critter c : al) {
 			if(c.session_id == session_id) {
-				Position p = w.getPositionFromCritter(c);
-				tmp.add(new JsonClasses.critterWithAllFields(c, p));
+				JsonClasses.critterWithAllFields critter
+				= new JsonClasses.critterWithAllFields(c);
+				critter.program = c.getProgram().toString();
+				critter.recently_executed_rule = c.getLastRuleIndex();
+				tmp.add(critter);
 			} else {
-				Position p = w.getPositionFromCritter(c);
-				tmp.add(new JsonClasses.GetCritter(c, p));
+				tmp.add(new JsonClasses.critterWithAllFields(c));
 			}
 		}
 		return gson.toJson(tmp, JsonClasses.listOfCritters.class);

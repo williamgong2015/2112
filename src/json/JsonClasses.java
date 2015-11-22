@@ -54,16 +54,19 @@ public class JsonClasses {
 	/**
 	 * wrap the information of a critter and its position
 	 */
-	public static class GetCritter {
+	public static class critterWithAllFields {
 		public int id;
 		public String species_id;
-		int row;
-		int col;
-		int direction;
-		int[] mem;
-		public GetCritter(Critter c, Position p) {
+		public int row;
+		public int col;
+		public int direction;
+		public int[] mem;
+		public String program;
+		public int recently_executed_rule;
+		public critterWithAllFields(Critter c) {
 			id = c.ID;
 			species_id = c.getName();
+			Position p = c.getPosition();
 			row = p.getRow();
 			col = p.getColumn();
 			direction = c.getDir();
@@ -72,23 +75,7 @@ public class JsonClasses {
 	}
 	
 	/**
-	 * wrap the information of a critter(including its program and the last
-	 * rule it executed) and its position
-	 */
-	public static class critterWithAllFields extends GetCritter{
-		
-		private String program;
-		private int recently_executed_rule;
-		public critterWithAllFields(Critter c, Position p) {
-			super(c, p);
-			program = c.getProgram().toString();
-			recently_executed_rule = c.getLastRuleIndex();
-		}
-
-	}
-
-	/**
-	 * wrap the information of a critter and the locations
+	 * wrap the information of a critter
 	 */
 	public static class CreateCritter {
 		String species_id;
@@ -169,9 +156,9 @@ public class JsonClasses {
 		
 		public critterWithAllFields cr;
 		
-		public CritterStates(Position p, Critter c) {
+		public CritterStates(Critter c) {
 			super("critter");
-			cr = new critterWithAllFields(c, p);
+			cr = new critterWithAllFields(c);
 		}
 	}
 	
