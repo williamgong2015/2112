@@ -97,7 +97,19 @@ public class PackJson {
 		return gson.toJson(tmp, JsonClasses.ResponseToCreateCritters.class);
 	}
 	
-	
+	public static String packListOfCritters(ArrayList<Critter> al, int session_id, World w) {
+		ArrayList<JsonClasses.GetCritter> tmp = new ArrayList<>();
+		for(Critter c : al) {
+			if(c.session_id == session_id) {
+				Position p = w.getPositionFromCritter(c);
+				tmp.add(new JsonClasses.critterWithAllFields(c, p));
+			} else {
+				Position p = w.getPositionFromCritter(c);
+				tmp.add(new JsonClasses.GetCritter(c, p));
+			}
+		}
+		return gson.toJson(tmp, JsonClasses.listOfCritters.class);
+	}
 	
 	/**
 	 * Unit test

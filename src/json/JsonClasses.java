@@ -82,7 +82,7 @@ public class JsonClasses {
 		public critterWithAllFields(Critter c, Position p) {
 			super(c, p);
 			program = c.getProgram().toString();
-	//TODO		recently_executed_rule = c.
+			recently_executed_rule = c.getLastRuleIndex();
 		}
 
 	}
@@ -213,5 +213,9 @@ public class JsonClasses {
 		int col;
 		int[] dead_critters;
 		States[] state;
+	}
+	
+	public class listOfCritters {
+		ArrayList<GetCritter> array;
 	}
 }

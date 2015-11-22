@@ -1,6 +1,13 @@
 package json;
 
+import java.io.BufferedReader;
+import java.util.ArrayList;
+
 import com.google.gson.Gson;
+
+import simulate.Critter;
+import simulate.Position;
+import simulate.World;
 
 /**
  * A class contains static methods to create Java objects from JSON object.
@@ -81,6 +88,12 @@ public class UnpackJson {
 	unpackResponseToCreateCritters(String json) {
 		JsonClasses.ResponseToCreateCritters tmp = gson.fromJson(json, 
 				JsonClasses.ResponseToCreateCritters.class);
+		return tmp;
+	}
+	
+	public static JsonClasses.listOfCritters unpackListOfCritters(BufferedReader br) {
+		JsonClasses.listOfCritters tmp = gson.fromJson(br, 
+				JsonClasses.listOfCritters.class);
 		return tmp;
 	}
 }

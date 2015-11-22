@@ -27,6 +27,7 @@ public class Client {
 	
 	private URL url;
 	
+	
 	/** If message is null, query the URL (GET) for the current message.
 	 * Otherwise, use a POST request to send the message.
 	 */

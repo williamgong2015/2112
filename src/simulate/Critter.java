@@ -27,12 +27,12 @@ public class Critter extends Element {
 	private String name;
 	private ProgramImpl pro;
 	// the last rule being executed
-//	private Rule lastRuleExe = null;
 	private int lastRuleIndex;
 	private boolean wantToMate = false;
 	// if still -1, it hasn't been initialized
 	private int complexity = -1;
 	public int ID;
+	public int session_id;
 	
 	/**
 	 * Create a new Critter with the given memory {@code mem}, 
@@ -253,6 +253,13 @@ public class Critter extends Element {
 	
 	public Rule getLastRuleExe() {
 		return pro.getChildren().get(lastRuleIndex);
+	}
+	
+	/**
+	 * @return the index of last rule being executed
+	 */
+	public int getLastRuleIndex() {
+		return lastRuleIndex;
 	}
 
 	/**

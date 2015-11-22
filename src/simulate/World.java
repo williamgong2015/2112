@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 import constant.Constant;
 import constant.IDX;
@@ -40,7 +42,8 @@ public class World {
 	private int column;
 	private String name;
 	private int size;
-
+	private int version_number;
+	
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes;
 	
@@ -213,7 +216,7 @@ public class World {
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
 		int i = 0;
-		while (i < order.size()) {	
+		while (i < order.size()) {
 			Critter c = order.get(i++);
 			InterpreterImpl interpret = new InterpreterImpl(this,c);
 			Executor executor = new Executor(this, c);
@@ -239,6 +242,7 @@ public class World {
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
 				executor.execute(new Outcome("wait"), hexToUpdate);
+			
 		}
 		
 		// remove the critter need to be delete and insert the critter need 
@@ -468,6 +472,19 @@ public class World {
 			}
 		}
 		size = s;
+	}
+	
+	/**
+	 * @return the position that critter exists
+	 */
+	public Position getPositionFromCritter(Critter c) {
+		Set<Map.Entry<Position, Element>> e = hexes.entrySet();
+		for(Map.Entry<Position, Element> m : e) {
+			if(m.getValue() == c) {
+				return m.getKey();
+			}
+		}
+		return null;
 	}
 	
 	/**
