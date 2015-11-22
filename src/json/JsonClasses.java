@@ -137,8 +137,13 @@ public class JsonClasses {
 	 */
 	public static class States {
 		String type;
+		
 		States(String s){
 			type = s;
+		}
+		
+		public String getType() {
+			return type;
 		}
 	}
 	
@@ -147,10 +152,10 @@ public class JsonClasses {
 	 */
 	public static class RockStates extends States {
 		
-		int row;
-		int col;
+		public int row;
+		public int col;
 		
-		RockStates(Position p) {
+		public RockStates(Position p) {
 			super("rock");
 			row = p.getRow();
 			col = p.getColumn();
@@ -162,9 +167,9 @@ public class JsonClasses {
 	 */
 	public static class CritterStates extends States {
 		
-		critterWithAllFields cr;
+		public critterWithAllFields cr;
 		
-		CritterStates(Position p, Critter c) {
+		public CritterStates(Position p, Critter c) {
 			super("critter");
 			cr = new critterWithAllFields(c, p);
 		}
@@ -174,11 +179,11 @@ public class JsonClasses {
 	 * wrap the information of the food and its position
 	 */
 	public static class FoodState extends States {
-		int row;
-		int col;
-		int value;
+		public int row;
+		public int col;
+		public int value;
 		
-		FoodState(int v, Position p) {
+		public FoodState(int v, Position p) {
 			super("food");
 			value = v;
 			row = p.getRow();
@@ -192,7 +197,7 @@ public class JsonClasses {
 	public static class NotingState extends States {
 		int row;
 		int col;
-		NotingState(Position p) {
+		public NotingState(Position p) {
 			super("nothing");
 			row = p.getRow();
 			col = p.getColumn();
@@ -202,17 +207,17 @@ public class JsonClasses {
 	/**
 	 * the state of the world
 	 */
-	public class worldState {
-		int current_timestep;
-		int current_version_number;
-		int update_since;
-		int rate;
-		String name;
-		int population;
-		int row;
-		int col;
-		int[] dead_critters;
-		States[] state;
+	public static class worldState {
+		public int current_timestep;
+		public int current_version_number;
+		public int update_since;
+		public int rate;
+		public String name;
+		public int population;
+		public int row;
+		public int col;
+		public int[] dead_critters;
+		public States[] state;
 	}
 	
 	public class listOfCritters {

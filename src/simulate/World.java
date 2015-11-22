@@ -17,6 +17,7 @@ import gui.HexToUpdate;
 import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
+import json.JsonClasses;
 import util.RandomGen;
 
 /**
@@ -504,5 +505,37 @@ public class World {
 		return "The world has step " + turns + " turns.\n" 
 				+ "There are " + order.size() + " critters living "
 						+ "in this world.";
+	}
+	//TODO
+	public JsonClasses.worldState getWorldState() {
+		JsonClasses.worldState s = new JsonClasses.worldState();
+		s.col = column;
+		s.current_timestep = turns;
+		s.current_version_number = version_number;
+		s.name = this.name;
+		s.population = order.size();
+		s.row = this.row;
+		s.update_since       =0;
+		s.rate               =0;
+		s.update_since         =0;
+		s.state = new JsonClasses.States[hexes.size()];
+		int index = 0;
+		Set<Map.Entry<Position, Element>> set = hexes.entrySet();
+		for(Map.Entry<Position, Element> m : set) {
+			Element e = m.getValue();
+			Position p = m.getKey();
+			switch(e.getType()) {
+			case "ROCK" :
+				s.state[index++] = new JsonClasses.RockStates(p);
+				break;
+			case "FOOD" :
+				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
+				break;
+			case "CRITTER" :
+				s.state[index++] = new JsonClasses.CritterStates(p, ((Critter)e));
+				break;
+			}
+		}
+		return s;
 	}
 }

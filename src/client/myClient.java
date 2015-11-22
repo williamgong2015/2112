@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import json.JsonClasses;
 import json.PackJson;
@@ -16,8 +17,31 @@ import simulate.Position;
 
 public class myClient {
 	
+	private class Hex {
+		String type;
+		int value;
+		
+		Hex(String s) {
+			type = s;
+		}
+		
+		Hex(String s, int v) {
+			type = s;
+			value = v;
+		}
+	}
+	
 	private final String url;
 	private int session_id;
+	private int version_number;
+	private int timestep;
+	private int rate;
+	private String name;
+	private int population;
+	private int row;
+	private int col;
+	private HashMap<Position, Hex> map = new HashMap<>();
+	
 	public myClient(String u) {
 		url = u;
 	}
@@ -85,5 +109,40 @@ public class myClient {
 		w.println(tmp);
 		w.flush();
 		//TODO:what should we do next if the response is negative?
+	}
+	
+	public void getStateOfWorld(int update_since) throws IOException{
+		if(update_since < 0) {
+			URL l = new URL(url + "world?update_since=update_since&session_id=session_id");//TODO
+			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+			connection.connect();
+			BufferedReader r = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			JsonClasses.worldState state = UnpackJson.unpackWorldState(r);
+			version_number = state.current_version_number;
+			col = state.col;
+			row = state.row;
+			rate = state.rate;
+			population = state.population;
+			name = state.name;
+			timestep = state.current_timestep;
+			for(JsonClasses.States s : state.state) {
+				switch(s.getType()) {
+				case "rock":
+					JsonClasses.RockStates rock = (JsonClasses.RockStates)s;
+					map.put(new Position(rock.col, rock.row), new Hex("rock"));
+					break;
+				case "food":
+					JsonClasses.FoodState food = (JsonClasses.FoodState)s;
+					map.put(new Position(food.col, food.row), new Hex("food", food.value));
+					break;
+				case "critter":
+					JsonClasses.CritterStates critter = (JsonClasses.CritterStates)s;
+					break;
+				}
+			}
+		} else{
+			
+		}
 	}
 }

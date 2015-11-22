@@ -115,6 +115,14 @@ public class PackJson {
 	}
 	
 	/**
+	 * Created by server: the information of current world
+	 */
+	public static String packStateOfWorld(World w) {
+		JsonClasses.worldState tmp = w.getWorldState();
+		return gson.toJson(tmp, JsonClasses.worldState.class);
+	}
+	
+	/**
 	 * Unit test
 	 * @throws SyntaxError 
 	 * @throws IOException 

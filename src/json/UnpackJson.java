@@ -88,9 +88,19 @@ public class UnpackJson {
 		return tmp;
 	}
 	
+	/**
+	 * Used by client :unpack the information of list of critters sent
+	 * from the server
+	 */
 	public static JsonClasses.listOfCritters unpackListOfCritters(BufferedReader br) {
 		JsonClasses.listOfCritters tmp = gson.fromJson(br, 
 				JsonClasses.listOfCritters.class);
+		return tmp;
+	}
+	
+	public static JsonClasses.worldState unpackWorldState(BufferedReader br) {
+		JsonClasses.worldState tmp = gson.fromJson(br, 
+				JsonClasses.worldState.class);
 		return tmp;
 	}
 }
