@@ -18,7 +18,6 @@ import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
 import json.JsonClasses;
-import json.PackJson;
 import util.RandomGen;
 
 /**
@@ -45,7 +44,7 @@ public class World {
 	private String name;
 	private int size;
 	public int version_number;
-	public int rate;
+	public int rate;//TODO
 	
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes;
@@ -518,7 +517,7 @@ public class World {
 		s.population = order.size();//TODO
 		s.row = this.row;
 		s.update_since       =0;
-		s.rate               =0;
+		s.rate = rate;
 		s.state = new JsonClasses.States[hexes.size()];
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = hexes.entrySet();

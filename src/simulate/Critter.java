@@ -14,11 +14,11 @@ import exceptions.SyntaxError;
 import gui.HexToUpdate;
 import gui.HexToUpdate.HEXType;
 import json.JsonClasses;
-import parse.ParserFactory;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import util.RandomGen;
 import constant.IDX;
+
 /**
  * A critter object in the world, store the properties of the critter
  */
