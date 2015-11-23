@@ -39,10 +39,10 @@ public class PackJson {
 	 *  Used by Server: List all critters / Retrieve a critter
 	 */
 	public static String packCritterWithAllFields(Critter c) {
-		JsonClasses.critterWithAllFields tmp = 
-				new JsonClasses.critterWithAllFields(c);
+		JsonClasses.CritterState tmp = 
+				new JsonClasses.CritterState(c);
 		tmp.setType(null);
-		return gson.toJson(tmp, JsonClasses.critterWithAllFields.class);
+		return gson.toJson(tmp, JsonClasses.CritterState.class);
 	}
 	
 	/**
@@ -96,17 +96,17 @@ public class PackJson {
 	 * Created by server: the information of all the critters that is alive in the world
 	 */
 	public static String packListOfCritters(ArrayList<Critter> al, int session_id) {
-		ArrayList<JsonClasses.critterWithAllFields> tmp = new ArrayList<>();
+		ArrayList<JsonClasses.CritterState> tmp = new ArrayList<>();
 		for(Critter c : al) {
-			JsonClasses.critterWithAllFields critter
-				= new JsonClasses.critterWithAllFields(c);
+			JsonClasses.CritterState critter
+				= new JsonClasses.CritterState(c);
 			critter.setType(null);
 			if(c.session_id == session_id) {
 				critter.program = c.getProgram().toString();
 				critter.recently_executed_rule = c.getLastRuleIndex();
 				tmp.add(critter);
 			} else {
-				tmp.add(new JsonClasses.critterWithAllFields(c));
+				tmp.add(new JsonClasses.CritterState(c));
 			}
 		}
 		return gson.toJson(tmp, ArrayList.class);

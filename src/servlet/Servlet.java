@@ -131,9 +131,6 @@ public class Servlet extends HttpServlet {
 				requestURI.substring(BASEURL.length()));
 
 		
-		
-		
-		
 		//bundle up all the info we want to send to the client
 		GetJsonBundle bundle = new GetJsonBundle(requestURI, message, otherParameter);
 		//convert the bundle to a JSON string

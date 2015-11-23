@@ -52,32 +52,6 @@ public class JsonClasses {
 	}
 	
 	/**
-	 * wrap the information of a critter and its position
-	 */
-	public static class critterWithAllFields extends States{
-		public int id;
-		public String species_id;
-		public int row;
-		public int col;
-		public int direction;
-		public int[] mem;
-		public String program;
-		public Integer recently_executed_rule;
-		public critterWithAllFields(Critter c) {
-			super("critter");
-			id = c.ID;
-			species_id = c.getName();
-			Position p = c.getPosition();
-			if(p != null) {
-				row = p.getRow();
-				col = p.getColumn();
-			}
-			direction = c.getDir();
-			mem = c.getMeMArray();
-		}
-	}
-	
-	/**
 	 * wrap the information of a critter
 	 */
 	public static class CreateCritter {
@@ -144,15 +118,19 @@ public class JsonClasses {
 	/**
 	 * wrap information of the position of a rock
 	 */
-	public static class RockStates extends States {
+	public static class RockState extends States {
 		
 		public int row;
 		public int col;
 		
-		public RockStates(Position p) {
+		public RockState(Position p) {
 			super("rock");
 			row = p.getRow();
 			col = p.getColumn();
+		}
+		
+		public String toString() {
+			return "Rock at (" + col + "," + row + ")";
 		}
 	}
 	
@@ -170,18 +148,71 @@ public class JsonClasses {
 			row = p.getRow();
 			col = p.getColumn();
 		}
+		
+		public String toString() {
+			return "Food at (" + col + "," + row + ") with value " + value;
+		}
 	}
 	
 	/**
 	 * the information of an element being removed
 	 */
-	public static class NotingState extends States {
+	public static class NothingState extends States {
 		int row;
 		int col;
-		public NotingState(Position p) {
+		public NothingState(Position p) {
 			super("nothing");
 			row = p.getRow();
 			col = p.getColumn();
+		}
+		
+		public String toString() {
+			return "Nothing at (" + col + "," + row + ")";
+		}
+	}
+	
+	/**
+	 * wrap the information of a critter and its position
+	 */
+	public static class CritterState extends States{
+		public int id;
+		public String species_id;
+		public int row;
+		public int col;
+		public int direction;
+		public int[] mem;
+		public String program;
+		public Integer recently_executed_rule;
+		public String recently_executed_rule_string;
+		public CritterState(Critter c) {
+			super("critter");
+			id = c.ID;
+			species_id = c.getName();
+			Position p = c.getPosition();
+			if(p != null) {
+				row = p.getRow();
+				col = p.getColumn();
+			}
+			direction = c.getDir();
+			mem = c.getMeMArray();
+			program = c.getProgram().toString();
+			recently_executed_rule = c.getLastRuleIndex();
+			recently_executed_rule_string = c.getLastRuleExe().toString();
+		}
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Critter at (" + col + "," + row + "), "
+					+ "direction: " + direction + "\n");
+			sb.append("Species: " + species_id + "\n");
+			sb.append("Memory: ");
+			for (int i = 0; i < mem.length; ++i) 
+				sb.append("mem[" + i + "] = " + mem[i] + "\n");
+			sb.append("Program: " + program + "\n");
+			sb.append("recently_executed_rule is rule " + 
+			recently_executed_rule + ": " + recently_executed_rule_string
+			+ "\n");
+			return sb.toString();
 		}
 	}
 	

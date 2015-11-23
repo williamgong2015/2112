@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import exceptions.SyntaxError;
 import json.JsonClasses;
-import json.JsonClasses.critterWithAllFields;
+import json.JsonClasses.CritterState;
 import json.PackJson;
 import json.UnpackJson;
 import simulate.Critter;
@@ -44,7 +44,7 @@ public class myClient {
 		session_id = UnpackJson.unpackSessionID(json);
 	}
 	//TODO
-	public ArrayList<critterWithAllFields> lisAllCritters() throws IOException {
+	public ArrayList<CritterState> lisAllCritters() throws IOException {
 		URL l = new URL(url + "critters?session_id" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
@@ -126,7 +126,7 @@ public class myClient {
 			for(JsonClasses.States s : state.state) {
 				switch(s.getType()) {
 				case "rock":
-					JsonClasses.RockStates rock = (JsonClasses.RockStates)s;
+					JsonClasses.RockState rock = (JsonClasses.RockState)s;
 					world.setElemAtPosition(new Rock(), new Position(rock.col, rock.row));
 					break;
 				case "food":
@@ -135,7 +135,7 @@ public class myClient {
 							new Position(food.col, food.row));
 					break;
 				case "critter":
-					JsonClasses.critterWithAllFields critter = (JsonClasses.critterWithAllFields)s;
+					JsonClasses.CritterState critter = (JsonClasses.CritterState)s;
 					try {
 						Critter tmp = new Critter(critter);
 						world.setElemAtPosition(tmp,

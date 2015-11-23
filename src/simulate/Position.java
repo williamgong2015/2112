@@ -137,6 +137,6 @@ public class Position {
 	}
 	
 	public String toString() {
-		return "" + col + ".." + row;
+		return "(" + col + "," + row + ")";
 	}
 }

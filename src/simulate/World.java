@@ -18,6 +18,7 @@ import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
 import json.JsonClasses;
+import servlet.Log;
 import util.RandomGen;
 
 /**
@@ -47,13 +48,15 @@ public class World {
 	public int rate;//TODO
 	
 	// maps position to element in the world
-	private Hashtable<Position, Element> hexes;
+	private Hashtable<Position, Element> hexes = new Hashtable<>();
 	
 	// order of critters in the world to take actions
-	public ArrayList<Critter> order;
+	public ArrayList<Critter> order = new ArrayList<>();
 	
 	// record the change of state in each turn
-	private HashMap<Position, HexToUpdate> hexToUpdate;
+	private HashMap<Position, HexToUpdate> hexToUpdate = new HashMap<>();
+	
+	private ArrayList<Log> logs = new ArrayList<>();
 	
 	/**
 	 * Initialize a world
@@ -84,9 +87,7 @@ public class World {
 		setSize();
 		name = n;
 		turns = 0;
-		hexes = new Hashtable<Position, Element>();
-		order = new ArrayList<Critter>();
-		hexToUpdate = new HashMap<>();
+		logs.add(new Log());
 	}
 	
 	/**
@@ -107,11 +108,9 @@ public class World {
 		row = Constant.ROWS;
 		column = Constant.COLUMNS; 
 		setSize();
-		hexes = new Hashtable<Position, Element>();
 		turns = 0;
 		name = "Default World";
-		order = new ArrayList<Critter>();
-		hexToUpdate = new HashMap<>();
+		logs.add(new Log());
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
 				i++) {
@@ -120,10 +119,16 @@ public class World {
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
+				JsonClasses.RockState rockTmpState = 
+						new JsonClasses.RockState(pos);
+				Log logTmp = logs.get(logs.size()-1);
+				logTmp.rockStates.add(rockTmpState);
 				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 			}
 		}
+		System.out.println("last Log is log " + (logs.size()-1) + ":");
+		System.out.println(logs.get(logs.size()-1));
 	}
 	
 	/**
@@ -142,6 +147,8 @@ public class World {
     		int row = Integer.parseInt(temp[2]);
     		world = new World(column,row,name);
     		world.hexToUpdate = new HashMap<>();
+    		world.logs = new ArrayList<>();
+    		world.logs.add(new Log());
     		while((s = br.readLine()) != null) {
     			if(s.startsWith("//"))
     				continue;
@@ -178,6 +185,8 @@ public class World {
     			}
     		}
     		r.close();
+    		System.out.println("last Log is log " + (world.logs.size()-1) + ":");
+    		System.out.println(world.logs.get(world.logs.size()-1));
     		return world;
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -219,6 +228,7 @@ public class World {
 		// updated for 999 PASS (for the second one, take a wait action)
 		int i = 0;
 		while (i < order.size()) {
+			logs.add(new Log()); // create a new log for this critter
 			Critter c = order.get(i++);
 			InterpreterImpl interpret = new InterpreterImpl(this,c);
 			Executor executor = new Executor(this, c);
@@ -234,7 +244,7 @@ public class World {
 				if (outcomes.hasAction())
 					hasAction = true;
 				
-				ResultList tmp = executor.execute(outcomes, hexToUpdate);
+				ResultList tmp = executor.execute(outcomes, hexToUpdate, logs);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
 				for (Critter critter : tmp.toInsert)
@@ -243,8 +253,9 @@ public class World {
 			c.setMem(IDX.PASS, Constant.INIT_PASS);
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
-				executor.execute(new Outcome("wait"), hexToUpdate);
-			
+				executor.execute(new Outcome("wait"), hexToUpdate, logs);
+			System.out.println("last Log is log " + (logs.size()-1) + ":");
+    		System.out.println(logs.get(logs.size()-1));
 		}
 		
 		// remove the critter need to be delete and insert the critter need 
@@ -287,17 +298,32 @@ public class World {
 			return false;
 		if(hexes.get(pos) != null)
 			removeElemAtPosition(pos);
+		Log logTmp;
 		switch (elem.getType()) {
 			case "CRITTER":
-				Critter tmp = (Critter) elem;
+				Critter critterTmp = (Critter) elem;
+				JsonClasses.CritterState critterTmpState = 
+						new JsonClasses.CritterState(critterTmp);
+				logTmp = logs.get(logs.size()-1);
+				logTmp.critterStates.add(critterTmpState);
 				hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
-						tmp.getDir(), tmp.getSize(), tmp.getMem(IDX.POSTURE)));
+						critterTmp.getDir(), critterTmp.getSize(), 
+						critterTmp.getMem(IDX.POSTURE)));
 				break;
 			case "FOOD":
+				Food foodTmp = (Food) elem;
+				JsonClasses.FoodState foodTmpState = 
+						new JsonClasses.FoodState(foodTmp.getAmount(), pos);
+				logTmp = logs.get(logs.size()-1);
+				logTmp.foodStates.add(foodTmpState);
 				hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
 						0, 0, 0));
 				break;
 			case "ROCK":
+				JsonClasses.RockState rockTmpState = 
+						new JsonClasses.RockState(pos);
+				logTmp = logs.get(logs.size()-1);
+				logTmp.rockStates.add(rockTmpState);
 				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 				break;
@@ -326,6 +352,10 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
+		JsonClasses.NothingState nothingTmpState = 
+				new JsonClasses.NothingState(pos);
+		Log logTmp = logs.get(logs.size()-1);
+		logTmp.nothingStates.add(nothingTmpState);
 		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
@@ -526,15 +556,15 @@ public class World {
 			Position p = m.getKey();
 			switch(e.getType()) {
 			case "ROCK" :
-				s.state[index++] = new JsonClasses.RockStates(p);
+				s.state[index++] = new JsonClasses.RockState(p);
 				break;
 			case "FOOD" :
 				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
 				break;
 			case "CRITTER" :
 				Critter c = (Critter)e;
-				JsonClasses.critterWithAllFields critter
-				= new JsonClasses.critterWithAllFields(c);
+				JsonClasses.CritterState critter
+				= new JsonClasses.CritterState(c);
 				if(c.session_id == session_id) {
 					critter.program = c.getProgram().toString();
 					critter.recently_executed_rule = c.getLastRuleIndex();

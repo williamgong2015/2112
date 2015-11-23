@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 
 import exceptions.SyntaxError;
-import json.JsonClasses.critterWithAllFields;
+import json.JsonClasses.CritterState;
 import simulate.Critter;
 
 
@@ -41,9 +41,9 @@ public class UnpackJson {
 	 *  if the critter is not created by the session_id of the client,
 	 *  the program of the critter will be null
 	 */
-	public static JsonClasses.critterWithAllFields unpackCritter(BufferedReader json) {
-		JsonClasses.critterWithAllFields tmp = gson.fromJson(json, 
-				JsonClasses.critterWithAllFields.class);
+	public static JsonClasses.CritterState unpackCritter(BufferedReader json) {
+		JsonClasses.CritterState tmp = gson.fromJson(json, 
+				JsonClasses.CritterState.class);
 		return tmp;
 	}
 	
@@ -100,8 +100,8 @@ public class UnpackJson {
 	 * Used by client :unpack the information of list of critters sent
 	 * from the server
 	 */
-	public static ArrayList<critterWithAllFields> unpackListOfCritters(BufferedReader br) {
-		ArrayList<critterWithAllFields> tmp = son.fromJson(br, ArrayList.class);//TODO
+	public static ArrayList<CritterState> unpackListOfCritters(BufferedReader br) {
+		ArrayList<CritterState> tmp = gson.fromJson(br, ArrayList.class);//TODO
 		return tmp;
 	}
 	
@@ -113,7 +113,7 @@ public class UnpackJson {
 	
 	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
 		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
-		ArrayList<critterWithAllFields> tmp = unpackListOfCritters(br);
+		ArrayList<CritterState> tmp = unpackListOfCritters(br);
 		Critter c = new Critter(tmp.get(0));
 		System.out.println(c);
 	}
