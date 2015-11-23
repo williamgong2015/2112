@@ -18,6 +18,7 @@ import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
 import json.JsonClasses;
+import json.PackJson;
 import util.RandomGen;
 
 /**
@@ -507,14 +508,14 @@ public class World {
 				+ "There are " + order.size() + " critters living "
 						+ "in this world.";
 	}
-	//TODO
+	
 	public JsonClasses.worldState getWorldState(int session_id) {
 		JsonClasses.worldState s = new JsonClasses.worldState();
 		s.col = column;
 		s.current_timestep = turns;
 		s.current_version_number = version_number;
 		s.name = this.name;
-		s.population = order.size();
+		s.population = order.size();//TODO
 		s.row = this.row;
 		s.update_since       =0;
 		s.rate               =0;
@@ -533,8 +534,15 @@ public class World {
 				break;
 			case "CRITTER" :
 				Critter c = (Critter)e;
-				if(c.session_id == session_id)
-					s.state[index++] = 
+				JsonClasses.critterWithAllFields critter
+				= new JsonClasses.critterWithAllFields(c);
+				if(c.session_id == session_id) {
+					critter.program = c.getProgram().toString();
+					critter.recently_executed_rule = c.getLastRuleIndex();
+					s.state[index++] = critter;
+				} else {
+					s.state[index++] = critter;
+				}
 				break;
 			}
 		}

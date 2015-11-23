@@ -1,9 +1,17 @@
 package json;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+
+import exceptions.SyntaxError;
+import json.JsonClasses.critterWithAllFields;
+import simulate.Critter;
 
 
 /**
@@ -92,9 +100,8 @@ public class UnpackJson {
 	 * Used by client :unpack the information of list of critters sent
 	 * from the server
 	 */
-	public static JsonClasses.listOfCritters unpackListOfCritters(BufferedReader br) {
-		JsonClasses.listOfCritters tmp = gson.fromJson(br, 
-				JsonClasses.listOfCritters.class);
+	public static ArrayList<critterWithAllFields> unpackListOfCritters(BufferedReader br) {
+		ArrayList<critterWithAllFields> tmp = son.fromJson(br, ArrayList.class);//TODO
 		return tmp;
 	}
 	
@@ -102,5 +109,12 @@ public class UnpackJson {
 		JsonClasses.worldState tmp = gson.fromJson(br, 
 				JsonClasses.worldState.class);
 		return tmp;
+	}
+	
+	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
+		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
+		ArrayList<critterWithAllFields> tmp = unpackListOfCritters(br);
+		Critter c = new Critter(tmp.get(0));
+		System.out.println(c);
 	}
 }

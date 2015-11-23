@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import exceptions.SyntaxError;
 import json.JsonClasses;
+import json.JsonClasses.critterWithAllFields;
 import json.PackJson;
 import json.UnpackJson;
 import simulate.Critter;
@@ -44,7 +44,7 @@ public class myClient {
 		session_id = UnpackJson.unpackSessionID(json);
 	}
 	//TODO
-	public JsonClasses.listOfCritters lisAllCritters() throws IOException {
+	public ArrayList<critterWithAllFields> lisAllCritters() throws IOException {
 		URL l = new URL(url + "critters?session_id" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
@@ -73,13 +73,13 @@ public class myClient {
 				UnpackJson.unpackResponseToCreateCritters(r);
 	}
 	
-	public JsonClasses.critterWithAllFields retrieveCritter(int id) throws IOException{
+	public Critter retrieveCritter(int id) throws IOException, SyntaxError{
 		URL l = new URL(url + "id?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-		return UnpackJson.unpackCritter(r);
+		return new Critter(UnpackJson.unpackCritter(r));
 	}
 	
 	public void createFoodOrRock(Position pos, int amount, String type) throws IOException{
@@ -92,6 +92,20 @@ public class myClient {
 		w.println(tmp);
 		w.flush();
 		//TODO:what should we do next if the response is negative?
+	}
+	
+	public void removeCritter(int id) throws IOException {
+		URL l = new URL(url + "critter/" + id + "?session_id=" + session_id);
+		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty(//TODO
+			    "Content-Type", "application/x-www-form-urlencoded" );
+		connection.setRequestMethod("DELETE");
+		connection.connect();
+	}
+	
+	public void newWorld() {
+		
 	}
 	
 	public void getStateOfWorld(int update_since) throws IOException{
@@ -121,11 +135,11 @@ public class myClient {
 							new Position(food.col, food.row));
 					break;
 				case "critter":
-					JsonClasses.CritterStates critter = (JsonClasses.CritterStates)s;
+					JsonClasses.critterWithAllFields critter = (JsonClasses.critterWithAllFields)s;
 					try {
-						Critter tmp = new Critter(critter.cr);
+						Critter tmp = new Critter(critter);
 						world.setElemAtPosition(tmp,
-								new Position(critter.cr.col, critter.cr.row));
+								new Position(critter.col, critter.row));
 					} catch (SyntaxError e) {
 						e.printStackTrace();
 					}

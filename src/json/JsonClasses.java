@@ -54,7 +54,7 @@ public class JsonClasses {
 	/**
 	 * wrap the information of a critter and its position
 	 */
-	public static class critterWithAllFields {
+	public static class critterWithAllFields extends States{
 		public int id;
 		public String species_id;
 		public int row;
@@ -62,13 +62,16 @@ public class JsonClasses {
 		public int direction;
 		public int[] mem;
 		public String program;
-		public int recently_executed_rule;
+		public Integer recently_executed_rule;
 		public critterWithAllFields(Critter c) {
+			super("critter");
 			id = c.ID;
 			species_id = c.getName();
 			Position p = c.getPosition();
-			row = p.getRow();
-			col = p.getColumn();
+			if(p != null) {
+				row = p.getRow();
+				col = p.getColumn();
+			}
 			direction = c.getDir();
 			mem = c.getMeMArray();
 		}
@@ -132,6 +135,10 @@ public class JsonClasses {
 		public String getType() {
 			return type;
 		}
+		
+		public void setType(String s) {
+			type = s;
+		}
 	}
 	
 	/**
@@ -146,19 +153,6 @@ public class JsonClasses {
 			super("rock");
 			row = p.getRow();
 			col = p.getColumn();
-		}
-	}
-	
-	/**
-	 * wrap the information of a critter and its position
-	 */
-	public static class CritterStates extends States {
-		
-		public critterWithAllFields cr;
-		
-		public CritterStates(Critter c) {
-			super("critter");
-			cr = new critterWithAllFields(c);
 		}
 	}
 	
@@ -205,9 +199,5 @@ public class JsonClasses {
 		public int col;
 		public int[] dead_critters;
 		public States[] state;
-	}
-	
-	public class listOfCritters {
-		ArrayList<critterWithAllFields> array;
 	}
 }

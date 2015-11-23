@@ -8,7 +8,9 @@ import com.google.gson.Gson;
 
 import exceptions.SyntaxError;
 import simulate.Critter;
+import simulate.Food;
 import simulate.Position;
+import simulate.Rock;
 import simulate.World;
 
 /**
@@ -36,9 +38,10 @@ public class PackJson {
 	/**
 	 *  Used by Server: List all critters / Retrieve a critter
 	 */
-	public static String packCritterWithAllFields(Critter c, Position p) {
+	public static String packCritterWithAllFields(Critter c) {
 		JsonClasses.critterWithAllFields tmp = 
 				new JsonClasses.critterWithAllFields(c);
+		tmp.setType(null);
 		return gson.toJson(tmp, JsonClasses.critterWithAllFields.class);
 	}
 	
@@ -95,9 +98,10 @@ public class PackJson {
 	public static String packListOfCritters(ArrayList<Critter> al, int session_id) {
 		ArrayList<JsonClasses.critterWithAllFields> tmp = new ArrayList<>();
 		for(Critter c : al) {
-			if(c.session_id == session_id) {
-				JsonClasses.critterWithAllFields critter
+			JsonClasses.critterWithAllFields critter
 				= new JsonClasses.critterWithAllFields(c);
+			critter.setType(null);
+			if(c.session_id == session_id) {
 				critter.program = c.getProgram().toString();
 				critter.recently_executed_rule = c.getLastRuleIndex();
 				tmp.add(critter);
@@ -105,7 +109,7 @@ public class PackJson {
 				tmp.add(new JsonClasses.critterWithAllFields(c));
 			}
 		}
-		return gson.toJson(tmp, JsonClasses.listOfCritters.class);
+		return gson.toJson(tmp, ArrayList.class);
 	}
 	
 	/**
@@ -122,11 +126,33 @@ public class PackJson {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException, SyntaxError {
-		//System.out.println(packSessionID(10));
-		Critter c = new Critter(new File("critter1.txt"));
-		Position p = new Position(3,4);
+//		System.out.println(packSessionID(10));
+//		Critter c = new Critter(new File("critter1.txt"));
+//		c.setPosition(new Position(3,5));
+//		System.out.println(packCritterWithAllFields(c));
+//		System.out.println(packPassword(3, "abcd"));
 		//System.out.println(packCritter(c,p));
 		//System.out.println(packCritterWithAllFields(c,p));
-		System.out.println(gson.toJson(p, Position.class));
+//		ArrayList<Critter> al = new ArrayList<>();
+//		for(int i = 0; i < 3; i++) {
+//			Critter c = new Critter(new File("critter1.txt"));
+//			c.session_id = i;
+//			al.add(c);
+//		}
+//		System.out.println(packListOfCritters(al, 2));
+//		World w = new World(10,10,"test");
+//		Critter c = new Critter(new File("critter1.txt"));
+//		c.session_id =1;
+//		w.setElemAtPosition(c, new Position(4,5));
+//		Critter d = new Critter(new File("critter1.txt"));
+//		d.session_id =1;
+//		w.setElemAtPosition(d, new Position(4,4));
+//		w.setElemAtPosition(new Rock(), new Position(5,5));
+//		w.setElemAtPosition(new Food(12), new Position(5,5));
+//		Critter e = new Critter(new File("critter1.txt"));
+//		e.session_id = 2;
+//		w.setElemAtPosition(e, new Position(6,5));
+//		System.out.println(packStateOfWorld(w, 1));
+//		System.out.println(packStateOfWorld(w, 2));
 	}
 }
