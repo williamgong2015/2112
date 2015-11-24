@@ -18,6 +18,7 @@ import gui.HexToUpdate.HEXType;
 import interpret.InterpreterImpl;
 import interpret.Outcome;
 import json.JsonClasses;
+import json.JsonClasses.CreateRandomPositionCritter;
 import servlet.Log;
 import util.RandomGen;
 
@@ -46,7 +47,7 @@ public class World {
 	private int size;
 	public int version_number;
 	public int rate;//TODO
-	public static int CritterID;
+	public int CritterID = 0;
 
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes = new Hashtable<>();
@@ -158,7 +159,8 @@ public class World {
 					continue;
 				Position pos;
 				if(temp[0].equals("rock")) {
-					pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+					pos = new Position(Integer.parseInt(temp[1]),
+							Integer.parseInt(temp[2]));
 					if (world.checkPosition(pos) && 
 							world.getElemAtPosition(pos) == null) {
 						world.setElemAtPosition(new Rock(), pos);
@@ -166,7 +168,8 @@ public class World {
 				}
 				if(temp[0].equals("food")) {
 					int amount = Integer.parseInt(temp[3]);
-					pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+					pos = new Position(Integer.parseInt(temp[1]), 
+							Integer.parseInt(temp[2]));
 					if (world.checkPosition(pos) && 
 							world.getElemAtPosition(pos) == null) {
 						world.setElemAtPosition(new Food(amount), pos);
@@ -174,12 +177,14 @@ public class World {
 				}
 				if(temp[0].equals("critter")) {
 					String file = temp[1];
-					pos = new Position(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+					pos = new Position(Integer.parseInt(temp[2]), 
+							Integer.parseInt(temp[3]));
 					int dir = Integer.parseInt(temp[4]);
 					Critter c = new Critter(file);
 					c.setDir(dir);
 					if (world.checkPosition(pos) && 
 							world.getElemAtPosition(pos) == null) {
+						c.ID = ++world.CritterID;
 						world.setElemAtPosition(c, pos);
 						world.addCritterToList(c);
 					}
@@ -209,6 +214,16 @@ public class World {
 	}
 
 	/**
+	 * add a critter to the world
+	 */
+	public void addCritter(Critter c, Position pos) {
+		c.ID = ++CritterID;
+		this.setElemAtPosition(c, pos);
+		order.add(c);
+		version_number++;
+	}
+	
+	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
 	public HashMap<Position, HexToUpdate> getHexToUpdate() {
@@ -222,7 +237,7 @@ public class World {
 	 * A new turn of the world 
 	 * 
 	 */
-	synchronized public void lapse() {
+	public void lapse() {
 		turns++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
@@ -248,7 +263,7 @@ public class World {
 				ResultList tmp = executor.execute(outcomes, hexToUpdate, logs);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
-				for (Critter critter : tmp.toInsert)
+				for (Critter critter : tmp.toInsert)//TODO
 					order.add(critter);
 			}
 			c.setMem(IDX.PASS, Constant.INIT_PASS);
@@ -370,6 +385,7 @@ public class World {
 	public boolean removeCritter(Critter critter) {
 		if (order.contains(critter)) {
 			order.remove(critter);
+			version_number++;
 			return true;
 		}
 		else 
@@ -577,5 +593,14 @@ public class World {
 			}
 		}
 		return s;
+	}
+	
+	public void setCritterAtRandomPosition(CreateRandomPositionCritter c) {
+		int num = c.num;
+		for(int i = 0; i < num;) {
+			//TODO
+			version_number++;
+			
+		}
 	}
 }

@@ -112,7 +112,7 @@ public class Critter extends Element {
 	public Critter(String file) throws IOException, SyntaxError {
 		this(new File(file));
 	}
-	
+	//TODO direction
 	public Critter(CritterState c) throws SyntaxError {
 		super("CRITTER");
 		this.ID = c.id;
@@ -136,6 +136,15 @@ public class Critter extends Element {
 		Tokenizer t = new Tokenizer(s);
 		pro = ParserImpl.parseProgram(t);
 		name = c.species_id;
+	}
+	
+	public Critter(CreateRandomPositionCritter c, String name) throws SyntaxError {
+		super("CRITTER");
+		mem = c.mem;
+		StringReader s = new StringReader(c.program);
+		Tokenizer t = new Tokenizer(s);
+		pro = ParserImpl.parseProgram(t);
+		this.name = name;
 	}
 	
 	/**

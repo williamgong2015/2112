@@ -148,25 +148,38 @@ public class Servlet extends HttpServlet {
 					CreateCritter c = 
 							UnpackJson.unpackCreateCritter(r);
 					try {
-						
 						Position[] pos = c.positions;
 						for(Position p : pos) {
 							Critter critter = new Critter(c);
 							critter.setPosition(p);
-							critter.ID = ++world.CritterID;
-							//TODO
+							world.addCritter(critter, p);
+							//TODO  we need send back some info
 						}
 					} catch (SyntaxError e) {
 						System.out.println("Wrong syntax");
 					}
 				} else {
 					r.reset();
-					
+					CreateRandomPositionCritter c = 
+							UnpackJson.unpackCreateRandomPositionCritter(r);
+					String name = "critter" + world.CritterID;
+					try {
+						Critter critter = new Critter(c, name);
+						world.setCritterAtRandomPosition(c);
+						//TODO send info back
+					} catch (SyntaxError e) {
+						System.out.println("Wrong syntax");
+					}
 				}
 				response.setStatus(201);
 			}
 		}
-
+		//create a new world
+		if(requestURI.startsWith("world")) {
+			//TODO
+			
+		}
+		
 
 		//check the url parameters (the ?a=b&c=d at the end)
 //		Map<String, String[]> parameterNames = request.getParameterMap();

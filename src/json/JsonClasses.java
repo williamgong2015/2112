@@ -74,9 +74,9 @@ public class JsonClasses {
 	 * wrap the information of a critter and the number of the criter
 	 */
 	public static class CreateRandomPositionCritter {
-		String program;
-		int[] mem;
-		int num;
+		public String program;
+		public int[] mem;
+		public int num;
 		CreateRandomPositionCritter(Critter c, int number) {
 			program = c.getProgram().toString();
 			mem = c.getMeMArray();
@@ -183,7 +183,6 @@ public class JsonClasses {
 		public int[] mem;
 		public String program;
 		public Integer recently_executed_rule;
-		public String recently_executed_rule_string;
 		public CritterState(Critter c) {
 			super("critter");
 			id = c.ID;
@@ -197,22 +196,6 @@ public class JsonClasses {
 			mem = c.getMeMArray();
 			program = c.getProgram().toString();
 			recently_executed_rule = c.getLastRuleIndex();
-			recently_executed_rule_string = c.getLastRuleExe().toString();
-		}
-		
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Critter at (" + col + "," + row + "), "
-					+ "direction: " + direction + "\n");
-			sb.append("Species: " + species_id + "\n");
-			sb.append("Memory: ");
-			for (int i = 0; i < mem.length; ++i) 
-				sb.append("mem[" + i + "] = " + mem[i] + "\n");
-			sb.append("Program: " + program + "\n");
-			sb.append("recently_executed_rule is rule " + 
-			recently_executed_rule + ": " + recently_executed_rule_string
-			+ "\n");
-			return sb.toString();
 		}
 	}
 	

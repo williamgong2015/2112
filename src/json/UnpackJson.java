@@ -76,7 +76,7 @@ public class UnpackJson {
 	 * of the same kind at random locations
 	 */
 	public static CreateRandomPositionCritter
-	unpackCreateRandomPositionCritter(String json) {
+	unpackCreateRandomPositionCritter(BufferedReader json) {
 		CreateRandomPositionCritter tmp = gson.fromJson(json, 
 				CreateRandomPositionCritter.class);
 		return tmp;
@@ -110,7 +110,7 @@ public class UnpackJson {
 	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
 		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
 		ArrayList<CritterState> tmp = unpackListOfCritters(br);
-		Critter c = new Critter(tmp.get(0));
-		System.out.println(c);
+		//Critter c = new Critter(tmp.get(0));
+		//System.out.println(c);
 	}
 }

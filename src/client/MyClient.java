@@ -140,7 +140,7 @@ public class MyClient {
 
 	public void getStateOfWorld(int update_since) throws IOException{
 		if(update_since < 0) {
-			URL l = new URL(url + "world?update_since=update_since&session_id=session_id");//TODO
+			URL l = new URL(url + "world?session_id=session_id");
 			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 			connection.connect();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -178,6 +178,13 @@ public class MyClient {
 			}
 		} else{
 			//TODO
+			URL l = new URL(url + "world?update_since=" + update_since 
+					+"&session_id=" + session_id);
+			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+			connection.connect();
+			BufferedReader r = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+
 		}
 	}
 	
