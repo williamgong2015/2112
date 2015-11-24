@@ -85,35 +85,6 @@ public class Servlet extends HttpServlet {
 		return -1;
 	}
 
-
-
-	private static final long serialVersionUID = 1L;
-
-	private String message = "Hello world!";
-	private int otherParameter = 0;
-
-	// This is just one way to bundle JSON data using GSON. It is not necessarily
-	// the cleanest, nor does it necessarily fit your project best. We encourage you
-	// to try to find the method of bundling / extracting JSON data that works best
-	// with your CritterWorld, including exploring other JSON libraries.
-	class GetJsonBundle {
-		private String uri;
-		private String message;
-		private int otherParameter;
-		private transient int dont_send_me = 3;
-
-		public GetJsonBundle(String uri, String message, int otherParameter) {
-			super();
-			this.uri = uri;
-			this.message = message;
-			this.otherParameter = otherParameter;
-		}
-	}
-
-	class PostJsonBundle {
-		private String message = Servlet.this.message;
-	}
-
 	/**
 	 * Handle GET request
 	 */
@@ -125,12 +96,7 @@ public class Servlet extends HttpServlet {
 		// it is the URI right after 'localhost:8080:'
 		String requestURI = request.getRequestURI();
 
-		//bundle up all the info we want to send to the client
-		GetJsonBundle bundle = new GetJsonBundle(requestURI, message, otherParameter);
-		//convert the bundle to a JSON string
-		String json = gson.toJson(bundle);
-		//write the JSON
-		w.println(json);
+
 		//flush the stream to make sure it actually gets written
 		w.flush();
 		//close the output stream
@@ -150,31 +116,29 @@ public class Servlet extends HttpServlet {
 		Gson gson = new Gson();
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
-		w.append("POST URI: " + requestURI + "\r\n");
+//		w.append("POST URI: " + requestURI + "\r\n"); // for debugging
 
 
 		switch (requestURI) {
-		case "login":
-			JsonClasses.Password input = 
-			gson.fromJson(r, JsonClasses.Password.class);
-			w.println("Got LV " + input.level);
-			w.println("Got PW " + input.password);
-			int session_id = handleGetSessionID(input.level, input.password);
-			w.println(PackJson.packSessionID(session_id));
-			break;
+			case "login":
+				JsonClasses.Password input = 
+				gson.fromJson(r, JsonClasses.Password.class);
+				int session_id = handleGetSessionID(input.level, input.password);
+				w.println(PackJson.packSessionID(session_id));
+				break;
 		}
 
 
 		//check the url parameters (the ?a=b&c=d at the end)
-		Map<String, String[]> parameterNames = request.getParameterMap();
-		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-			switch (entry.getKey()) {
-			case "other_param":
-				otherParameter = Integer.parseInt(entry.getValue()[0]);
-				w.println("Changed other_param to " + otherParameter);
-				break;
-			}
-		}
+//		Map<String, String[]> parameterNames = request.getParameterMap();
+//		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+//			switch (entry.getKey()) {
+//			case "other_param":
+//				otherParameter = Integer.parseInt(entry.getValue()[0]);
+//				w.println("Changed other_param to " + otherParameter);
+//				break;
+//			}
+//		}
 		w.flush();
 		w.close();
 	}

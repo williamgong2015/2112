@@ -49,6 +49,8 @@ public class PackJson {
 	 * Created by Client: login to the server
 	 */
 	public static String packPassword(int level, String password) {
+		if (password == null)
+			password = "";
 		JsonClasses.Password tmp = new JsonClasses.Password(level, password);
 		return gson.toJson(tmp, JsonClasses.Password.class);
 	}

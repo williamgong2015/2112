@@ -38,8 +38,10 @@ public class MyClient {
 	 * @param password - password for the specify user level
 	 * Effect: got 200 and initialize session_id if success
 	 *         got 401 "Unauthorized" response if failed
+	 * @return {@code true} if success
+	 *         {@code false} if failed
 	 */
-	public void logIn(int level, String password) {
+	public boolean logIn(int level, String password) {
 		try {
 			URL l = new URL(url + "login");
 			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -47,20 +49,29 @@ public class MyClient {
 			connection.setRequestMethod("POST");
 			PrintWriter w = new PrintWriter(connection.getOutputStream());
 			String tmp = PackJson.packPassword(level, password);
-			System.out.println("packed json: ");
-			System.out.println(tmp);
 			w.println(tmp);
 			w.flush();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
-//			String json = r.readLine();
-//			System.out.println("json to unpacked: ");
-//			System.out.println(json);
-//			session_id = UnpackJson.unpackSessionID(json);
+			String json = r.readLine();
+			int id = UnpackJson.unpackSessionID(json);
 			dumpResponse(r);
+			session_id = id;
+			if (id == -1) {
+				// TODO
+				System.out.println("password is incorrect");
+				return false;
+			}
+			return true;
 		} catch (IOException e) {
 			System.err.println("IO exception: " + e.getMessage());
+			return false;
 		}
+	}
+	
+	
+	public int getSessionID() {
+		return session_id;
 	}
 
 	//TODO
