@@ -9,8 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import exceptions.SyntaxError;
-import json.JsonClasses;
-import json.JsonClasses.CritterState;
+import json.JsonClasses.*;
 import json.PackJson;
 import json.UnpackJson;
 import simulate.Critter;
@@ -100,7 +99,7 @@ public class MyClient {
 		w.flush();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-		JsonClasses.ResponseToCreateCritters response = 
+		ResponseToCreateCritters response = 
 				UnpackJson.unpackResponseToCreateCritters(r);
 	}
 
@@ -146,7 +145,7 @@ public class MyClient {
 			connection.connect();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
-			JsonClasses.worldState state = UnpackJson.unpackWorldState(r);
+			worldState state = UnpackJson.unpackWorldState(r);
 			String name = state.name;
 			int col = state.col;
 			int row = state.row;
@@ -154,19 +153,19 @@ public class MyClient {
 			world.version_number = state.current_version_number;
 			world.rate = state.rate;
 			world.turns = state.current_timestep;
-			for(JsonClasses.States s : state.state) {
+			for(States s : state.state) {
 				switch(s.getType()) {
 				case "rock":
-					JsonClasses.RockState rock = (JsonClasses.RockState)s;
+					RockState rock = (RockState)s;
 					world.setElemAtPosition(new Rock(), new Position(rock.col, rock.row));
 					break;
 				case "food":
-					JsonClasses.FoodState food = (JsonClasses.FoodState)s;
+					FoodState food = (FoodState)s;
 					world.setElemAtPosition(new Food(food.value),
 							new Position(food.col, food.row));
 					break;
 				case "critter":
-					JsonClasses.CritterState critter = (JsonClasses.CritterState)s;
+					CritterState critter = (CritterState)s;
 					try {
 						Critter tmp = new Critter(critter);
 						world.setElemAtPosition(tmp,

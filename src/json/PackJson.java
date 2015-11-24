@@ -12,6 +12,7 @@ import simulate.Food;
 import simulate.Position;
 import simulate.Rock;
 import simulate.World;
+import json.JsonClasses.*;
 
 /**
  * A class contains static methods to create JSON object from Java objects.
@@ -31,18 +32,18 @@ public class PackJson {
 	 * Created by Servlet: pack the session id before send it back to client
 	 */
 	public static String packSessionID(int id) {
-		JsonClasses.SessionID tmp = new JsonClasses.SessionID(id);
-		return gson.toJson(tmp, JsonClasses.SessionID.class);
+		SessionID tmp = new JsonClasses.SessionID(id);
+		return gson.toJson(tmp, SessionID.class);
 	}
 	
 	/**
 	 *  Used by Server: List all critters / Retrieve a critter
 	 */
 	public static String packCritterWithAllFields(Critter c) {
-		JsonClasses.CritterState tmp = 
-				new JsonClasses.CritterState(c);
+		CritterState tmp = 
+				new CritterState(c);
 		tmp.setType(null);
-		return gson.toJson(tmp, JsonClasses.CritterState.class);
+		return gson.toJson(tmp, CritterState.class);
 	}
 	
 	/**
@@ -51,8 +52,8 @@ public class PackJson {
 	public static String packPassword(int level, String password) {
 		if (password == null)
 			password = "";
-		JsonClasses.Password tmp = new JsonClasses.Password(level, password);
-		return gson.toJson(tmp, JsonClasses.Password.class);
+		Password tmp = new Password(level, password);
+		return gson.toJson(tmp, Password.class);
 	}
 	
 	/**
@@ -61,17 +62,17 @@ public class PackJson {
 	public static String packRockorFood(int row, int col, int amount, String type) {
 		if(!type.equals("food") && !type.equals("rock"))
 			return null;
-		JsonClasses.FoodOrRock tmp = 
-				new JsonClasses.FoodOrRock(row, col, type, amount);
-		return gson.toJson(tmp, JsonClasses.FoodOrRock.class);
+		FoodOrRock tmp = 
+				new FoodOrRock(row, col, type, amount);
+		return gson.toJson(tmp, FoodOrRock.class);
 	}
 	
 	/**
 	 * Created by client: create a kind of critter at specified locations
 	 */
 	public static String packCreateCritter(Critter c, ArrayList<Position> a) {
-		JsonClasses.CreateCritter tmp = new JsonClasses.CreateCritter(c, a);
-		return gson.toJson(tmp, JsonClasses.CreateCritter.class);
+		CreateCritter tmp = new CreateCritter(c, a);
+		return gson.toJson(tmp, CreateCritter.class);
 	}
 	
 	/**
@@ -79,9 +80,9 @@ public class PackJson {
 	 * of the same kind at random locations
 	 */
 	public static String packCreateRandomPositionCritter(Critter c, int number) {
-		JsonClasses.CreateRandomPositionCritter tmp = 
+		CreateRandomPositionCritter tmp = 
 				new JsonClasses.CreateRandomPositionCritter(c, number);
-		return gson.toJson(tmp, JsonClasses.CreateRandomPositionCritter.class);
+		return gson.toJson(tmp, CreateRandomPositionCritter.class);
 	}
 	
 	/**
@@ -89,26 +90,25 @@ public class PackJson {
 	 * new critters
 	 */
 	public static String packResponseToCreateCritters(String s, int[] ids) {
-		JsonClasses.ResponseToCreateCritters tmp = 
-				new JsonClasses.ResponseToCreateCritters(s, ids);
-		return gson.toJson(tmp, JsonClasses.ResponseToCreateCritters.class);
+		ResponseToCreateCritters tmp = 
+				new ResponseToCreateCritters(s, ids);
+		return gson.toJson(tmp, ResponseToCreateCritters.class);
 	}
 	
 	/**
 	 * Created by server: the information of all the critters that is alive in the world
 	 */
 	public static String packListOfCritters(ArrayList<Critter> al, int session_id) {
-		ArrayList<JsonClasses.CritterState> tmp = new ArrayList<>();
+		ArrayList<CritterState> tmp = new ArrayList<>();
 		for(Critter c : al) {
-			JsonClasses.CritterState critter
-				= new JsonClasses.CritterState(c);
+			CritterState critter = new CritterState(c);
 			critter.setType(null);
 			if(c.session_id == session_id) {
 				critter.program = c.getProgram().toString();
 				critter.recently_executed_rule = c.getLastRuleIndex();
 				tmp.add(critter);
 			} else {
-				tmp.add(new JsonClasses.CritterState(c));
+				tmp.add(new CritterState(c));
 			}
 		}
 		return gson.toJson(tmp, ArrayList.class);
@@ -118,8 +118,8 @@ public class PackJson {
 	 * Created by server: the information of current world
 	 */
 	public static String packStateOfWorld(World w, int session_id) {
-		JsonClasses.worldState tmp = w.getWorldState(session_id);
-		return gson.toJson(tmp, JsonClasses.worldState.class);
+		worldState tmp = w.getWorldState(session_id);
+		return gson.toJson(tmp, worldState.class);
 	}
 	
 	/**

@@ -1,17 +1,15 @@
 package json;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
 import exceptions.SyntaxError;
-import json.JsonClasses.CritterState;
 import simulate.Critter;
+import json.JsonClasses.*;
 
 
 /**
@@ -30,8 +28,7 @@ public class UnpackJson {
 	 * @return session id
 	 */
 	public static int unpackSessionID(String json) {
-		JsonClasses.SessionID tmp = gson.fromJson(json, 
-				JsonClasses.SessionID.class);
+		SessionID tmp = gson.fromJson(json, SessionID.class);
 		return tmp.session_id;
 	}
 	
@@ -41,36 +38,32 @@ public class UnpackJson {
 	 *  if the critter is not created by the session_id of the client,
 	 *  the program of the critter will be null
 	 */
-	public static JsonClasses.CritterState unpackCritter(BufferedReader json) {
-		JsonClasses.CritterState tmp = gson.fromJson(json, 
-				JsonClasses.CritterState.class);
+	public static CritterState unpackCritter(BufferedReader json) {
+		CritterState tmp = gson.fromJson(json, CritterState.class);
 		return tmp;
 	}
 	
 	/**
 	 * Used by Server: login to the server
 	 */
-	public static JsonClasses.Password unpackPassword(String json) {
-		JsonClasses.Password tmp = gson.fromJson(json, 
-				JsonClasses.Password.class);
+	public static Password unpackPassword(String json) {
+		Password tmp = gson.fromJson(json, Password.class);
 		return tmp;
 	}
 	
 	/**
 	 * Used by server: create a food or rock object
 	 */
-	public static json.JsonClasses.FoodOrRock unpackRockorFood(String json) {
-		JsonClasses.FoodOrRock tmp = gson.fromJson(json, 
-				JsonClasses.FoodOrRock.class);
+	public static FoodOrRock unpackRockorFood(String json) {
+		FoodOrRock tmp = gson.fromJson(json, FoodOrRock.class);
 		return tmp;
 	}
 	
 	/**
 	 * Used by server: create a kind of critter at specified locations
 	 */
-	public static JsonClasses.CreateCritter unpackCreateCritter(String json) {
-		JsonClasses.CreateCritter tmp = gson.fromJson(json, 
-				JsonClasses.CreateCritter.class);
+	public static CreateCritter unpackCreateCritter(String json) {
+		CreateCritter tmp = gson.fromJson(json, CreateCritter.class);
 		return tmp;
 	}
 	
@@ -78,10 +71,10 @@ public class UnpackJson {
 	 * Used by server: create specified numbers of{@code number} critters 
 	 * of the same kind at random locations
 	 */
-	public static JsonClasses.CreateRandomPositionCritter
+	public static CreateRandomPositionCritter
 	unpackCreateRandomPositionCritter(String json) {
-		JsonClasses.CreateRandomPositionCritter tmp = gson.fromJson(json, 
-				JsonClasses.CreateRandomPositionCritter.class);
+		CreateRandomPositionCritter tmp = gson.fromJson(json, 
+				CreateRandomPositionCritter.class);
 		return tmp;
 	}
 	
@@ -89,10 +82,10 @@ public class UnpackJson {
 	 * Used by client: response to the request of client for creating
 	 * new critters
 	 */
-	public static JsonClasses.ResponseToCreateCritters 
+	public static ResponseToCreateCritters 
 	unpackResponseToCreateCritters(BufferedReader json) {
-		JsonClasses.ResponseToCreateCritters tmp = gson.fromJson(json, 
-				JsonClasses.ResponseToCreateCritters.class);
+		ResponseToCreateCritters tmp = gson.fromJson(json, 
+				ResponseToCreateCritters.class);
 		return tmp;
 	}
 	
@@ -105,9 +98,8 @@ public class UnpackJson {
 		return tmp;
 	}
 	
-	public static JsonClasses.worldState unpackWorldState(BufferedReader br) {
-		JsonClasses.worldState tmp = gson.fromJson(br, 
-				JsonClasses.worldState.class);
+	public static worldState unpackWorldState(BufferedReader br) {
+		worldState tmp = gson.fromJson(br, worldState.class);
 		return tmp;
 	}
 	

@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
 import json.JsonClasses;
+import json.JsonClasses.*;
 import json.PackJson;
 
 /**
@@ -121,7 +122,7 @@ public class Servlet extends HttpServlet {
 
 		switch (requestURI) {
 			case "login":
-				JsonClasses.Password input = 
+				Password input = 
 				gson.fromJson(r, JsonClasses.Password.class);
 				int session_id = handleGetSessionID(input.level, input.password);
 				w.println(PackJson.packSessionID(session_id));
