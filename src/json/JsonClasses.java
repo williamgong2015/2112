@@ -26,8 +26,8 @@ public class JsonClasses {
 	 * wrap password and level
 	 */
 	public static class Password {
-		int level;
-		String password;
+		public int level;
+		public String password;
 		
 		public Password(int l, String pw) {
 			level = l;

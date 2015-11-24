@@ -38,7 +38,7 @@ public class World {
 
 	// how many turns has passed in the world
 	public int turns;
-	
+
 	// the scale of the world
 	private int row;
 	private int column;
@@ -46,18 +46,18 @@ public class World {
 	private int size;
 	public int version_number;
 	public int rate;//TODO
-	
+
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes = new Hashtable<>();
-	
+
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order = new ArrayList<>();
-	
+
 	// record the change of state in each turn
 	private HashMap<Position, HexToUpdate> hexToUpdate = new HashMap<>();
-	
+
 	private ArrayList<Log> logs = new ArrayList<>();
-	
+
 	/**
 	 * Initialize a world
 	 * Check: {@code r} > 0, {@code c} > 0, 
@@ -68,12 +68,12 @@ public class World {
 	 */
 	public World(int c, int r, String n) {
 		if (!Constant.hasBeenInitialized()) {
-	    	try {
-	    		Constant.init();
-	    	} catch (Exception e) {
-	    		System.out.println("can't find constant.txt,"
-	    				+ "the constant has not been initialized");
-	    	}
+			try {
+				Constant.init();
+			} catch (Exception e) {
+				System.out.println("can't find constant.txt,"
+						+ "the constant has not been initialized");
+			}
 		}
 		if (r <= 0 || c <= 0) {
 			System.out.println("the world has an unproper size");
@@ -89,7 +89,7 @@ public class World {
 		turns = 0;
 		logs.add(new Log());
 	}
-	
+
 	/**
 	 * Initialize a default world using constants 
 	 * and put rocks in random position
@@ -98,12 +98,12 @@ public class World {
 	 */
 	public World() {
 		if (!Constant.hasBeenInitialized()) {
-	    	try {
-	    		Constant.init();
-	    	} catch (Exception e) {
-	    		System.out.println("can't find constant.txt,"
-	    				+ "the constant has not been initialized");
-	    	}
+			try {
+				Constant.init();
+			} catch (Exception e) {
+				System.out.println("can't find constant.txt,"
+						+ "the constant has not been initialized");
+			}
 		}
 		row = Constant.ROWS;
 		column = Constant.COLUMNS; 
@@ -130,83 +130,83 @@ public class World {
 		System.out.println("last Log is log " + (logs.size()-1) + ":");
 		System.out.println(logs.get(logs.size()-1));
 	}
-	
+
 	/**
 	 * Create and return a world with a world file
 	 */
 	public static World loadWorld(File filename) {
 		World world;
-    	try{
-    		FileReader r = new FileReader(filename);
+		try{
+			FileReader r = new FileReader(filename);
 			BufferedReader br = new BufferedReader(r);
-    		String s = br.readLine();
-    		String name = s.substring(5);
-    		s = br.readLine();
-    		String[] temp = s.split(" ");
-    		int column = Integer.parseInt(temp[1]);
-    		int row = Integer.parseInt(temp[2]);
-    		world = new World(column,row,name);
-    		world.hexToUpdate = new HashMap<>();
-    		world.logs = new ArrayList<>();
-    		world.logs.add(new Log());
-    		while((s = br.readLine()) != null) {
-    			if(s.startsWith("//"))
-    				continue;
-    			temp = s.split(" ");
-    			if(temp.length == 0)
-    				continue;
-    			Position pos;
-    			if(temp[0].equals("rock")) {
-    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
-    				if (world.checkPosition(pos) && 
-    						world.getElemAtPosition(pos) == null) {
-    					world.setElemAtPosition(new Rock(), pos);
-    				}
-    			}
-    			if(temp[0].equals("food")) {
-    				int amount = Integer.parseInt(temp[3]);
-    				pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
-    				if (world.checkPosition(pos) && 
-    						world.getElemAtPosition(pos) == null) {
-	    				world.setElemAtPosition(new Food(amount), pos);
-    				}
-    			}
-    			if(temp[0].equals("critter")) {
-    				String file = temp[1];
-    				pos = new Position(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
-    				int dir = Integer.parseInt(temp[4]);
-    				Critter c = new Critter(file);
-    				c.setDir(dir);
-    				if (world.checkPosition(pos) && 
-    						world.getElemAtPosition(pos) == null) {
-	    				world.setElemAtPosition(c, pos);
-	    				world.addCritterToList(c);
-    				}
-    			}
-    		}
-    		r.close();
-    		System.out.println("last Log is log " + (world.logs.size()-1) + ":");
-    		System.out.println(world.logs.get(world.logs.size()-1));
-    		return world;
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    		System.err.println("No such file");
-    		return null;
-    	}
-    	
-    }
-	
+			String s = br.readLine();
+			String name = s.substring(5);
+			s = br.readLine();
+			String[] temp = s.split(" ");
+			int column = Integer.parseInt(temp[1]);
+			int row = Integer.parseInt(temp[2]);
+			world = new World(column,row,name);
+			world.hexToUpdate = new HashMap<>();
+			world.logs = new ArrayList<>();
+			world.logs.add(new Log());
+			while((s = br.readLine()) != null) {
+				if(s.startsWith("//"))
+					continue;
+				temp = s.split(" ");
+				if(temp.length == 0)
+					continue;
+				Position pos;
+				if(temp[0].equals("rock")) {
+					pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+					if (world.checkPosition(pos) && 
+							world.getElemAtPosition(pos) == null) {
+						world.setElemAtPosition(new Rock(), pos);
+					}
+				}
+				if(temp[0].equals("food")) {
+					int amount = Integer.parseInt(temp[3]);
+					pos = new Position(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+					if (world.checkPosition(pos) && 
+							world.getElemAtPosition(pos) == null) {
+						world.setElemAtPosition(new Food(amount), pos);
+					}
+				}
+				if(temp[0].equals("critter")) {
+					String file = temp[1];
+					pos = new Position(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+					int dir = Integer.parseInt(temp[4]);
+					Critter c = new Critter(file);
+					c.setDir(dir);
+					if (world.checkPosition(pos) && 
+							world.getElemAtPosition(pos) == null) {
+						world.setElemAtPosition(c, pos);
+						world.addCritterToList(c);
+					}
+				}
+			}
+			r.close();
+			System.out.println("last Log is log " + (world.logs.size()-1) + ":");
+			System.out.println(world.logs.get(world.logs.size()-1));
+			return world;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("No such file");
+			return null;
+		}
+
+	}
+
 	public static World loadWorld(String filename) {
 		return loadWorld(new File(filename));
 	}
-	
+
 	/**
 	 * add a critter to the arraylist
 	 */
 	public void addCritterToList(Critter c) {
 		order.add(c);
 	}
-	
+
 	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
@@ -215,8 +215,8 @@ public class World {
 		hexToUpdate = new HashMap<>();
 		return tmp;
 	}
-	
-	
+
+
 	/**
 	 * A new turn of the world 
 	 * 
@@ -239,11 +239,11 @@ public class World {
 			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
 					hasAction == false) {
 				Outcome outcomes = interpret.interpret(c.getProgram());
-				
+
 				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
 				if (outcomes.hasAction())
 					hasAction = true;
-				
+
 				ResultList tmp = executor.execute(outcomes, hexToUpdate, logs);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
@@ -255,16 +255,16 @@ public class World {
 			if (!hasAction) 
 				executor.execute(new Outcome("wait"), hexToUpdate, logs);
 			System.out.println("last Log is log " + (logs.size()-1) + ":");
-    		System.out.println(logs.get(logs.size()-1));
+			System.out.println(logs.get(logs.size()-1));
 		}
-		
+
 		// remove the critter need to be delete and insert the critter need 
 		// to be inserted
 		for (Critter critter : toDelete) {
 			order.remove(critter);
 		}
 	}
-	
+
 	/**
 	 * Check the position is within the world boundary
 	 * @param position the position to check
@@ -274,7 +274,7 @@ public class World {
 	public boolean checkPosition(Position position) {
 		return Position.checkPosition(position, column, row);
 	}
-	
+
 	/**
 	 * Get the element at {@code pos} in the world if 
 	 * the position is within the boundary of the world, otherwise
@@ -285,7 +285,7 @@ public class World {
 			return hexes.get(pos);
 		return new Rock();
 	}
-	
+
 	/**
 	 * Set element at {@code pos} 
 	 * @param elem element to set
@@ -300,43 +300,43 @@ public class World {
 			removeElemAtPosition(pos);
 		Log logTmp;
 		switch (elem.getType()) {
-			case "CRITTER":
-				Critter critterTmp = (Critter) elem;
-				JsonClasses.CritterState critterTmpState = 
-						new JsonClasses.CritterState(critterTmp);
-				logTmp = logs.get(logs.size()-1);
-				logTmp.critterStates.add(critterTmpState);
-				hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
-						critterTmp.getDir(), critterTmp.getSize(), 
-						critterTmp.getMem(IDX.POSTURE)));
-				break;
-			case "FOOD":
-				Food foodTmp = (Food) elem;
-				JsonClasses.FoodState foodTmpState = 
-						new JsonClasses.FoodState(foodTmp.getAmount(), pos);
-				logTmp = logs.get(logs.size()-1);
-				logTmp.foodStates.add(foodTmpState);
-				hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
-						0, 0, 0));
-				break;
-			case "ROCK":
-				JsonClasses.RockState rockTmpState = 
-						new JsonClasses.RockState(pos);
-				logTmp = logs.get(logs.size()-1);
-				logTmp.rockStates.add(rockTmpState);
-				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
-						0, 0, 0));
-				break;
-			default:
-				System.out.println("can't resolve the type for update");
-				break;
+		case "CRITTER":
+			Critter critterTmp = (Critter) elem;
+			JsonClasses.CritterState critterTmpState = 
+					new JsonClasses.CritterState(critterTmp);
+			logTmp = logs.get(logs.size()-1);
+			logTmp.critterStates.add(critterTmpState);
+			hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
+					critterTmp.getDir(), critterTmp.getSize(), 
+					critterTmp.getMem(IDX.POSTURE)));
+			break;
+		case "FOOD":
+			Food foodTmp = (Food) elem;
+			JsonClasses.FoodState foodTmpState = 
+					new JsonClasses.FoodState(foodTmp.getAmount(), pos);
+			logTmp = logs.get(logs.size()-1);
+			logTmp.foodStates.add(foodTmpState);
+			hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
+					0, 0, 0));
+			break;
+		case "ROCK":
+			JsonClasses.RockState rockTmpState = 
+			new JsonClasses.RockState(pos);
+			logTmp = logs.get(logs.size()-1);
+			logTmp.rockStates.add(rockTmpState);
+			hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
+					0, 0, 0));
+			break;
+		default:
+			System.out.println("can't resolve the type for update");
+			break;
 		}
 		elem.setPosition(pos);
 		hexes.put(pos, elem);
 		return true;
 	}
 
-	
+
 	/**
 	 * Remove the element at the {@code pos} in the world 
 	 * this remove affect both the underlying critter program and the 
@@ -360,7 +360,7 @@ public class World {
 		hexes.remove(pos);
 		return true;
 	}
-	
+
 	/**
 	 * Delete a critter in the world ( remove it from {@code order} )
 	 * @param pos
@@ -374,15 +374,15 @@ public class World {
 		else 
 			return false;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public int getTurns() {
 		return turns;
 	}
-	
+
 	/**
 	 * Effect: Print the world 
 	 * 
@@ -409,7 +409,7 @@ public class World {
 			}
 			else 
 				v = 0;
-			
+
 			for (; v < verticalBound; v += 2) {
 				if (printElement)
 					s.append(
@@ -423,7 +423,7 @@ public class World {
 		}
 		return s.toString();
 	}
-	
+
 	/**
 	 * Effect: Print an ASCII-art map of the world
 	 */
@@ -431,7 +431,7 @@ public class World {
 		String indent = " ";
 		return printASCII(true, indent);
 	}
-	
+
 	/**
 	 * Effect: Print the coordinate representation of
 	 * the ASCII-art map of the world
@@ -440,7 +440,7 @@ public class World {
 		String indent = "      ";
 		return printASCII(false, indent);
 	}
-	
+
 	private String enquery(int c, int r) {
 		Position pos = new Position(c,r);
 		Element e = hexes.get(pos);
@@ -454,21 +454,21 @@ public class World {
 			return "#";
 		return null;
 	}
-	
+
 	/**
 	 * @return how many rows in the world
 	 */
 	public int getRow() {
 		return row;
 	}
-	
+
 	/**
 	 * @return how many columns in the world
 	 */
 	public int getColumn() {
 		return column;
 	}
-	
+
 	/**
 	 * Print a description of the contents of 
 	 * the hex at coordinate (column, row{@code c, r}). 
@@ -485,7 +485,7 @@ public class World {
 			System.out.println(temp.toString());
 		}
 	}
-	
+
 	/**
 	 * Calculate and set the size of the world
 	 */
@@ -505,7 +505,7 @@ public class World {
 		}
 		size = s;
 	}
-	
+
 	/**
 	 * @return the position that critter exists
 	 */
@@ -518,7 +518,7 @@ public class World {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Get the number of empty slot in this world
 	 * @return
@@ -526,7 +526,7 @@ public class World {
 	public int availableSlot() {
 		return size - hexes.size();
 	}
-	
+
 	/**
 	 * For GUI, return a string to inform user how many turn the world has
 	 * step through and how many critter are alive in the world
@@ -535,9 +535,9 @@ public class World {
 	public String getWorldInfo() {
 		return "The world has step " + turns + " turns.\n" 
 				+ "There are " + order.size() + " critters living "
-						+ "in this world.";
+				+ "in this world.";
 	}
-	
+
 	public JsonClasses.worldState getWorldState(int session_id) {
 		JsonClasses.worldState s = new JsonClasses.worldState();
 		s.col = column;
@@ -546,7 +546,7 @@ public class World {
 		s.name = this.name;
 		s.population = order.size();//TODO
 		s.row = this.row;
-		s.update_since       =0;
+		s.update_since = 0;
 		s.rate = rate;
 		s.state = new JsonClasses.States[hexes.size()];
 		int index = 0;

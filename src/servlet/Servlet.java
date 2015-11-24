@@ -22,6 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+import json.JsonClasses;
+import json.PackJson;
+
 /**
  * Servlet implementation class
  * 
@@ -29,7 +32,6 @@ import com.google.gson.JsonElement;
  */
 @WebServlet("/") /* relative URL path to servlet (under package name 'demoServlet'). */
 public class Servlet extends HttpServlet {
-	
 	// define password for different level of user
 	private static final String ADMIN_PW = "admin";
 	private static final String WRITER_PW = "writer";
@@ -38,14 +40,14 @@ public class Servlet extends HttpServlet {
 	private static final int WRITER_LV = 2;
 	private static final int READER_LV = 3;
 	private static final int MAX_CAPACITY = 2 ^ 30;
-	
+
 	// the base url of the servlet are goint received
-	private static final String BASEURL = 
-			"http://localhost:8080/2112/servlet/servlet.Servlet/";
-	
+	private static final String BASE_URL = 
+			"/2112/servlet/servlet.Servlet/";
+
 	// use synchronized java collection (mapping session id to level)
 	private Hashtable<Integer, Integer> sessionIdTable = new Hashtable<>();
-	
+
 	/**
 	 * Handle get session id request from client
 	 * {@code session_id} is a positive integer or 0
@@ -54,23 +56,23 @@ public class Servlet extends HttpServlet {
 	 *         -2 if current users have reach the max capacity
 	 *         positive number or 0 if succeed
 	 */
-	private int handleGetSessionID(String password, int level) {
+	private int handleGetSessionID(int level, String password) {
 		if (sessionIdTable.size() > MAX_CAPACITY)
 			return -2;
 		boolean succeed = false;
 		switch (level) {
-			case ADMIN_LV:
-				if (password.equals(ADMIN_PW)) 
-					succeed = true;
-				break;
-			case WRITER_LV:
-				if (password.equals(WRITER_PW)) 
-					succeed = true;
-				break;
-			case READER_LV:
-				if (password.equals(READER_PW)) 
-					succeed = true;
-				break;
+		case ADMIN_LV:
+			if (password.equals(ADMIN_PW)) 
+				succeed = true;
+			break;
+		case WRITER_LV:
+			if (password.equals(WRITER_PW)) 
+				succeed = true;
+			break;
+		case READER_LV:
+			if (password.equals(READER_PW)) 
+				succeed = true;
+			break;
 		}
 		if (succeed) {
 			int tmp = Math.abs(util.RandomGen.randomNumber());
@@ -82,14 +84,11 @@ public class Servlet extends HttpServlet {
 		}
 		return -1;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String message = "Hello world!";
 	private int otherParameter = 0;
 
@@ -98,11 +97,11 @@ public class Servlet extends HttpServlet {
 	// to try to find the method of bundling / extracting JSON data that works best
 	// with your CritterWorld, including exploring other JSON libraries.
 	class GetJsonBundle {
-		  private String uri;
-		  private String message;
-		  private int otherParameter;
-		  private transient int dont_send_me = 3;
-		  
+		private String uri;
+		private String message;
+		private int otherParameter;
+		private transient int dont_send_me = 3;
+
 		public GetJsonBundle(String uri, String message, int otherParameter) {
 			super();
 			this.uri = uri;
@@ -112,9 +111,9 @@ public class Servlet extends HttpServlet {
 	}
 
 	class PostJsonBundle {
-		  private String message = Servlet.this.message;
+		private String message = Servlet.this.message;
 	}
-	
+
 	/**
 	 * Handle GET request
 	 */
@@ -125,12 +124,7 @@ public class Servlet extends HttpServlet {
 		PrintWriter w = response.getWriter();
 		// it is the URI right after 'localhost:8080:'
 		String requestURI = request.getRequestURI();
-		
-	
-		System.out.println("parsed url: " + 
-				requestURI.substring(BASEURL.length()));
 
-		
 		//bundle up all the info we want to send to the client
 		GetJsonBundle bundle = new GetJsonBundle(requestURI, message, otherParameter);
 		//convert the bundle to a JSON string
@@ -152,27 +146,37 @@ public class Servlet extends HttpServlet {
 			throws ServletException, IOException {
 		response.addHeader("Content-Type", "text/plain");
 		PrintWriter w = response.getWriter();
-		w.append("POST URI = " + request.getRequestURI() + "\r\n");
-		
 		BufferedReader r = request.getReader();
 		Gson gson = new Gson();
-		//unbundle the client's JSON
-		PostJsonBundle input = gson.fromJson(r, PostJsonBundle.class);
-		message = input.message;
-		w.println("Changed message to " + message);
-		
-		//check the url parameters (the ?a=b&c=d at the end)
-        Map<String, String[]> parameterNames = request.getParameterMap();
-        for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-            switch (entry.getKey()) {
-            case "other_param":
-                otherParameter = Integer.parseInt(entry.getValue()[0]);
-        		w.println("Changed other_param to " + otherParameter);
-                break;
-            }
+		String requestURI = 
+				request.getRequestURI().substring(BASE_URL.length());
+		w.append("POST URI: " + requestURI + "\r\n");
+
+
+		switch (requestURI) {
+		case "login":
+			JsonClasses.Password input = 
+			gson.fromJson(r, JsonClasses.Password.class);
+			w.println("Got LV " + input.level);
+			w.println("Got PW " + input.password);
+			int session_id = handleGetSessionID(input.level, input.password);
+			w.println(PackJson.packSessionID(session_id));
+			break;
 		}
-        w.flush();
-        w.close();
+
+
+		//check the url parameters (the ?a=b&c=d at the end)
+		Map<String, String[]> parameterNames = request.getParameterMap();
+		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+			switch (entry.getKey()) {
+			case "other_param":
+				otherParameter = Integer.parseInt(entry.getValue()[0]);
+				w.println("Changed other_param to " + otherParameter);
+				break;
+			}
+		}
+		w.flush();
+		w.close();
 	}
 
 }

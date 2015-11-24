@@ -19,30 +19,50 @@ import simulate.Position;
 import simulate.Rock;
 import simulate.World;
 
-public class myClient {
+/**
+ * Client to submit request and receive response
+ */
+public class MyClient {
 	
 	private final String url;
 	private int session_id;
 	private World world;
-	
-	public myClient(String u) {
+
+	public MyClient(String u) {
 		url = u;
 	}
-	
-	public void logIn(String password, int level) throws IOException {
-		URL l = new URL(url + "login");
-		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("POST");
-		PrintWriter w = new PrintWriter(connection.getOutputStream());
-		String tmp = PackJson.packPassword(level, password);
-		w.println(tmp);
-		w.flush();
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()));
-		String json = r.readLine();
-		session_id = UnpackJson.unpackSessionID(json);
+
+	/**
+	 * Login to the Critter world
+	 * @param level - user level (administrator, writer, reader)
+	 * @param password - password for the specify user level
+	 * Effect: got 200 and initialize session_id if success
+	 *         got 401 "Unauthorized" response if failed
+	 */
+	public void logIn(int level, String password) {
+		try {
+			URL l = new URL(url + "login");
+			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+			connection.setDoOutput(true);
+			connection.setRequestMethod("POST");
+			PrintWriter w = new PrintWriter(connection.getOutputStream());
+			String tmp = PackJson.packPassword(level, password);
+			System.out.println("packed json: ");
+			System.out.println(tmp);
+			w.println(tmp);
+			w.flush();
+			BufferedReader r = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+//			String json = r.readLine();
+//			System.out.println("json to unpacked: ");
+//			System.out.println(json);
+//			session_id = UnpackJson.unpackSessionID(json);
+			dumpResponse(r);
+		} catch (IOException e) {
+			System.err.println("IO exception: " + e.getMessage());
+		}
 	}
+
 	//TODO
 	public ArrayList<CritterState> lisAllCritters() throws IOException {
 		URL l = new URL(url + "critters?session_id" + session_id);
@@ -72,7 +92,7 @@ public class myClient {
 		JsonClasses.ResponseToCreateCritters response = 
 				UnpackJson.unpackResponseToCreateCritters(r);
 	}
-	
+
 	public Critter retrieveCritter(int id) throws IOException, SyntaxError{
 		URL l = new URL(url + "id?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -81,7 +101,7 @@ public class myClient {
 				connection.getInputStream()));
 		return new Critter(UnpackJson.unpackCritter(r));
 	}
-	
+
 	public void createFoodOrRock(Position pos, int amount, String type) throws IOException{
 		URL l = new URL(url + "create_entity?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -93,21 +113,21 @@ public class myClient {
 		w.flush();
 		//TODO:what should we do next if the response is negative?
 	}
-	
+
 	public void removeCritter(int id) throws IOException {
 		URL l = new URL(url + "critter/" + id + "?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty(//TODO
-			    "Content-Type", "application/x-www-form-urlencoded" );
+				"Content-Type", "application/x-www-form-urlencoded" );
 		connection.setRequestMethod("DELETE");
 		connection.connect();
 	}
-	
+
 	public void newWorld() {
-		
+
 	}
-	
+
 	public void getStateOfWorld(int update_since) throws IOException{
 		if(update_since < 0) {
 			URL l = new URL(url + "world?update_since=update_since&session_id=session_id");//TODO
@@ -148,6 +168,15 @@ public class myClient {
 			}
 		} else{
 			//TODO
+		}
+	}
+	
+	/** Read back output from the server. Could change to parse JSON... */
+	void dumpResponse(BufferedReader r) throws IOException {
+		for (;;) {
+			String l = r.readLine();
+			if (l == null) break;
+			System.out.println("Read: " + l);
 		}
 	}
 }
