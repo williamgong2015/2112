@@ -55,10 +55,10 @@ public class JsonClasses {
 	 * wrap the information of a critter
 	 */
 	public static class CreateCritter {
-		String species_id;
-		String program;
-		int[] mem;
-		Position[] positions;
+		public String species_id;
+		public String program;
+		public int[] mem;
+		public Position[] positions;
 		public CreateCritter(Critter c, ArrayList<Position> a) {
 			species_id = c.getName();
 			program = c.getProgram().toString();

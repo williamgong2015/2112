@@ -13,7 +13,7 @@ import constant.Constant;
 import exceptions.SyntaxError;
 import gui.HexToUpdate;
 import gui.HexToUpdate.HEXType;
-import json.JsonClasses;
+import json.JsonClasses.*;
 import parse.ParserImpl;
 import parse.Tokenizer;
 import util.RandomGen;
@@ -113,7 +113,7 @@ public class Critter extends Element {
 		this(new File(file));
 	}
 	
-	public Critter(JsonClasses.CritterState c) throws SyntaxError {
+	public Critter(CritterState c) throws SyntaxError {
 		super("CRITTER");
 		this.ID = c.id;
 		name = c.species_id;
@@ -127,6 +127,15 @@ public class Critter extends Element {
 			Tokenizer t = new Tokenizer(s);
 			pro = ParserImpl.parseProgram(t);
 		}
+	}
+	
+	public Critter(CreateCritter c) throws SyntaxError {
+		super("CRITTER");
+		this.mem = c.mem;
+		StringReader s = new StringReader(c.program);
+		Tokenizer t = new Tokenizer(s);
+		pro = ParserImpl.parseProgram(t);
+		name = c.species_id;
 	}
 	
 	/**

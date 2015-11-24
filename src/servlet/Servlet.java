@@ -22,9 +22,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+import exceptions.SyntaxError;
 import json.JsonClasses;
 import json.JsonClasses.*;
 import json.PackJson;
+import json.UnpackJson;
+import simulate.Critter;
+import simulate.Position;
+import simulate.World;
 
 /**
  * Servlet implementation class
@@ -49,6 +54,8 @@ public class Servlet extends HttpServlet {
 	// use synchronized java collection (mapping session id to level)
 	private Hashtable<Integer, Integer> sessionIdTable = new Hashtable<>();
 
+	private World world;
+	
 	/**
 	 * Handle get session id request from client
 	 * {@code session_id} is a positive integer or 0
@@ -114,19 +121,50 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "text/plain");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		Gson gson = new Gson();
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
 //		w.append("POST URI: " + requestURI + "\r\n"); // for debugging
 
-
-		switch (requestURI) {
-			case "login":
-				Password input = 
-				gson.fromJson(r, JsonClasses.Password.class);
-				int session_id = handleGetSessionID(input.level, input.password);
-				w.println(PackJson.packSessionID(session_id));
-				break;
+		//login
+		if (requestURI.startsWith("login")) {
+			response.addHeader("Content-Type", "application/json");
+			Password input = UnpackJson.unpackPassword(r);
+			int session_id = handleGetSessionID(input.level, input.password);
+			w.println(PackJson.packSessionID(session_id));
+			response.setStatus(200);
+		} 
+		//create a critter
+		if (requestURI.startsWith("critter")) {
+			response.addHeader("Content-Type", "application/json");
+			String s = requestURI.substring("critters?session_id=".length());
+			int id = Integer.parseInt(s);
+			if(sessionIdTable.get(id) == null ||
+					sessionIdTable.get(id) == READER_LV)
+				response.setStatus(401);
+			else {
+				r.mark(2);
+				if((char)r.read() == 's') {
+					r.reset();
+					CreateCritter c = 
+							UnpackJson.unpackCreateCritter(r);
+					try {
+						
+						Position[] pos = c.positions;
+						for(Position p : pos) {
+							Critter critter = new Critter(c);
+							critter.setPosition(p);
+							critter.ID = ++world.CritterID;
+							//TODO
+						}
+					} catch (SyntaxError e) {
+						System.out.println("Wrong syntax");
+					}
+				} else {
+					r.reset();
+					
+				}
+				response.setStatus(201);
+			}
 		}
 
 

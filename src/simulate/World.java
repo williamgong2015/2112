@@ -46,6 +46,7 @@ public class World {
 	private int size;
 	public int version_number;
 	public int rate;//TODO
+	public static int CritterID;
 
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes = new Hashtable<>();

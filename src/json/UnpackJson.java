@@ -32,6 +32,10 @@ public class UnpackJson {
 		return tmp.session_id;
 	}
 	
+	public static Password unpackPassword(BufferedReader r) {
+		Password tmp = gson.fromJson(r, Password.class);
+		return tmp;
+	}
 	/**
 	 *  Used by Client: List all critters / Retrieve a critter
 	 *  @return a class contains information of a critter and its position
@@ -62,7 +66,7 @@ public class UnpackJson {
 	/**
 	 * Used by server: create a kind of critter at specified locations
 	 */
-	public static CreateCritter unpackCreateCritter(String json) {
+	public static CreateCritter unpackCreateCritter(BufferedReader json) {
 		CreateCritter tmp = gson.fromJson(json, CreateCritter.class);
 		return tmp;
 	}
