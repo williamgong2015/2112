@@ -1,15 +1,9 @@
 package servlet;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,17 +13,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-
-import exceptions.SyntaxError;
-import json.JsonClasses;
-import json.JsonClasses.*;
-import json.PackJson;
-import json.UnpackJson;
-import simulate.Critter;
-import simulate.Position;
-import simulate.World;
+import api.json.PackJson;
+import api.json.UnpackJson;
+import api.json.JsonClasses.*;
+import game.exceptions.SyntaxError;
+import servlet.element.Critter;
+import servlet.world.Position;
+import servlet.world.World;
 
 /**
  * Servlet implementation class
@@ -38,6 +28,10 @@ import simulate.World;
  */
 @WebServlet("/") /* relative URL path to servlet (under package name 'demoServlet'). */
 public class Servlet extends HttpServlet {
+	/**
+	 * Default serialVersion UID
+	 */
+	private static final long serialVersionUID = 1L;
 	// define password for different level of user
 	private static final String ADMIN_PW = "admin";
 	private static final String WRITER_PW = "writer";
@@ -83,9 +77,9 @@ public class Servlet extends HttpServlet {
 			break;
 		}
 		if (succeed) {
-			int tmp = Math.abs(util.RandomGen.randomNumber());
+			int tmp = Math.abs(game.utils.RandomGen.randomNumber());
 			while (sessionIdTable.containsKey(tmp)) {
-				tmp = Math.abs(util.RandomGen.randomNumber());
+				tmp = Math.abs(game.utils.RandomGen.randomNumber());
 			}
 			sessionIdTable.put(tmp, level);
 			return tmp;
@@ -98,11 +92,11 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		Gson gson = new Gson();
+//		Gson gson = new Gson();
 		response.addHeader("Content-Type", "application/json");
 		PrintWriter w = response.getWriter();
 		// it is the URI right after 'localhost:8080:'
-		String requestURI = request.getRequestURI();
+//		String requestURI = request.getRequestURI();
 
 
 		//flush the stream to make sure it actually gets written
@@ -123,27 +117,54 @@ public class Servlet extends HttpServlet {
 		BufferedReader r = request.getReader();
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
+		int session_id = -1;
+		//check the url parameters (the ?a=b&c=d at the end)
+		Map<String, String[]> parameterNames = request.getParameterMap();
+		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+			switch (entry.getKey()) {
+			case "session_id":
+				session_id = Integer.parseInt(entry.getValue()[0]);
+				w.println("Changed got post request session_id: " + session_id);
+				break;
+			}
+		}
+		
 //		w.append("POST URI: " + requestURI + "\r\n"); // for debugging
 
-		//login
+		
+		/**
+		 * Handle get session id request 
+		 * Effect: respond with 200 and write back {@code session_id} 
+		 *         if succeed
+		 *         respond with 401 "Unauthorized" if failed
+		 */
 		if (requestURI.startsWith("login")) {
 			response.addHeader("Content-Type", "application/json");
 			Password input = UnpackJson.unpackPassword(r);
-			int session_id = handleGetSessionID(input.level, input.password);
-			w.println(PackJson.packSessionID(session_id));
-			response.setStatus(200);
+			int session_id_new = handleGetSessionID(input.level, input.password);
+			w.println(PackJson.packSessionID(session_id_new));
+			if (session_id_new == -1)
+				response.setStatus(401);
+			else
+				response.setStatus(200);
 		} 
-		//create a critter
+		/**
+		 * Handle create a critter request 
+		 * Effect: write back {@code species_id} and {@code ids} of newly 
+		 *         created critters and respond 201 if succeed
+		 *         respond 401 if the {@code session_id} is not authorized
+		 */
 		if (requestURI.startsWith("critter")) {
 			response.addHeader("Content-Type", "application/json");
-			String s = requestURI.substring("critters?session_id=".length());
-			int id = Integer.parseInt(s);
-			if(sessionIdTable.get(id) == null ||
-					sessionIdTable.get(id) == READER_LV)
+			if(sessionIdTable.get(session_id) != ADMIN_LV ||
+					sessionIdTable.get(session_id) != WRITER_LV)
 				response.setStatus(401);
 			else {
+				world.version_number++;
 				r.mark(2);
-				if((char)r.read() == 's') {
+				char tmp = (char)r.read();
+				if(tmp  == 's') {
+					w.append("create critter command start with: " + tmp);
 					r.reset();
 					CreateCritter c = 
 							UnpackJson.unpackCreateCritter(r);
@@ -159,17 +180,12 @@ public class Servlet extends HttpServlet {
 						System.out.println("Wrong syntax");
 					}
 				} else {
+					w.append("the create critter command start with: " + tmp);
 					r.reset();
 					CreateRandomPositionCritter c = 
 							UnpackJson.unpackCreateRandomPositionCritter(r);
-					String name = "critter" + world.CritterID;
-					try {
-						Critter critter = new Critter(c, name);
-						world.setCritterAtRandomPosition(c);
-						//TODO send info back
-					} catch (SyntaxError e) {
-						System.out.println("Wrong syntax");
-					}
+					world.setCritterAtRandomPosition(c);
+					//TODO send info back
 				}
 				response.setStatus(201);
 			}
@@ -181,16 +197,7 @@ public class Servlet extends HttpServlet {
 		}
 		
 
-		//check the url parameters (the ?a=b&c=d at the end)
-//		Map<String, String[]> parameterNames = request.getParameterMap();
-//		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-//			switch (entry.getKey()) {
-//			case "other_param":
-//				otherParameter = Integer.parseInt(entry.getValue()[0]);
-//				w.println("Changed other_param to " + otherParameter);
-//				break;
-//			}
-//		}
+
 		w.flush();
 		w.close();
 	}

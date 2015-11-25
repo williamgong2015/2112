@@ -8,15 +8,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import exceptions.SyntaxError;
-import json.JsonClasses.*;
-import json.PackJson;
-import json.UnpackJson;
-import simulate.Critter;
-import simulate.Food;
-import simulate.Position;
-import simulate.Rock;
-import simulate.World;
+import api.json.PackJson;
+import api.json.UnpackJson;
+import api.json.JsonClasses.*;
+import game.exceptions.SyntaxError;
+import servlet.element.Critter;
+import servlet.element.Food;
+import servlet.element.Rock;
+import servlet.world.Position;
+import servlet.world.World;
 
 /**
  * Client to submit request and receive response
@@ -37,10 +37,10 @@ public class MyClient {
 	 * @param password - password for the specify user level
 	 * Effect: got 200 and initialize session_id if success
 	 *         got 401 "Unauthorized" response if failed
-	 * @return {@code true} if success
-	 *         {@code false} if failed
+	 * @return 200 if success
+	 *         401 if failed
 	 */
-	public boolean logIn(int level, String password) {
+	public int logIn(int level, String password) {
 		try {
 			URL l = new URL(url + "login");
 			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -56,18 +56,16 @@ public class MyClient {
 			int id = UnpackJson.unpackSessionID(json);
 			dumpResponse(r);
 			session_id = id;
-			if (id == -1) {
-				// TODO
-				System.out.println("password is incorrect");
-				return false;
-			}
-			return true;
+			return connection.getResponseCode();
 		} catch (IOException e) {
-			System.err.println("IO exception: " + e.getMessage());
-			return false;
+			return 401;
 		}
 	}
 	
+	// debugging 
+	public void setSessionID(int id) {
+		session_id = id;
+	}
 	
 	public int getSessionID() {
 		return session_id;
@@ -82,9 +80,16 @@ public class MyClient {
 				connection.getInputStream()));
 		return UnpackJson.unpackListOfCritters(r);
 	}
-	//TODO
-	public void createCritter(Critter c, ArrayList<Position> a, int number) throws IOException{
-		URL l = new URL(url + "critters?session_id" + session_id);
+	/**
+	 * Create 
+	 * @param c
+	 * @param a
+	 * @param number
+	 * @return
+	 * @throws IOException
+	 */
+	public int createCritter(Critter c, ArrayList<Position> a, int number) throws IOException{
+		URL l = new URL(url + "critters?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
 		connection.setDoOutput(true);
@@ -99,8 +104,10 @@ public class MyClient {
 		w.flush();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-		ResponseToCreateCritters response = 
-				UnpackJson.unpackResponseToCreateCritters(r);
+//		ResponseToCreateCritters response = 
+//				UnpackJson.unpackResponseToCreateCritters(r);
+		dumpResponse(r);
+		return connection.getResponseCode();
 	}
 
 	public Critter retrieveCritter(int id) throws IOException, SyntaxError{
