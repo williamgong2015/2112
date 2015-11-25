@@ -2,7 +2,7 @@ package servlet;
 
 import java.util.ArrayList;
 
-import api.json.JsonClasses;
+import api.JsonClasses;
 
 /**
  * Log record of the update in one critter's movement

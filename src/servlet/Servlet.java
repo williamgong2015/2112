@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import api.json.PackJson;
-import api.json.UnpackJson;
-import api.json.JsonClasses.*;
+import api.PackJson;
+import api.UnpackJson;
+import api.JsonClasses.*;
 import game.exceptions.SyntaxError;
 import servlet.element.Critter;
 import servlet.world.Position;

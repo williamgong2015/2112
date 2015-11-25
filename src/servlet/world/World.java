@@ -9,10 +9,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import api.json.JsonClasses;
-import api.json.JsonClasses.CreateRandomPositionCritter;
-import client.gui.HexToUpdate;
-import client.gui.HexToUpdate.HEXType;
+import api.HexToUpdate;
+import api.JsonClasses;
+import api.HexToUpdate.HEXType;
+import api.JsonClasses.CreateRandomPositionCritter;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
@@ -550,8 +550,8 @@ public class World {
 				+ "in this world.";
 	}
 
-	public JsonClasses.worldState getWorldState(int session_id) {
-		JsonClasses.worldState s = new JsonClasses.worldState();
+	public JsonClasses.WorldState getWorldState(int session_id) {
+		JsonClasses.WorldState s = new JsonClasses.WorldState();
 		s.col = column;
 		s.current_timestep = turns;
 		s.current_version_number = version_number;
@@ -560,7 +560,7 @@ public class World {
 		s.row = this.row;
 		s.update_since = 0;
 		s.rate = rate;
-		s.state = new JsonClasses.States[hexes.size()];
+		s.state = new JsonClasses.State[hexes.size()];
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = hexes.entrySet();
 		for(Map.Entry<Position, Element> m : set) {

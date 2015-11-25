@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 
+import api.HexToUpdate;
+import api.PositionInterpreter;
+import client.world.ClientPosition;
+import client.world.ClientPoint;
 import game.exceptions.SyntaxError;
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
@@ -54,7 +58,7 @@ public class Main extends Application {
 	private final static int CUSTOM_WORLD_IDX = 1;
 	private File worldFile = null;  // path to world file 
 	private File critterFile = null;  // path to critter file
-    private NewHex current = null; // current selected hex
+    private GUIHex current = null; // current selected hex
 	private Parent root;
 	private Pane worldPane;
 	private Label worldInfoLabel;
@@ -85,7 +89,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-			root = FXMLLoader.load(getClass().getResource("a6.fxml"));
+			root = FXMLLoader.load(getClass().getResource("/client/gui/a6.fxml"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			System.out.println("can't find the fxml file");
@@ -233,20 +237,20 @@ public class Main extends Application {
 	    world.printCoordinatesASCIIMap();
     	worldPane.getChildren().clear();
     	final Canvas canvas = 
-    			new Canvas(worldCol*NewHex.HEX_SIZE*3/2 + 0.5*NewHex.HEX_SIZE,
-    					(worldRow+1)*NewHex.HEX_SIZE*NewHex.SQRT_THREE/2);
+    			new Canvas(worldCol*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
+    					(worldRow+1)*GUIHex.HEX_SIZE*GUIHex.SQRT_THREE/2);
     	gc = canvas.getGraphicsContext2D();
 
     	gc.setStroke(DEFAULT_STROCK_COLOR);
-        NewHex poly;
+        GUIHex poly;
         for (int i = 0; i < worldRow; ++i) {
         	for (int j = 0; j < worldCol; ++j) {
         		if (i % 2 != j % 2)
         			continue;
-        		poly = new NewHex(j, i, worldRow);
+        		poly = new GUIHex(j, i, worldRow);
         		gc.setFill(Color.WHITE);
         		gc.strokePolyline(poly.xPoints, poly.yPoints, 
-        				NewHex.POINTSNUMBER+1);
+        				GUIHex.POINTSNUMBER+1);
         	}
         }
         worldPane.getChildren().add(canvas);
@@ -322,7 +326,7 @@ public class Main extends Application {
      */
     synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
     	for (HexToUpdate update : list) {
-    		HexLocation loc = HexLocation.positionToLocation(
+    		ClientPosition loc = PositionInterpreter.serverToClient(
     				update.pos, worldCol, worldRow);
     		
     		switch (update.type) {
@@ -356,14 +360,14 @@ public class Main extends Application {
      * @param gc
      * @param loc
      */
-    private void drawEmptyAt(GraphicsContext gc, HexLocation loc) {
-		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+    private void drawEmptyAt(GraphicsContext gc, ClientPosition loc) {
+		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
 		gc.setFill(Color.WHITE);
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
-					NewHex.POINTSNUMBER+1);
+					GUIHex.POINTSNUMBER+1);
 		gc.setStroke(DEFAULT_STROCK_COLOR);
 		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-				NewHex.POINTSNUMBER+1);
+				GUIHex.POINTSNUMBER+1);
     }
    
     /**
@@ -373,14 +377,14 @@ public class Main extends Application {
      * @param gc
      * @param loc
      */
-    private void drawRockAt(GraphicsContext gc, HexLocation loc) {
-		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+    private void drawRockAt(GraphicsContext gc, ClientPosition loc) {
+		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
 		gc.setFill(new ImagePattern(Resource.rockImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
-					NewHex.POINTSNUMBER+1);
+					GUIHex.POINTSNUMBER+1);
 		gc.setStroke(DEFAULT_STROCK_COLOR);
 		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-				NewHex.POINTSNUMBER+1);
+				GUIHex.POINTSNUMBER+1);
     }
     
     /**
@@ -390,14 +394,14 @@ public class Main extends Application {
      * @param gc
      * @param loc
      */
-    private void drawFoodAt(GraphicsContext gc, HexLocation loc) {
-		NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+    private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
+		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
 		gc.setFill(new ImagePattern(Resource.foodImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
-					NewHex.POINTSNUMBER+1);
+					GUIHex.POINTSNUMBER+1);
 		gc.setStroke(DEFAULT_STROCK_COLOR);
 		gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-				NewHex.POINTSNUMBER+1);
+				GUIHex.POINTSNUMBER+1);
     }
     
     /**
@@ -408,19 +412,19 @@ public class Main extends Application {
      * @param gc
      * @param loc
      */
-    private void drawCritterAt(GraphicsContext gc, HexLocation loc, 
+    private void drawCritterAt(GraphicsContext gc, ClientPosition loc, 
     		int dir, int size, int species) {
-    	NewHex tmp = new NewHex(loc.c, loc.r, worldRow);
+    	GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
 		double radio = getRadio(size);
 		
 		// body
 		gc.setFill(getColorOfSpecies(species));
-		gc.fillOval(tmp.getLoc().xPos - NewHex.HEX_SIZE*3/4*radio, 
-				tmp.getLoc().yPos - NewHex.HEX_SIZE*3/4*radio, 
-				NewHex.HEX_SIZE*3/2*radio, NewHex.HEX_SIZE*3/2*radio);
+		gc.fillOval(tmp.getLoc().xPos - GUIHex.HEX_SIZE*3/4*radio, 
+				tmp.getLoc().yPos - GUIHex.HEX_SIZE*3/4*radio, 
+				GUIHex.HEX_SIZE*3/2*radio, GUIHex.HEX_SIZE*3/2*radio);
 		
 		// eyes (with 0.5 width border)
-		Point[] eyes = getEyesPos(dir, tmp, radio);
+		ClientPoint[] eyes = getEyesPos(dir, tmp, radio);
 		gc.setFill(Color.BLACK);
 		if (eyes == null || eyes[0] == null || eyes[1] == null) {
 			System.out.println("eyes is null");
@@ -480,13 +484,13 @@ public class Main extends Application {
      * @param hex - the hex want to fill in two eyes
      * @return {centroidOfLeftEye, centroidOfRightEye}
      */
-    private Point[] getEyesPos(int dir, NewHex hex, double radio) {
-    	Point[] result = new Point[2];
-    	result[0] = Point.getMiddlePoint(hex.centroid, hex.points[dir%6]);
-    	result[0] = Point.getMiddlePointWithWeight(result[0], hex.centroid, 
+    private ClientPoint[] getEyesPos(int dir, GUIHex hex, double radio) {
+    	ClientPoint[] result = new ClientPoint[2];
+    	result[0] = ClientPoint.getMiddlePoint(hex.centroid, hex.points[dir%6]);
+    	result[0] = ClientPoint.getMiddlePointWithWeight(result[0], hex.centroid, 
     			radio);
-    	result[1] = Point.getMiddlePoint(hex.centroid, hex.points[(dir+1)%6]);
-    	result[1] = Point.getMiddlePointWithWeight(result[1], hex.centroid, 
+    	result[1] = ClientPoint.getMiddlePoint(hex.centroid, hex.points[(dir+1)%6]);
+    	result[1] = ClientPoint.getMiddlePointWithWeight(result[1], hex.centroid, 
     			radio);
     	return result;
     }
@@ -519,7 +523,7 @@ public class Main extends Application {
     		return;
     	}
     	try {
-    		HexLocation loc = current.getLoc();
+    		ClientPosition loc = current.getLoc();
     		HashMap<Position, HexToUpdate> hexToUpdate = 
 	    		Critter.insertCritterIntoWorld(world, critterFile, 
 	    				Position.getC(loc.c, loc.r),
@@ -549,34 +553,34 @@ public class Main extends Application {
 			double x = event.getX();
 			double y = event.getY();
 			int[] nearestHexIndex = 
-					NewHex.classifyPoint(x, y, worldRow, worldCol);
+					GUIHex.classifyPoint(x, y, worldRow, worldCol);
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
-			NewHex tmp = new NewHex(nearestHexIndex[0],
+			GUIHex tmp = new GUIHex(nearestHexIndex[0],
 					nearestHexIndex[1], worldRow);
 			// un-select click
 			if (tmp == current) {
 				current = null;
 				gc.setStroke(DEFAULT_STROCK_COLOR);
 				gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-						NewHex.POINTSNUMBER+1);
+						GUIHex.POINTSNUMBER+1);
 			}
 			// select click
 			else {
 				if (current != null) {
 					gc.setStroke(DEFAULT_STROCK_COLOR);
 					gc.strokePolyline(current.xPoints, current.yPoints, 
-							NewHex.POINTSNUMBER+1);
+							GUIHex.POINTSNUMBER+1);
 				}
 				current = tmp;
 				gc.setStroke(SELECTED_STROCK_COLOR);
 				gc.strokePolyline(current.xPoints, current.yPoints, 
-						NewHex.POINTSNUMBER+1);
+						GUIHex.POINTSNUMBER+1);
 			}
 			// check if there is a critter in the selected hex,
 			// if so, need to display the critter info
-			Position pos = HexLocation.locationToPosition(tmp.getLoc());
+			Position pos = PositionInterpreter.clientToServer(tmp.getLoc());
 			Element elem = world.getElemAtPosition(pos);
 			if (elem != null)
 				critterInfoLabel.setText(elem.toString());
@@ -614,15 +618,15 @@ public class Main extends Application {
 	 */
 	private void drawPolyLineAt(double x, double y, Color COLOR) {
 		int[] nearestHexIndex = 
-				NewHex.classifyPoint(x, y, worldRow, worldCol);
+				GUIHex.classifyPoint(x, y, worldRow, worldCol);
 		if (nearestHexIndex[0] == -1 ||
 				nearestHexIndex[1] == -1)
 			return;
 		gc.setStroke(COLOR);
-		NewHex tmpHex = new NewHex(nearestHexIndex[0],
+		GUIHex tmpHex = new GUIHex(nearestHexIndex[0],
 				nearestHexIndex[1], worldRow);
    		gc.strokePolyline(tmpHex.xPoints, tmpHex.yPoints, 
-				NewHex.POINTSNUMBER+1);
+				GUIHex.POINTSNUMBER+1);
 	}
 
 }

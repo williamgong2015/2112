@@ -8,7 +8,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Controller">
+<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.Controller">
    <items>
       <VBox fx:id="root_vbox">
          <children>

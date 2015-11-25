@@ -4,9 +4,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import api.json.JsonClasses;
-import client.gui.HexToUpdate;
-import client.gui.HexToUpdate.HEXType;
+import api.HexToUpdate;
+import api.JsonClasses;
+import api.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.DIR;
 import game.constant.IDX;

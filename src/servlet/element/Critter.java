@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 
-import api.json.JsonClasses.*;
-import client.gui.HexToUpdate;
-import client.gui.HexToUpdate.HEXType;
+import api.HexToUpdate;
+import api.HexToUpdate.HEXType;
+import api.JsonClasses.*;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;

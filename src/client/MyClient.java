@@ -1,6 +1,7 @@
 package client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -8,15 +9,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import api.json.PackJson;
-import api.json.UnpackJson;
-import api.json.JsonClasses.*;
+import api.PackJson;
+import api.UnpackJson;
+import client.element.ClientElement;
+import client.world.ClientPosition;
+import client.world.ClientWorld;
+import api.JsonClasses.*;
 import game.exceptions.SyntaxError;
-import servlet.element.Critter;
-import servlet.element.Food;
-import servlet.element.Rock;
-import servlet.world.Position;
-import servlet.world.World;
 
 /**
  * Client to submit request and receive response
@@ -25,7 +24,7 @@ public class MyClient {
 	
 	private final String url;
 	private int session_id;
-	private World world;
+	private ClientWorld world;
 
 	public MyClient(String u) {
 		url = u;
@@ -80,6 +79,7 @@ public class MyClient {
 				connection.getInputStream()));
 		return UnpackJson.unpackListOfCritters(r);
 	}
+	
 	/**
 	 * Create 
 	 * @param c
@@ -88,7 +88,8 @@ public class MyClient {
 	 * @return
 	 * @throws IOException
 	 */
-	public int createCritter(Critter c, ArrayList<Position> a, int number) throws IOException{
+	public int createCritter(File critterFile, ArrayList<ClientPosition> a, 
+			int number) throws IOException{
 		URL l = new URL(url + "critters?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
@@ -97,9 +98,11 @@ public class MyClient {
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
 		String tmp;
 		if(a == null)
-			tmp = PackJson.packCreateRandomPositionCritter(c, number);
+			tmp = PackJson.packCreateRandomPositionCritter(
+					new ClientElement(critterFile), number);
 		else
-			tmp = PackJson.packCreateCritter(c, a);
+			tmp = PackJson.packCreateCritter(
+					new ClientElement(critterFile), a);
 		w.println(tmp);
 		w.flush();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -110,27 +113,48 @@ public class MyClient {
 		return connection.getResponseCode();
 	}
 
-	public Critter retrieveCritter(int id) throws IOException, SyntaxError{
+	/**
+	 * Retrieve a critter with critter id {@code id} from Server, 
+	 * @param id
+	 * @return a ClientElement for Client
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
+	public ClientElement retrieveCritter(int id) throws IOException, SyntaxError{
 		URL l = new URL(url + "id?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.connect();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-		return new Critter(UnpackJson.unpackCritter(r));
+		return UnpackJson.unpackCritter(r);
 	}
 
-	public void createFoodOrRock(Position pos, int amount, String type) throws IOException{
+	/**
+	 * Create a Food or Rock in the world based on the instruction from 
+	 * Client side
+	 * @param pos
+	 * @param amount
+	 * @param type
+	 * @throws IOException
+	 */
+	public void createFoodOrRock(ClientPosition pos, int amount, String type) 
+			throws IOException{
 		URL l = new URL(url + "create_entity?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("POST");
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
-		String tmp = PackJson.packRockorFood(pos.getRow(), pos.getColumn(), amount, type);
+		String tmp = PackJson.packRockorFood(pos.r, pos.c, amount, type);
 		w.println(tmp);
 		w.flush();
 		//TODO:what should we do next if the response is negative?
 	}
 
+	/**
+	 * Remove a critter from the world given the critter id {@code id}
+	 * @param id
+	 * @throws IOException
+	 */
 	public void removeCritter(int id) throws IOException {
 		URL l = new URL(url + "critter/" + id + "?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -141,10 +165,21 @@ public class MyClient {
 		connection.connect();
 	}
 
+	/**
+	 * Create a new world
+	 */
 	public void newWorld() {
 
 	}
 
+	/**
+	 * Get the update of the world since {@code update_sice} from server
+	 * and store it at the Client side
+	 * If {@code update_sice} is less than 0, return the entire state of the 
+	 * world. 
+	 * @param update_since
+	 * @throws IOException
+	 */
 	public void getStateOfWorld(int update_since) throws IOException{
 		if(update_since < 0) {
 			URL l = new URL(url + "world?session_id=session_id");
@@ -152,37 +187,8 @@ public class MyClient {
 			connection.connect();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
-			worldState state = UnpackJson.unpackWorldState(r);
-			String name = state.name;
-			int col = state.col;
-			int row = state.row;
-			world = new World(col, row, name);
-			world.version_number = state.current_version_number;
-			world.rate = state.rate;
-			world.turns = state.current_timestep;
-			for(States s : state.state) {
-				switch(s.getType()) {
-				case "rock":
-					RockState rock = (RockState)s;
-					world.setElemAtPosition(new Rock(), new Position(rock.col, rock.row));
-					break;
-				case "food":
-					FoodState food = (FoodState)s;
-					world.setElemAtPosition(new Food(food.value),
-							new Position(food.col, food.row));
-					break;
-				case "critter":
-					CritterState critter = (CritterState)s;
-					try {
-						Critter tmp = new Critter(critter);
-						world.setElemAtPosition(tmp,
-								new Position(critter.col, critter.row));
-					} catch (SyntaxError e) {
-						e.printStackTrace();
-					}
-					break;
-				}
-			}
+			WorldState state = UnpackJson.unpackWorldState(r);
+			world = new ClientWorld(state);
 		} else{
 			//TODO
 			URL l = new URL(url + "world?update_since=" + update_since 
@@ -191,7 +197,8 @@ public class MyClient {
 			connection.connect();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));
-
+			WorldState state = UnpackJson.unpackWorldState(r);
+			world = new ClientWorld(state);
 		}
 	}
 	
