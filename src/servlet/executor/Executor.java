@@ -345,7 +345,9 @@ public class Executor {
 		// with 1 / CHANCE_OF_MUTATE possibility to mutate it rules
 		if (game.utils.RandomGen.randomNumber(Constant.CHANCE_OF_MUTATE) == 0)
 			pro.mutate();
-		Critter newCritter = new Critter(mem, name, pro);
+		// the critter created from bug has the same session id as its parent
+		Critter newCritter = new Critter(mem, name, pro, 
+				w.critterIDCount++, c.session_id);
 		newCritter.setDir(game.utils.RandomGen.randomNumber(6));
 		Position pos = c.getPosition().getRelativePos(1, 3);
 		w.setElemAtPosition(newCritter, pos);
@@ -457,7 +459,10 @@ public class Executor {
 		} catch (Exception e) {
 			System.out.println("can't parse the mate program");
 		}
-		Critter newCritter = new Critter(mem, name, pro);
+		// critter that mate doesn't belong to any player, 
+		// it has session id of 0
+		Critter newCritter = new Critter(mem, name, pro, 
+				w.critterIDCount++, 0);
 		newCritter.setDir(game.utils.RandomGen.randomNumber(6));
 		w.setElemAtPosition(newCritter, posToSet);
 		resultList.toInsert.add(newCritter);

@@ -51,8 +51,8 @@ public class World {
 	private String name;
 	private int size;
 	public int version_number;
-	public int rate;//TODO
-	public int CritterID = 0;
+	public int rate;
+	public int critterIDCount = 0;
 
 	// maps position to element in the world
 	private Hashtable<Position, Element> hexes = new Hashtable<>();
@@ -64,6 +64,7 @@ public class World {
 	private HashMap<Position, HexToUpdate> hexToUpdate = new HashMap<>();
 
 	private ArrayList<Log> logs = new ArrayList<>();
+	
 
 	/**
 	 * Initialize a world
@@ -140,8 +141,9 @@ public class World {
 
 	/**
 	 * Create and return a world with a world file
+	 * @param session_id - id of user who load the world
 	 */
-	public static World loadWorld(File filename) {
+	public static World loadWorld(File filename, int session_id) {
 		World world;
 		try{
 			FileReader r = new FileReader(filename);
@@ -185,11 +187,11 @@ public class World {
 					pos = new Position(Integer.parseInt(temp[2]), 
 							Integer.parseInt(temp[3]));
 					int dir = Integer.parseInt(temp[4]);
-					Critter c = new Critter(file);
+					Critter c = new Critter(file, 
+							world.critterIDCount++, session_id);
 					c.setDir(dir);
 					if (world.checkPosition(pos) && 
 							world.getElemAtPosition(pos) == null) {
-						c.ID = ++world.CritterID;
 						world.setElemAtPosition(c, pos);
 						world.addCritterToList(c);
 					}
@@ -207,8 +209,13 @@ public class World {
 
 	}
 
-	public static World loadWorld(String filename) {
-		return loadWorld(new File(filename));
+	/**
+	 * @param filename
+	 * @param session_id - id of user who load the world
+	 * @return
+	 */
+	public static World loadWorld(String filename, int session_id) {
+		return loadWorld(new File(filename), session_id);
 	}
 
 	/**
@@ -258,7 +265,7 @@ public class World {
 				ResultList tmp = executor.execute(outcomes, hexToUpdate, logs);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
-				for (Critter critter : tmp.toInsert)//TODO
+				for (Critter critter : tmp.toInsert)
 					order.add(critter);
 			}
 			c.setMem(IDX.PASS, Constant.INIT_PASS);
@@ -556,7 +563,7 @@ public class World {
 		s.current_timestep = turns;
 		s.current_version_number = version_number;
 		s.name = this.name;
-		s.population = order.size();//TODO
+		s.population = order.size();
 		s.row = this.row;
 		s.update_since = 0;
 		s.rate = rate;
@@ -594,18 +601,27 @@ public class World {
 	 * add a critter to the world
 	 */
 	public void addCritter(Critter c, Position pos) {
-		c.ID = ++CritterID;
 		this.setElemAtPosition(c, pos);
 		addCritterToList(c);
 	}
 	
-	public void setCritterAtRandomPosition(CreateRandomPositionCritter c) {
+	/**
+	 * Set {@code c.num} of critters at random position at the world
+	 * @param c
+	 * @param session_id - the id of user who set the critter
+	 * @return an array of critter {@code ID} just created
+	 */
+	public ArrayList<Integer> 
+		setCritterAtRandomPosition(CreateRandomPositionCritter c, 
+				String species_id, int session_id) {
 		int num = c.num;
+		ArrayList<Integer> idTmp = new ArrayList<>();
 		for(int i = 0; i < num;) {
 			try {
-				String critterName = "critter" + CritterID;
-				Critter critter = new Critter(c, critterName);
-				critter.ID = ++CritterID;
+				String critterName = species_id;
+				idTmp.add(critterIDCount);
+				Critter critter = new Critter(c, critterName,
+						critterIDCount++, session_id);
 				int a = Math.abs(RandomGen.randomNumber(row));
 				int b = Math.abs(RandomGen.randomNumber(column));
 				Position pos = new Position(b,a);
@@ -619,8 +635,13 @@ public class World {
 				addCritterToList(critter);
 			} catch (SyntaxError e) {
 				e.printStackTrace();
-				return;
+				return null;
 			}
 		}
+		return idTmp;
+	}
+	
+	public void setName(String s) {
+		name = s;
 	}
 }

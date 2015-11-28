@@ -92,7 +92,6 @@ public class MyClient {
 			int number) throws IOException{
 		URL l = new URL(url + "critters?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
-		connection.connect();
 		connection.setDoOutput(true);
 		connection.setRequestMethod("POST");
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
@@ -103,6 +102,8 @@ public class MyClient {
 		else
 			tmp = PackJson.packCreateCritter(
 					new ClientElement(critterFile), a);
+		System.out.println("tmp:");
+		System.out.println(tmp);
 		w.println(tmp);
 		w.flush();
 		BufferedReader r = new BufferedReader(new InputStreamReader(

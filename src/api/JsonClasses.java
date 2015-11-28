@@ -41,10 +41,10 @@ public class JsonClasses {
 	 * wrap the information of rock and food
 	 */
 	public static class FoodOrRock {
-		int row;
-		int col;
-		String type;
-		int amount;
+		public int row;
+		public int col;
+		public String type;
+		public int amount;
 		public FoodOrRock(int r, int c, String s, int a) {
 			row = r;
 			col = c;
@@ -108,7 +108,7 @@ public class JsonClasses {
 	public static class ResponseToCreateCritters {
 		String species_id;
 		int[] ids;
-		ResponseToCreateCritters(String s, int[] ids) {
+		public ResponseToCreateCritters(String s, int[] ids) {
 			species_id = s;
 			this.ids = ids;
 		}
@@ -211,7 +211,7 @@ public class JsonClasses {
 	}
 	
 	/**
-	 * the state of the world
+	 * wrap the state of the world
 	 */
 	public static class WorldState {
 		public int current_timestep;
@@ -224,5 +224,35 @@ public class JsonClasses {
 		public int col;
 		public int[] dead_critters;
 		public State[] state;
+	}
+	
+	/**
+	 * wrap create a new world with description 
+	 */
+	public static class CreateNewWorld {
+		public String description;
+		public CreateNewWorld(String s) {
+			description = s;
+		}
+	}
+	
+	/**
+	 * wrap advance world count  
+	 */
+	public static class AdvanceWorldCount {
+		public int count;
+		public AdvanceWorldCount(int count) {
+			this.count = count;
+		}
+	}
+	
+	/**
+	 * wrap advance world rate  
+	 */
+	public static class AdvanceWorldRate {
+		public int rate;
+		public AdvanceWorldRate(int rate) {
+			this.rate = rate;
+		}
 	}
 }

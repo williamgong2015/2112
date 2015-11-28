@@ -3,6 +3,7 @@ package test.testsA7;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.Test;
@@ -33,12 +34,11 @@ public class testCreateCritter {
 	public void testCorrect() throws IOException, SyntaxError {
 		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
 		MyClient client = new MyClient(url);
-		assertTrue("ADMIN_LV can't be verified", 
-				client.logIn(ADMIN_LV, ADMIN_PW) == 200);
-		
-		String file = critterTest.class.getResource("critter1.txt").getPath();
-		Critter c = new Critter(file);
-		client.createCritter(c, null, 3);
+//		assertTrue("ADMIN_LV can't be verified", 
+//				client.logIn(ADMIN_LV, ADMIN_PW) == 200);
+//		client.setSessionID(id);
+		File file = new File("critter1.txt");
+		client.createCritter(file, null, 3);
 	}
 	
 	/**

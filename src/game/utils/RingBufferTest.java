@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
-public class test {
+public class RingBufferTest {
 	static RingBuffer<Integer> r = new RingBuffer<>( 1001);
 	static HashSet<Integer> removed = new HashSet<>();
 	

@@ -17,10 +17,11 @@ public class smellTests {
 
 	@Test
 	public void test() throws IOException, SyntaxError {
+		int session_id = 0;
 		World world = new World();
-		world = World.loadWorld("world.txt");
+		world = World.loadWorld("world.txt", session_id);
 		File f = new File("critter1.txt");
-		Critter c = new Critter(f);
+		Critter c = new Critter(f, world.critterIDCount++, session_id);
 		c.setDir(1);
 		c.setPosition(new Position(5,6));
 		smell s = new smell();

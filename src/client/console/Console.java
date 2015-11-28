@@ -13,6 +13,7 @@ public class Console {
     private Scanner scan;
     public boolean done;
     public World world;
+    public int session_id = 0;
 
     public static void main(String[] args) {
         Console console = new Console();
@@ -114,7 +115,7 @@ public class Console {
      * @param filename
      */
     public void loadWorld(String filename) {
-    	world = World.loadWorld(filename);
+    	world = World.loadWorld(filename, session_id);
     }
 
     /**
@@ -129,7 +130,7 @@ public class Console {
      */
     public void loadCritters(String filename, int n) throws IOException, 
     SyntaxError {
-    	Critter.loadCrittersIntoWorld(world, filename, n);
+    	Critter.loadCrittersIntoWorld(world, filename, n, session_id);
     }
 
     /**

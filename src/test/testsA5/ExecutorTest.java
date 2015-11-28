@@ -30,6 +30,8 @@ import servlet.world.World;
  */
 public class ExecutorTest {
 	
+	int session_id = 0;
+	
 	/**
 	 * Test a single critter being update and can WAIT as expected
 	 *     some memory shouldn't be updated,
@@ -42,7 +44,8 @@ public class ExecutorTest {
 	@Test
 	public void testUpdate() throws IOException, SyntaxError {
 		final int POSTURE = 10; 
-		World w = World.loadWorld("txt/UpdateTest/world.txt");
+		
+		World w = World.loadWorld("txt/UpdateTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		
 		// check the initial state of the critter 
@@ -69,7 +72,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testMove() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/MoveTest/world.txt");
+		World w = World.loadWorld("txt/MoveTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		final int INITENERGY = 13;
 		
@@ -122,7 +125,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testTurn() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/TurnTest/world.txt");
+		World w = World.loadWorld("txt/TurnTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		final int INITENERGY = 7;
 
@@ -179,7 +182,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testEat() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/EatTest/world.txt");
+		World w = World.loadWorld("txt/EatTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		// place some food in front of the critter
 		Position pos1 = new Position(2,2);
@@ -236,7 +239,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testServe() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/ServeTest/world.txt");
+		World w = World.loadWorld("txt/ServeTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		Position pos1 = new Position(2,2);
 		final int INITENERGY = 100; 
@@ -284,7 +287,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testGrow() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/GrowTest/world.txt");
+		World w = World.loadWorld("txt/GrowTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		Position pos = c.getPosition();
 		final int INITENERGY = 200;
@@ -316,7 +319,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testTag() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/TagTest/world.txt");
+		World w = World.loadWorld("txt/TagTest/world.txt", session_id);
 		Critter c1 = w.order.get(0);
 		Critter c2 = w.order.get(1);
 		final int TAGVAL = 23;
@@ -350,7 +353,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testAttack() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/AttackTest/world.txt");
+		World w = World.loadWorld("txt/AttackTest/world.txt", session_id);
 		Critter c1 = w.order.get(0);
 		Critter c2 = w.order.get(1);
 		Position posC2 = c2.getPosition();
@@ -421,7 +424,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testBud() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/BudTest/world.txt");
+		World w = World.loadWorld("txt/BudTest/world.txt", session_id);
 		Critter c1 = w.order.get(0);
 		Position posC1 = c1.getPosition();
 		w.printCoordinatesASCIIMap();
@@ -468,7 +471,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testMate() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/MateTest/world.txt");
+		World w = World.loadWorld("txt/MateTest/world.txt", session_id);
 		Critter c1 = w.order.get(0);
 		Critter c2 = w.order.get(1);
 		
@@ -549,7 +552,7 @@ public class ExecutorTest {
 	 */
 	@Test
 	public void testSpiralMove() throws IOException, SyntaxError {
-		World w = World.loadWorld("txt/SpiralMoveTest/world.txt");
+		World w = World.loadWorld("txt/SpiralMoveTest/world.txt", session_id);
 		Critter c = w.order.get(0);
 		w.printCoordinatesASCIIMap();
 		w.printASCIIMap();
@@ -570,7 +573,7 @@ public class ExecutorTest {
 	public void testThousandSteps() throws IOException, SyntaxError {
 		World w = new World();
 		Critter.loadCrittersIntoWorld(w, 
-				"txt/ThousandSteps/critter.txt", 200);
+				"txt/ThousandSteps/critter.txt", 200, session_id);
 		Food.loadFoodIntoWorld(w, 10, 20);
 		w.printASCIIMap();
 		

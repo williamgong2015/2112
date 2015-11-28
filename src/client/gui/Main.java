@@ -85,6 +85,8 @@ public class Main extends Application {
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
 	public static final double SQRT_THREE = Math.sqrt(3);
 	
+	public int session_id = 0;
+	
 	
     @Override
     public void start(Stage primaryStage) {
@@ -140,7 +142,7 @@ public class Main extends Application {
         		        worldFile = loadFile(primaryStage);
         		        if (worldFile == null)
         		        	return;
-        		        world = World.loadWorld(worldFile);
+        		        world = World.loadWorld(worldFile, session_id);
         		        drawWorldLayout(); 
         		        HashMap<Position, HexToUpdate> hexToUpdate = 
         	    				world.getHexToUpdate();
@@ -504,7 +506,8 @@ public class Main extends Application {
     	try {
     		int n = Integer.parseInt(critterNumStr);
     		HashMap<Position, HexToUpdate> hexToUpdate = 
-    				Critter.loadCrittersIntoWorld(world, critterFile, n);
+    				Critter.loadCrittersIntoWorld(world, critterFile, n,
+    						session_id);
     		executeHexUpdate(hexToUpdate.values());
     	} catch (SyntaxError err) {
     		Alerts.alertCritterFileIllegal();
@@ -527,7 +530,7 @@ public class Main extends Application {
     		HashMap<Position, HexToUpdate> hexToUpdate = 
 	    		Critter.insertCritterIntoWorld(world, critterFile, 
 	    				Position.getC(loc.c, loc.r),
-	    				Position.getR(loc.c, loc.r));
+	    				Position.getR(loc.c, loc.r), session_id);
     		executeHexUpdate(hexToUpdate.values());
     	} catch (Exception err) {
     		err.printStackTrace();

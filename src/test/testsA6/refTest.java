@@ -1,4 +1,4 @@
-package game.utils;
+package test.testsA6;
 
 import java.util.ArrayList;
 import java.util.HashSet;

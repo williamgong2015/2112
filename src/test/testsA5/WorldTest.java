@@ -25,6 +25,7 @@ import servlet.world.World;
  */
 public class WorldTest {
 	
+	int session_id = 0;
 	
 	@Test 
 	public void defaultWorldTest() throws IOException {
@@ -46,11 +47,11 @@ public class WorldTest {
 		w.setElemAtPosition(r, new Position(3,7));
 		w.setElemAtPosition(r, new Position(2,8));
 		String file = "critter1.txt";
-		Critter c = new Critter(file);
+		Critter c = new Critter(file, w.critterIDCount++, session_id);
 		c.setDir(5);
 		w.setElemAtPosition(c, new Position(3,3));
 		file = "critter2.txt";
-		c = new Critter(file);		
+		c = new Critter(file, w.critterIDCount++, session_id);		
 		w.setElemAtPosition(c, new Position(4,3));
 		Food f = new Food(10);
 		w.setElemAtPosition(f, new Position(0,1));
@@ -69,7 +70,7 @@ public class WorldTest {
 		World w = new World(6,8,"test");
 		w.printCoordinatesASCIIMap();
 		String file = "critter1.txt";
-		Critter c = new Critter(file);
+		Critter c = new Critter(file, w.critterIDCount++, session_id);
 		c.setDir(5);
 		Position origin = new Position(3,3);
 		w.setElemAtPosition(c, origin);

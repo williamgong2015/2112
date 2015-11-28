@@ -10,8 +10,8 @@ public class Position {
 	private int row;
 	
 	public Position(int c, int r) {
-		row = r;
 		col = c;
+		row = r;
 	}
 	
 	/**

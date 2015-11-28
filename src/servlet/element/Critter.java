@@ -36,8 +36,8 @@ public class Critter extends Element {
 	private boolean wantToMate = false;
 	// if still -1, it hasn't been initialized
 	private int complexity = -1;
-	public int ID;
-	public int session_id;
+	public final int ID;
+	public final int session_id;
 	
 	/**
 	 * Create a new Critter with the given memory {@code mem}, 
@@ -48,13 +48,16 @@ public class Critter extends Element {
 	 * @param name
 	 * @param pro
 	 */
-	public Critter(int[] mem, String name, ProgramImpl pro) {
+	public Critter(int[] mem, String name, ProgramImpl pro, int id,
+			int session_id) {
 		super("CRITTER");
 		this.mem = mem;
 		this.name = name;
 		this.pro = pro;
 		this.orientation = game.utils.RandomGen.randomNumber(Constant.ORI_RANGE);
+		this.ID = id;
 		setComplexity();
+		this.session_id = session_id;
 	}
 	
 	/**
@@ -64,7 +67,8 @@ public class Critter extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public Critter(File file) throws IOException, SyntaxError {
+	public Critter(File file, int id, int session_id) throws IOException, 
+		SyntaxError {
 		super("CRITTER");
 		FileReader f = new FileReader(file);
 		BufferedReader br = new BufferedReader(f);
@@ -101,6 +105,8 @@ public class Critter extends Element {
 		pro = ParserImpl.parseProgram(t);
 		setComplexity();
 		orientation = game.utils.RandomGen.randomNumber(Constant.ORI_RANGE);
+		ID = id;
+		this.session_id = session_id;
 		f.close();
 	}
 	
@@ -111,13 +117,15 @@ public class Critter extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public Critter(String file) throws IOException, SyntaxError {
-		this(new File(file));
+	public Critter(String file, int id, int session_id) throws IOException, 
+		SyntaxError {
+		this(new File(file), id, session_id);
 	}
-	//TODO direction
-	public Critter(CritterState c) throws SyntaxError {
+	
+	public Critter(CritterState c, int session_id) throws SyntaxError {
 		super("CRITTER");
 		this.ID = c.id;
+		this.session_id = session_id;
 		name = c.species_id;
 		setDir(c.direction);
 		this.setPosition(new Position(c.col, c.row));
@@ -131,22 +139,28 @@ public class Critter extends Element {
 		}
 	}
 	
-	public Critter(CreateCritter c) throws SyntaxError {
+	public Critter(CreateCritter c, int id, int session_id) 
+			throws SyntaxError {
 		super("CRITTER");
 		this.mem = c.mem;
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);
 		pro = ParserImpl.parseProgram(t);
 		name = c.species_id;
+		ID = id;
+		this.session_id = session_id;
 	}
 	
-	public Critter(CreateRandomPositionCritter c, String name) throws SyntaxError {
+	public Critter(CreateRandomPositionCritter c, String name, int id,
+			int session_id) throws SyntaxError {
 		super("CRITTER");
 		mem = c.mem;
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);
 		pro = ParserImpl.parseProgram(t);
 		this.name = name;
+		ID = id;
+		this.session_id = session_id;
 	}
 	
 	/**
@@ -155,19 +169,21 @@ public class Critter extends Element {
 	 * @param world
 	 * @param filename
 	 * @param n
+	 * @param session_id - id of the user who load critter into the world
 	 * @throws IOException
 	 * @throws SyntaxError
 	 * @return an array of Position the critter are inserted into
 	 */
 	public static HashMap<Position, HexToUpdate> 
 	loadCrittersIntoWorld(World world, File filename, 
-			int n) throws IOException, SyntaxError {
+			int n, int session_id) throws IOException, SyntaxError {
 		HashMap<Position, HexToUpdate> result = new HashMap<>();
     	// check there are enough slot to put the critter 
     	if (n > world.availableSlot())
         	n = world.availableSlot();
     	for(int i = 0;i < n;) {
-        	Critter c = new Critter(filename);
+        	Critter c = new Critter(filename, world.critterIDCount++, 
+        			session_id);
         	int a = RandomGen.randomNumber(world.getRow());
         	int b = RandomGen.randomNumber(world.getColumn());
         	Position pos = new Position(b, a);
@@ -183,11 +199,21 @@ public class Critter extends Element {
     	return result;
     }
 	
-	
+	/**
+	 * Load a critter file, insert {@code n} number of critter created with 
+	 * the critter file {@code filename} into the world {@code world}
+	 * @param world
+	 * @param filename
+	 * @param n
+	 * @param session_id - user who load critter into the world
+	 * @throws IOException
+	 * @throws SyntaxError
+	 * @return an array of Position the critter are inserted into
+	 */
 	public static HashMap<Position, HexToUpdate> 
-	loadCrittersIntoWorld(World world, String filename, 
-			int n) throws IOException, SyntaxError {
-		return loadCrittersIntoWorld(world, new File(filename), n);
+		loadCrittersIntoWorld(World world, String filename, 
+				int n, int session_id) throws IOException, SyntaxError {
+		return loadCrittersIntoWorld(world, new File(filename), n, session_id);
 	}
 	
 	/**
@@ -196,15 +222,16 @@ public class Critter extends Element {
 	 * @param filename
 	 * @param column
 	 * @param row
+	 * @param session_id - id of user who insert the critter
 	 * @return true if the insertion succeed
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
 	public static HashMap<Position, HexToUpdate> 
-	insertCritterIntoWorld(World world, File filename,
-			int column, int row) throws IOException, SyntaxError {
+		insertCritterIntoWorld(World world, File filename, int column, 
+				int row, int session_id) throws IOException, SyntaxError {
 		HashMap<Position, HexToUpdate> result = new HashMap<>();
-		Critter c = new Critter(filename);
+		Critter c = new Critter(filename, world.critterIDCount++, session_id);
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {

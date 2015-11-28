@@ -111,8 +111,10 @@ public class InterpreterTest {
 	@Test 
 	public void testMutatedThousandTimesRule() throws IOException, 
 	SyntaxError {
+		int session_id = 0;
 		World world = new World();
-		Critter.loadCrittersIntoWorld(world, "example_critter.txt", 1);
+		Critter.loadCrittersIntoWorld(world, "example_critter.txt", 1, 
+				session_id);
 		Critter critter = world.order.get(0);
 		System.out.println("world and critters have been load");
 		InterpreterImpl in = new InterpreterImpl(world, critter);

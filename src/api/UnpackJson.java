@@ -3,9 +3,11 @@ package api;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import api.JsonClasses.*;
 import client.element.ClientElement;
@@ -59,8 +61,8 @@ public class UnpackJson {
 	/**
 	 * Used by server: create a food or rock object
 	 */
-	public static FoodOrRock unpackRockorFood(String json) {
-		FoodOrRock tmp = gson.fromJson(json, FoodOrRock.class);
+	public static FoodOrRock unpackRockorFood(BufferedReader r) {
+		FoodOrRock tmp = gson.fromJson(r, FoodOrRock.class);
 		return tmp;
 	}
 	
@@ -99,7 +101,8 @@ public class UnpackJson {
 	 * from the server
 	 */
 	public static ArrayList<CritterState> unpackListOfCritters(BufferedReader br) {
-		ArrayList<CritterState> tmp = gson.fromJson(br, ArrayList.class);//TODO
+		Type t = new TypeToken<ArrayList<CritterState>>(){}.getType();
+		ArrayList<CritterState> tmp = gson.fromJson(br, t);//TODO
 		return tmp;
 	}
 	
@@ -113,5 +116,9 @@ public class UnpackJson {
 		ArrayList<CritterState> tmp = unpackListOfCritters(br);
 		//Critter c = new Critter(tmp.get(0));
 		//System.out.println(c);
+	}
+
+	public static CreateNewWorld unpackCreateNewWorld(BufferedReader r) {
+		return gson.fromJson(r, CreateNewWorld.class);
 	}
 }
