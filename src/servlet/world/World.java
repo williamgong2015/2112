@@ -55,7 +55,7 @@ public class World {
 	public int critterIDCount = 0;
 
 	// maps position to element in the world
-	private Hashtable<Position, Element> hexes = new Hashtable<>();
+	public Hashtable<Position, Element> hexes = new Hashtable<>();
 
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order = new ArrayList<>();
@@ -127,10 +127,8 @@ public class World {
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
 				hexes.put(pos, new Rock());
-				JsonClasses.RockState rockTmpState = 
-						new JsonClasses.RockState(pos);
 				Log logTmp = logs.get(logs.size()-1);
-				logTmp.rockStates.add(rockTmpState);
+				logTmp.updates.put(pos, new Rock());
 				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 			}
@@ -320,28 +318,21 @@ public class World {
 		switch (elem.getType()) {
 		case "CRITTER":
 			Critter critterTmp = (Critter) elem;
-			JsonClasses.CritterState critterTmpState = 
-					new JsonClasses.CritterState(critterTmp);
 			logTmp = logs.get(logs.size()-1);
-			logTmp.critterStates.add(critterTmpState);
+			logTmp.updates.put(pos, elem);
 			hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
 					critterTmp.getDir(), critterTmp.getSize(), 
 					critterTmp.getMem(IDX.POSTURE)));
 			break;
 		case "FOOD":
-			Food foodTmp = (Food) elem;
-			JsonClasses.FoodState foodTmpState = 
-					new JsonClasses.FoodState(foodTmp.getAmount(), pos);
 			logTmp = logs.get(logs.size()-1);
-			logTmp.foodStates.add(foodTmpState);
+			logTmp.updates.put(pos, elem);
 			hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
 					0, 0, 0));
 			break;
 		case "ROCK":
-			JsonClasses.RockState rockTmpState = 
-			new JsonClasses.RockState(pos);
 			logTmp = logs.get(logs.size()-1);
-			logTmp.rockStates.add(rockTmpState);
+			logTmp.updates.put(pos, elem);
 			hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
 					0, 0, 0));
 			break;
@@ -370,10 +361,8 @@ public class World {
 			return false;
 		if (!hexes.containsKey(pos))
 			return false;
-		JsonClasses.NothingState nothingTmpState = 
-				new JsonClasses.NothingState(pos);
 		Log logTmp = logs.get(logs.size()-1);
-		logTmp.nothingStates.add(nothingTmpState);
+		logTmp.updates.put(pos, null);
 		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
@@ -556,8 +545,45 @@ public class World {
 				+ "There are " + order.size() + " critters living "
 				+ "in this world.";
 	}
+	
+	
+	/**
+	 * Get a Hashtable contains updates within the range since {@code 
+	 * update_since}
+	 * @param update_since
+	 * @param from_col
+	 * @param from_row
+	 * @param to_col
+	 * @param to_row
+	 * @return
+	 */
+	public Hashtable<Position, Element> getUpdatesSinceMap(int update_since,
+			int from_col, int from_row, int to_col, int to_row) {
+		Hashtable<Position, Element> result = new Hashtable<>();
+		for (int i = update_since; i < this.version_number; ++i) {
+			Set<Map.Entry<Position, Element>> set = 
+					logs.get(i).updates.entrySet();
+			for(Map.Entry<Position, Element> m : set) {
+				Element e = m.getValue();
+				Position p = m.getKey();
+				if (p.getColumn() >= from_col && p.getColumn() <= to_col &&
+					p.getRow() >= from_row && p.getRow() <= to_row)
+					result.put(p, e);
+			}
+		}
+		return result;
+	}
 
-	public JsonClasses.WorldState getWorldState(int session_id) {
+	/**
+	 * Pack the world state info with {@code table}, which contains the 
+	 * information of updates need to be packed
+	 * @param session_id
+	 * @param isAdmin
+	 * @param table
+	 * @return 
+	 */
+	public JsonClasses.WorldState getWorldState(int session_id, 
+			boolean isAdmin, Hashtable<Position, Element> table) {
 		JsonClasses.WorldState s = new JsonClasses.WorldState();
 		s.col = column;
 		s.current_timestep = turns;
@@ -567,24 +593,30 @@ public class World {
 		s.row = this.row;
 		s.update_since = 0;
 		s.rate = rate;
-		s.state = new JsonClasses.State[hexes.size()];
+		s.state = new JsonClasses.State[table.size()];
+		//TODO dead critters.
 		int index = 0;
-		Set<Map.Entry<Position, Element>> set = hexes.entrySet();
+		Set<Map.Entry<Position, Element>> set = table.entrySet();
 		for(Map.Entry<Position, Element> m : set) {
 			Element e = m.getValue();
 			Position p = m.getKey();
+			// for cleaning up the hex
+			if (e == null) {
+				s.state[index++] = new JsonClasses.NothingState(p);
+				continue;
+			}
 			switch(e.getType()) {
-			case "ROCK" :
+			case "rock" :
 				s.state[index++] = new JsonClasses.RockState(p);
 				break;
-			case "FOOD" :
+			case "food" :
 				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
 				break;
-			case "CRITTER" :
+			case "critter" :
 				Critter c = (Critter)e;
 				JsonClasses.CritterState critter
 				= new JsonClasses.CritterState(c);
-				if(c.session_id == session_id) {
+				if(c.session_id == session_id || isAdmin == true) {
 					critter.program = c.getProgram().toString();
 					critter.recently_executed_rule = c.getLastRuleIndex();
 					s.state[index++] = critter;

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import api.HexToUpdate;
-import api.JsonClasses;
 import api.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.DIR;
@@ -174,9 +173,8 @@ public class Executor {
 		}
 		c.Turn(left);
 		int current = logs.size()-1;
-		JsonClasses.CritterState tmp = new JsonClasses.CritterState(c);
 		Log logTmp = logs.get(current);
-		logTmp.critterStates.add(tmp);
+		logTmp.updates.put(c.getPosition(), c);
 		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
 				c.getPosition(), c.getDir(), c.getSize(), 
 				c.getMem(IDX.POSTURE)));
@@ -307,9 +305,8 @@ public class Executor {
 		}
 		c.setMem(IDX.SIZE, c.getMem(IDX.SIZE) + 1);
 		int current = logs.size()-1;
-		JsonClasses.CritterState tmp = new JsonClasses.CritterState(c);
 		Log logTmp = logs.get(current);
-		logTmp.critterStates.add(tmp);
+		logTmp.updates.put(c.getPosition(), c);
 		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
 				c.getPosition(), c.getDir(), c.getSize(), 
 				c.getMem(IDX.POSTURE)));

@@ -1,8 +1,8 @@
 package api;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import com.google.gson.Gson;
 
@@ -11,8 +11,7 @@ import client.element.ClientElement;
 import client.world.ClientPosition;
 import game.exceptions.SyntaxError;
 import servlet.element.Critter;
-import servlet.element.Food;
-import servlet.element.Rock;
+import servlet.element.Element;
 import servlet.world.Position;
 import servlet.world.World;
 
@@ -39,12 +38,21 @@ public class PackJson {
 	}
 	
 	/**
-	 *  Used by Server: List all critters / Retrieve a critter
+	 * Used by Server: Retrieve a critter
+	 * @param c
+	 * @param session_id   - who is trying to retrieve the critter
+	 * @param isAdmin      - if the critter program and last rule should be
+	 *                       retrieved because user is an admin
+	 * @return
 	 */
-	public static String packCritterWithAllFields(Critter c) {
-		CritterState tmp = 
-				new CritterState(c);
+	public static String packCritterInfo(Critter c,
+			int session_id, boolean isAdmin) {
+		CritterState tmp = new CritterState(c);
 		tmp.setType(null);
+		if(session_id == c.session_id || isAdmin == true) {
+			tmp.program = c.getProgram().toString();
+			tmp.recently_executed_rule = c.getLastRuleIndex();
+		}
 		return gson.toJson(tmp, CritterState.class);
 	}
 	
@@ -99,14 +107,20 @@ public class PackJson {
 	}
 	
 	/**
-	 * Created by server: the information of all the critters that is alive in the world
+	 * Created by server: the information of all the critters 
+	 * that is alive in the world
+	 * @param al - an array list contains all the critter in the world
+	 * @param session_id
+	 * @param isAdmin - if the user is admin
+	 * @return
 	 */
-	public static String packListOfCritters(ArrayList<Critter> al, int session_id) {
+	public static String packListOfCritters(ArrayList<Critter> al, 
+			int session_id, boolean isAdmin) {
 		ArrayList<CritterState> tmp = new ArrayList<>();
 		for(Critter c : al) {
 			CritterState critter = new CritterState(c);
 			critter.setType(null);
-			if(c.session_id == session_id) {
+			if (c.session_id == session_id || isAdmin == true) {
 				critter.program = c.getProgram().toString();
 				critter.recently_executed_rule = c.getLastRuleIndex();
 				tmp.add(critter);
@@ -118,10 +132,15 @@ public class PackJson {
 	}
 	
 	/**
-	 * Created by server: the information of current world
+	 * Created by server: the information of the world
 	 */
-	public static String packStateOfWorld(World w, int session_id) {
-		WorldState tmp = w.getWorldState(session_id);
+	public static String packStateOfWorld(World w, int session_id, 
+			boolean isAdmin, int update_since, int from_col, 
+			int from_row, int to_col, int to_row) {
+		Hashtable<Position, Element> table = 
+				w.getUpdatesSinceMap(update_since, from_col, 
+						from_row, to_col, to_row);
+		WorldState tmp = w.getWorldState(session_id, isAdmin, table);
 		return gson.toJson(tmp, WorldState.class);
 	}
 	

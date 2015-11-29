@@ -79,7 +79,7 @@ public class Servlet extends HttpServlet {
 		try {
 			if (requestURI.startsWith("CritterWorld/critter")) {
 				String subURI = "CritterWorld/critter/";
-				String idStr = requestURI.substring(subURI.length(), 2);
+				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				handleRemoveCritter(request, response, session_id, id);
 			}
@@ -97,13 +97,33 @@ public class Servlet extends HttpServlet {
 		// process URI and parameters in it
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
-		// default session_id (not admin, writer, reader)
-		int session_id = -1; 
+		// default value of parameters
+		int session_id = 0; 
+		int update_since = 0;
+		int from_col = 0;
+		int from_row = 0;
+		int to_col = world.getColumn();
+		int to_row = world.getRow();
 		Map<String, String[]> parameterNames = request.getParameterMap();
 		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
 			switch (entry.getKey()) {
 			case "session_id":
 				session_id = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "update_since":
+				update_since = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "from_col":
+				from_col = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "from_row":
+				from_row = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "to_col":
+				to_col = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "to_row":
+				to_row = Integer.parseInt(entry.getValue()[0]);
 				break;
 			}
 		}
@@ -111,14 +131,24 @@ public class Servlet extends HttpServlet {
 		try {
 			if (requestURI.startsWith("CritterWorld/critter/")) {
 				String subURI = "CritterWorld/critter/";
-				String idStr = requestURI.substring(subURI.length(), 2);
+				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				handleRetrieveCritter(request, response, session_id, id);
 			} 
+			else if (requestURI.startsWith("CritterWorld/critters/")) {
+				handleRetrieveCritterList(request, response, session_id);
+			}
+			else if (requestURI.startsWith("CritterWorld/world")) {
+				handleGetWorldSection(request, response, session_id, 
+						update_since, from_col, from_row, 
+						to_col, to_row);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+
 
 
 	/**
@@ -167,6 +197,72 @@ public class Servlet extends HttpServlet {
 	
 
 	/**
+	 * Retrieve a subsection of the world update since {@code update_since}
+	 * within the range defined by the parameters
+	 * @param request
+	 * @param response
+	 * @param session_id
+	 * @param update_since
+	 * @param from_col
+	 * @param from_row
+	 * @param to_col
+	 * @param to_row
+	 * Write:   world information
+	 *          "Not Acceptable" if the world hasn't been initialized
+	 * Respond: 200 if succeed
+	 *          406 if the world hasn't been initialized
+	 * @throws IOException 
+	 */
+	private void handleGetWorldSection(HttpServletRequest request, 
+			HttpServletResponse response, int session_id, int update_since, 
+			int from_col, int from_row, int to_col, int to_row) 
+					throws IOException {
+		response.addHeader("Content-Type", "application/json");
+		PrintWriter w = response.getWriter();
+		if (world == null) {
+			w.println("Not Acceptable");
+			response.setStatus(406);
+			w.flush();
+			w.close();
+			return;
+		}
+		PackJson.packStateOfWorld(world, session_id, 
+				sessionIdTable.get(session_id) == ADMIN_LV, 
+				update_since, from_col, from_row, to_col, to_row);
+	}
+	
+	/**
+	 * List all critter objects with their details 
+	 * @param request
+	 * @param response
+	 * @param session_id
+	 * Write:   critter information
+	 *          "Not Acceptable" if the world hasn't been initialized
+	 * Respond: 200 if succeed
+	 *          406 if the world hasn't been initialized
+	 * @throws IOException 
+	 */
+	private void handleRetrieveCritterList(HttpServletRequest request, 
+			HttpServletResponse response, int session_id) throws IOException {
+		response.addHeader("Content-Type", "application/json");
+		PrintWriter w = response.getWriter();
+		if (world == null) {
+			w.println("Not Acceptable");
+			response.setStatus(406);
+			w.flush();
+			w.close();
+			return;
+		}
+		// retrieve a list of all critter info 
+		w.println(PackJson.packListOfCritters(world.order, session_id, 
+				sessionIdTable.get(session_id) == ADMIN_LV ));
+		response.setStatus(200);
+		w.flush();
+		w.close();
+	}
+
+	
+	/**
 	 * Retrieve critter information 
 	 * @param request
 	 * @param response
@@ -177,7 +273,7 @@ public class Servlet extends HttpServlet {
 	 *                           the critter doesn't exist
 	 * Respond: 200 if succeed
 	 *          406 if the world hasn't been initialized or the critter 
-	 *              doesn't exist
+	 *              doesn't exist 
 	 * @throws IOException 
 	 */
 	private void handleRetrieveCritter(HttpServletRequest request, 
@@ -190,27 +286,25 @@ public class Servlet extends HttpServlet {
 			response.setStatus(406);
 			w.flush();
 			w.close();
+			return;
 		}
 		// scan through the array list that store critters to find the 
-		// critter to delete
+		// critter to retrieve
 		for (Critter c : world.order) {
 			if (c.ID != id) 
 				continue;
-			if (sessionIdTable.get(session_id) == ADMIN_LV ||
-				(sessionIdTable.get(session_id) == WRITER_LV && 
-				c.session_id == session_id)) {
-				// remove critter from array list, map and increase version num
-				
-				response.setStatus(204);
-				w.flush();
-				w.close();
-				return;
-			}
-			else {
-				
-			}
-			break;
+			w.println(PackJson.packCritterInfo(c, session_id, 
+					sessionIdTable.get(session_id) == ADMIN_LV));
+			response.setStatus(200);
+			w.flush();
+			w.close();
+			return;
 		}
+		// can't find
+		w.println("Not Acceptable");
+		response.setStatus(406);
+		w.flush();
+		w.close();
 	}
 	
 	/**
@@ -222,7 +316,8 @@ public class Servlet extends HttpServlet {
 	 * Write:   "Unauthorized" if the session_id doesn't have access
 	 *          "Not Acceptable" if the world has not been initialized
 	 * Respond: 401 if the session_id doesn't have access to it
-	 * 			406 if the world has not been initialized
+	 * 			406 if the world has not been initialized or
+	 *              can't find the critter {@code id}
 	 *          204 if succeed
 	 * @throws IOException 
 	 */
@@ -253,13 +348,18 @@ public class Servlet extends HttpServlet {
 				w.close();
 				return;
 			}
-			break;
+			// doesn't have access
+			w.println("Unauthorized");
+			response.setStatus(401);
+			w.flush();
+			w.close();
+			return;
 		}
-		w.println("Unauthorized");
-		response.setStatus(401);
+		// can't find
+		w.println("Not Acceptable");
+		response.setStatus(406);
 		w.flush();
 		w.close();
-		return;
 	}
 
 	/**
@@ -385,9 +485,9 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		if (foodOrRock.type == "food")
+		if (foodOrRock.type.equals("food"))
 			world.setElemAtPosition(new Food(foodOrRock.amount), pos);
-		else if (foodOrRock.type == "rock")
+		else if (foodOrRock.type.equals("rock"))
 			world.setElemAtPosition(new Rock(), pos);
 		else {
 			w.println("Not Acceptable type: " + foodOrRock.type);

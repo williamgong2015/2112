@@ -2,6 +2,8 @@ package api;
 
 import java.util.ArrayList;
 
+import com.google.gson.Gson;
+
 import client.element.ClientElement;
 import client.world.ClientPosition;
 import servlet.element.Critter;
@@ -12,6 +14,7 @@ import servlet.world.Position;
  */
 public class JsonClasses {
 
+	static Gson gson = new Gson();
 	
 	/**
 	 * Wrap session id
@@ -205,8 +208,10 @@ public class JsonClasses {
 			}
 			direction = c.getDir();
 			mem = c.getMeMArray();
-			program = c.getProgram().toString();
-			recently_executed_rule = c.getLastRuleIndex();
+		}
+		
+		public String toString() {
+			return gson.toJson(this);
 		}
 	}
 	

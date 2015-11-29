@@ -161,7 +161,7 @@ public class MyClient {
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
 		connection.setRequestProperty(//TODO
-				"Content-Type", "application/x-www-form-urlencoded" );
+				"Content-Type", "No Content" );
 		connection.setRequestMethod("DELETE");
 		connection.connect();
 	}
@@ -190,7 +190,7 @@ public class MyClient {
 					connection.getInputStream()));
 			WorldState state = UnpackJson.unpackWorldState(r);
 			world = new ClientWorld(state);
-		} else{
+		} else {
 			//TODO
 			URL l = new URL(url + "world?update_since=" + update_since 
 					+"&session_id=" + session_id);
