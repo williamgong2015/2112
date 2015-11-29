@@ -18,7 +18,7 @@ public class GUIHex {
 	/** A tile node on the game board. Keeps track of its contained
 	 *  background and label.
 	 */
-	private final ClientPosition loc;
+	public final ClientPosition loc;
 	// 6 points that define the boundary of the hex
 	// each point need two double number to represent it
 	public final ClientPoint[] points;
@@ -176,5 +176,8 @@ public class GUIHex {
 		return loc;
 	}
 
+	public String toString() {
+		return "centroid at: " + centroid;
+	}
 
 }

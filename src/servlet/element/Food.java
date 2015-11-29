@@ -1,5 +1,11 @@
 package servlet.element;
 
+import java.io.IOException;
+import java.util.HashMap;
+
+import api.HexToUpdate;
+import api.HexToUpdate.HEXType;
+import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
 import servlet.world.Position;
 import servlet.world.World;
@@ -75,5 +81,30 @@ public class Food extends Element {
 		if (!(that instanceof Food))
 			return false;
 		return ((Food) that).getAmount() == this.amount;
+	}
+	
+	
+	/**
+	 * Insert a food to a specified location into the world
+	 * @param world
+	 * @param filename
+	 * @param pos
+	 * @param session_id - id of user who insert the critter
+	 * @param amoount
+	 * @return true if the insertion succeed
+	 * @throws IOException
+	 * @throws SyntaxError
+	 */
+	public static HashMap<Position, HexToUpdate> 
+		insertFoodIntoWorld(World world, Position pos, int session_id, 
+				int amount) throws IOException, SyntaxError {
+		HashMap<Position, HexToUpdate> result = new HashMap<>();
+		Food newFood = new Food(amount);
+		if(world.checkPosition(pos) &&
+    			world.getElemAtPosition(pos) == null) {
+			result.put(pos, new HexToUpdate(HEXType.FOOD, pos, 0, 0, 0));
+			world.setElemAtPosition(newFood, pos);
+		}
+		return result;
 	}
 }

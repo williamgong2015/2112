@@ -70,10 +70,10 @@ public class Alerts {
     /**
      * Show an alert to notice user select a hex to insert critter
      */
-    public static void alertSelectHexToInsertCritter() {
+    public static void alertSelectHexToInsert() {
 		Alert alert = new Alert(AlertType.ERROR);
-		alert.setHeaderText("Hasn't select a legal hex to insert critter");
-		String s ="Please select an empty hex to insert critter";
+		alert.setHeaderText("Hasn't select a legal hex to insert");
+		String s ="Please select an empty hex to insert";
 		alert.setContentText(s);
 		alert.show();
     }
@@ -96,4 +96,28 @@ public class Alerts {
 		alert.setContentText(s);
 		alert.show();
     }
+
+    
+    /**
+     * Display description of the Critter World game 
+     */
+    public static void alertDisplayAbout() {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("About");
+		String s ="This is CS 2112 final project: Critter World! \n"
+				+ "built by Yining Gong, Yuxin Cao in Fall 2015.\n";
+		alert.setContentText(s);
+		alert.show();
+    }
+    
+    /**
+     * Ask the user to select a hex to delete 
+     */
+	public static void alertSelectCritterToDelete() {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("Hasn't select a critter to delete");
+		String s ="Please select an critter hex to delete";
+		alert.setContentText(s);
+		alert.show();
+	}
 }

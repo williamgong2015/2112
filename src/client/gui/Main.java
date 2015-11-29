@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Optional;
 
 import api.HexToUpdate;
 import api.PositionInterpreter;
@@ -19,16 +20,23 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -36,6 +44,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.world.Position;
@@ -50,8 +59,10 @@ import servlet.world.World;
  *
  * Reference: 
  * - The zooming functionality is modified from: 
- *   - http://hg.openjdk.java.net/openjfx/8u-dev/rt/rev/36a59c629605
- *   - https://www.youtube.com/watch?v=ij0HwRAlCmo
+ *   - {@link http://hg.openjdk.java.net/openjfx/8u-dev/rt/rev/36a59c629605}
+ *   - {@link https://www.youtube.com/watch?v=ij0HwRAlCmo}
+ * - The login dialog form is modified from:
+ *   - {@link http://code.makery.ch/blog/javafx-dialogs-official/}
  */
 public class Main extends Application {
     private final static int DEFAULT_WORLD_IDX = 0;
@@ -67,6 +78,7 @@ public class Main extends Application {
     private int worldCol;
     private int worldRow;
     private double intialStepsPerSecond = 1;
+    private double mouseRedrawTimesPerSecond = 50; // redraw every 1/30 second
     private GraphicsContext gc;
     private HashMap<Integer, Color> speciesColor;
     
@@ -79,6 +91,7 @@ public class Main extends Application {
     private volatile int counterWorldLapse;
     private volatile int counterWorldDraw;
     Timeline timeline;
+    Timeline timelineMouse;
     
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color HOVER_STROCK_COLOR = Color.web("#3AD53A");
@@ -86,6 +99,15 @@ public class Main extends Application {
 	public static final double SQRT_THREE = Math.sqrt(3);
 	
 	public int session_id = 0;
+	
+	// the hex currently the mouse is hovering on 
+	private GUIHex currentHoveringHex;
+	// the last hex that has been drawn (need to be clear before drawing next)
+	private GUIHex lastDrawnHoveringHex;
+	
+	// if the GUI is trying to find an empty hex to insert. 
+	// if so the hex being hovering at should be highlighted by filling color
+	private boolean isPickingHex = false;
 	
 	
     @Override
@@ -113,6 +135,15 @@ public class Main extends Application {
         timeline.getKeyFrames().add(
         		getWorldSimulationKeyFrame(intialStepsPerSecond));
         
+        // draw the border or fill the mouse hovering hex with color
+        timelineMouse = new Timeline();
+        timelineMouse.setCycleCount(Integer.MAX_VALUE);
+        // recounts cycle count every time it plays again
+        timelineMouse.setAutoReverse(false);  
+        timelineMouse.getKeyFrames().add(
+        		getMouseRedrowKeyFrame(mouseRedrawTimesPerSecond));
+        
+        showLoginDialog();
         
         // initialize the default world and load default critter file
         world = new World();
@@ -191,6 +222,9 @@ public class Main extends Application {
         		(Button) root.lookup("#help_button");
         helpButton.setOnAction(e -> Alerts.alertDisplayHelpInfo());
         
+        // always redraw every mouseRedrawTimesPerSecond 
+        timelineMouse.play();
+        
     }
 
     public static void main(String[] args) {
@@ -215,6 +249,11 @@ public class Main extends Application {
     		timeline.play();
     }
     
+    /**
+     * Get the KeyFrame for the timeline which controls the world running speed
+     * @param stepsPerSecond
+     * @return
+     */
     private KeyFrame getWorldSimulationKeyFrame(double stepsPerSecond) {
     	speed = stepsPerSecond;
     	counterWorldLapse = 0;
@@ -230,7 +269,49 @@ public class Main extends Application {
         		}, tmp);
     }
     
+    /**
+     * Create a KeyFrame for the timeline of redraw the hex being hovered by
+     * the mouse
+     * @param stepsPerSecond
+     * @return
+     */
+    private KeyFrame getMouseRedrowKeyFrame(double stepsPerSecond) {
+    	speed = stepsPerSecond;
+    	KeyValue tmp = null;
+    	return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
+    			"world lapse",
+        		new EventHandler<ActionEvent>() {
+        		    @Override 
+        		    public void handle(ActionEvent e) {
+        		    	drawOnMouseHoveringHex();
+        		    }
+        		}, tmp);
+    }
     
+    /**
+     * Change the color of the strock the mouse is hovering at
+     */
+    private void drawOnMouseHoveringHex() {
+    	if (lastDrawnHoveringHex != null)
+    		drawPolyLineAt(lastDrawnHoveringHex, DEFAULT_STROCK_COLOR);
+    	Position lastPos = PositionInterpreter.clientToServer(
+    			lastDrawnHoveringHex.loc);
+    	if (world.getElemAtPosition(lastPos) == null) {
+    		gc.setFill(Color.BLACK);
+    	}
+    	if (currentHoveringHex != null)
+    		drawPolyLineAt(currentHoveringHex, HOVER_STROCK_COLOR);
+    	lastDrawnHoveringHex = currentHoveringHex;
+    	
+    	if (isPickingHex) {
+    		Position nowPos = PositionInterpreter.clientToServer(
+    				currentHoveringHex.loc);
+    	}
+    }
+    
+    /**
+     * Draw all the hex into the canvas
+     */
     private void drawWorldLayout() {
         worldRow = Position.getH(world.getColumn(), 
 	                 world.getRow());
@@ -257,6 +338,7 @@ public class Main extends Application {
         }
         worldPane.getChildren().add(canvas);
         canvas.setOnMouseClicked(new ClickHexHandler());
+        canvas.setOnMouseMoved(new MouseMovedHandler());
     }
     
     /**
@@ -522,7 +604,7 @@ public class Main extends Application {
     		return;
     	}
     	if (current == null) {
-    		Alerts.alertSelectHexToInsertCritter();
+    		Alerts.alertSelectHexToInsert();
     		return;
     	}
     	try {
@@ -547,6 +629,24 @@ public class Main extends Application {
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
         return selectedFile;
     }
+    
+    /** Handler for recording the current mouse position. */
+   	class MouseMovedHandler implements EventHandler<MouseEvent> {
+
+   		@Override
+   		public void handle(MouseEvent event) {
+   			double x = event.getX();
+   			double y = event.getY();
+   			int[] nearestHexIndex = 
+   					GUIHex.classifyPoint(x, y, worldRow, worldCol);
+   			// can't find corresponding hex
+   			if (nearestHexIndex[0] == -1 ||
+   					nearestHexIndex[1] == -1)
+   				return;
+   			currentHoveringHex = new GUIHex(nearestHexIndex[0],
+   					nearestHexIndex[1], worldRow);
+   		}
+   	}
     
     /** Handler for arrow keys to trigger moves. */
 	class ClickHexHandler implements EventHandler<MouseEvent> {
@@ -591,45 +691,74 @@ public class Main extends Application {
 				critterInfoLabel.setText("");
 		}
 	}
-	
-	/** 
-	 * Change the color of strock to {@code HOVER_STROCK_COLOR} when
-	 * the mouse enter that hex
-	 */
-	class EnterHexHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) {
-			drawPolyLineAt(event.getX(), event.getY(), HOVER_STROCK_COLOR);
-		}
-	}
-	
-	/** 
-	 * Change the color of strock to {@code DEFAULT_STROCK_COLOR} when
-	 * the mouse leave that hex
-	 */
-	class ExitHexHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent event) {
-			drawPolyLineAt(event.getX(), event.getY(), DEFAULT_STROCK_COLOR);
-		}
-	}
+
 	
 	/**
-	 * Draw a polyline with specified color that is the border of the 
-	 * hex located at the {@code x}, {@code y}
+	 * Draw a polyline with specified color {@code COLOR} at {@code hex}
 	 * @param COLOR - the color used to draw the polyline
 	 */
-	private void drawPolyLineAt(double x, double y, Color COLOR) {
-		int[] nearestHexIndex = 
-				GUIHex.classifyPoint(x, y, worldRow, worldCol);
-		if (nearestHexIndex[0] == -1 ||
-				nearestHexIndex[1] == -1)
-			return;
+	private void drawPolyLineAt(GUIHex hex, Color COLOR) {
 		gc.setStroke(COLOR);
-		GUIHex tmpHex = new GUIHex(nearestHexIndex[0],
-				nearestHexIndex[1], worldRow);
-   		gc.strokePolyline(tmpHex.xPoints, tmpHex.yPoints, 
-				GUIHex.POINTSNUMBER+1);
+   		gc.strokePolyline(hex.xPoints, hex.yPoints, GUIHex.POINTSNUMBER+1);
+	}
+	
+	
+	private Pair<String, String> showLoginDialog() {
+		// Create the custom dialog.
+		Dialog<Pair<String, String>> dialog = new Dialog<>();
+		dialog.setTitle("Login Dialog");
+		dialog.setHeaderText("Please specify user level and input password.");
+
+		// Set the button types.
+		ButtonType loginButtonType = new ButtonType("Login", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
+
+		// Create the username and password labels and fields.
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 150, 10, 10));
+
+		TextField username = new TextField();
+		username.setPromptText("admin/writer/reader");
+		PasswordField password = new PasswordField();
+		password.setPromptText("Password");
+
+		grid.add(new Label("User Level:"), 0, 0);
+		grid.add(username, 1, 0);
+		grid.add(new Label("Password:"), 0, 1);
+		grid.add(password, 1, 1);
+
+		// Enable/Disable login button depending on whether a username was entered.
+		Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+		loginButton.setDisable(true);
+
+		// Do some validation (using the Java 8 lambda syntax).
+		username.textProperty().addListener((observable, oldValue, newValue) -> {
+		    loginButton.setDisable(newValue.trim().isEmpty());
+		});
+
+		dialog.getDialogPane().setContent(grid);
+
+//		// Request focus on the username field by default.
+//		Platform.runLater(() -> username.requestFocus());
+
+		// Convert the result to a username-password-pair when the login button is clicked.
+		dialog.setResultConverter(dialogButton -> {
+		    if (dialogButton == loginButtonType) {
+		        return new Pair<>(username.getText(), password.getText());
+		    }
+		    return null;
+		});
+
+		Optional<Pair<String, String>> result = dialog.showAndWait();
+
+		result.ifPresent(usernamePassword -> {
+		    System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
+		});
+		
+		return null;
+		
 	}
 
 }

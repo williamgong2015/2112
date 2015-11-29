@@ -38,7 +38,7 @@ public class Critter extends Element {
 	private int complexity = -1;
 	public final int ID;
 	public final int session_id;
-	
+
 	/**
 	 * Create a new Critter with the given memory {@code mem}, 
 	 * name of the critter {@code name}, and the AST program
@@ -59,7 +59,7 @@ public class Critter extends Element {
 		setComplexity();
 		this.session_id = session_id;
 	}
-	
+
 	/**
 	 * Create a new Critter object by reading a critter file, 
 	 * randomly set the {@code orientation} of the critter 
@@ -68,7 +68,7 @@ public class Critter extends Element {
 	 * @throws SyntaxError
 	 */
 	public Critter(File file, int id, int session_id) throws IOException, 
-		SyntaxError {
+	SyntaxError {
 		super("CRITTER");
 		FileReader f = new FileReader(file);
 		BufferedReader br = new BufferedReader(f);
@@ -109,7 +109,7 @@ public class Critter extends Element {
 		this.session_id = session_id;
 		f.close();
 	}
-	
+
 	/**
 	 * Create a new Critter object by reading a critter file, 
 	 * randomly set the {@code orientation} of the critter 
@@ -118,10 +118,10 @@ public class Critter extends Element {
 	 * @throws SyntaxError
 	 */
 	public Critter(String file, int id, int session_id) throws IOException, 
-		SyntaxError {
+	SyntaxError {
 		this(new File(file), id, session_id);
 	}
-	
+
 	public Critter(CritterState c, int session_id) throws SyntaxError {
 		super("CRITTER");
 		this.ID = c.id;
@@ -138,7 +138,7 @@ public class Critter extends Element {
 			pro = ParserImpl.parseProgram(t);
 		}
 	}
-	
+
 	public Critter(CreateCritter c, int id, int session_id) 
 			throws SyntaxError {
 		super("CRITTER");
@@ -150,7 +150,7 @@ public class Critter extends Element {
 		ID = id;
 		this.session_id = session_id;
 	}
-	
+
 	public Critter(CreateRandomPositionCritter c, String name, int id,
 			int session_id) throws SyntaxError {
 		super("CRITTER");
@@ -162,7 +162,7 @@ public class Critter extends Element {
 		ID = id;
 		this.session_id = session_id;
 	}
-	
+
 	/**
 	 * Load a critter file, insert {@code n} number of critter created with 
 	 * the critter file {@code filename} into the world {@code world}
@@ -178,27 +178,27 @@ public class Critter extends Element {
 	loadCrittersIntoWorld(World world, File filename, 
 			int n, int session_id) throws IOException, SyntaxError {
 		HashMap<Position, HexToUpdate> result = new HashMap<>();
-    	// check there are enough slot to put the critter 
-    	if (n > world.availableSlot())
-        	n = world.availableSlot();
-    	for(int i = 0;i < n;) {
-        	Critter c = new Critter(filename, world.critterIDCount++, 
-        			session_id);
-        	int a = RandomGen.randomNumber(world.getRow());
-        	int b = RandomGen.randomNumber(world.getColumn());
-        	Position pos = new Position(b, a);
-        	if(world.checkPosition(pos) &&
-        			world.getElemAtPosition(pos) == null) {
-        		result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
-        				c.getSize(), c.getMem(IDX.POSTURE)));
-        		world.setElemAtPosition(c, pos);
-        		world.addCritterToList(c);
-        		i++;
-        	}
-        }
-    	return result;
-    }
-	
+		// check there are enough slot to put the critter 
+		if (n > world.availableSlot())
+			n = world.availableSlot();
+		for(int i = 0;i < n;) {
+			Critter c = new Critter(filename, world.critterIDCount++, 
+					session_id);
+			int a = RandomGen.randomNumber(world.getRow());
+			int b = RandomGen.randomNumber(world.getColumn());
+			Position pos = new Position(b, a);
+			if(world.checkPosition(pos) &&
+					world.getElemAtPosition(pos) == null) {
+				result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
+						c.getSize(), c.getMem(IDX.POSTURE)));
+				world.setElemAtPosition(c, pos);
+				world.addCritterToList(c);
+				i++;
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Load a critter file, insert {@code n} number of critter created with 
 	 * the critter file {@code filename} into the world {@code world}
@@ -211,11 +211,11 @@ public class Critter extends Element {
 	 * @return an array of Position the critter are inserted into
 	 */
 	public static HashMap<Position, HexToUpdate> 
-		loadCrittersIntoWorld(World world, String filename, 
-				int n, int session_id) throws IOException, SyntaxError {
+	loadCrittersIntoWorld(World world, String filename, 
+			int n, int session_id) throws IOException, SyntaxError {
 		return loadCrittersIntoWorld(world, new File(filename), n, session_id);
 	}
-	
+
 	/**
 	 * Insert a critter to a specified location into the world
 	 * @param world
@@ -228,22 +228,22 @@ public class Critter extends Element {
 	 * @throws SyntaxError
 	 */
 	public static HashMap<Position, HexToUpdate> 
-		insertCritterIntoWorld(World world, File filename, int column, 
-				int row, int session_id) throws IOException, SyntaxError {
+	insertCritterIntoWorld(World world, File filename, int column, 
+			int row, int session_id) throws IOException, SyntaxError {
 		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		Critter c = new Critter(filename, world.critterIDCount++, session_id);
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
-    			world.getElemAtPosition(pos) == null) {
+				world.getElemAtPosition(pos) == null) {
 			result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
 					c.getSize(), c.getMem(IDX.POSTURE)));
 			world.setElemAtPosition(c, pos);
-    		world.addCritterToList(c);
+			world.addCritterToList(c);
 		}
 		return result;
 	}
-	
-	
+
+
 	/**
 	 * set the specified memory {@code mem[index]} to
 	 * specified value {@code val}, 
@@ -260,16 +260,16 @@ public class Critter extends Element {
 		}
 		mem[index] = val;
 	}
-	
+
 	/**
 	 * Set the complexity when creating the critter
 	 * the complexity should be >= 0
 	 */
 	private void setComplexity() {
 		complexity = pro.getChildren().size() * Constant.RULE_COST 
-			+ (mem[IDX.DEFENSE] + mem[IDX.OFFENSE]) * Constant.ABILITY_COST;
+				+ (mem[IDX.DEFENSE] + mem[IDX.OFFENSE]) * Constant.ABILITY_COST;
 	}
-	
+
 	/**
 	 * Get the calculated complexity of the critter
 	 * @return
@@ -279,22 +279,22 @@ public class Critter extends Element {
 			setComplexity();
 		return complexity;
 	}
-	
+
 	/**
 	 * @return the size of the critter
 	 */
 	public int getSize() {
 		return mem[IDX.SIZE];
 	}
-	
+
 	public void setWantToMate(boolean wantToMate) {
 		this.wantToMate = wantToMate;
 	}
-	
+
 	public boolean getWantToMate() {
 		return this.wantToMate;
 	}
-	
+
 	/** 
 	 * @return the specified memory{@code mem[index]}
 	 */
@@ -303,12 +303,12 @@ public class Critter extends Element {
 			return 0;
 		return mem[index];
 	}
-	
-	
+
+
 	public ProgramImpl getProgram() {
 		return this.pro;
 	}
-	
+
 	/**
 	 * Effect: set the last rule being executed
 	 * @param r the last rule being executed
@@ -316,11 +316,11 @@ public class Critter extends Element {
 	public void setLastRuleExe(int r) {
 		lastRuleIndex = r;
 	}
-	
+
 	public Rule getLastRuleExe() {
 		return pro.getChildren().get(lastRuleIndex);
 	}
-	
+
 	/**
 	 * @return the index of last rule being executed
 	 */
@@ -339,21 +339,21 @@ public class Critter extends Element {
 		Position p = this.getPosition().getNextStep(temp);
 		return p;
 	}
-	
+
 	/**
 	 * @return the direction of the critter
 	 */
 	public int getDir() {
 		return orientation;
 	}
-	
+
 	/**
 	 * @return inverse direction of the critter
 	 */
 	public int getInvDir() {
 		return (3 + orientation) % 6;
 	}
-	
+
 	/**
 	 * @return the calculated appearance of the critter
 	 */
@@ -361,7 +361,7 @@ public class Critter extends Element {
 		return mem[IDX.SIZE] * 100000 + mem[IDX.TAG] * 1000 + 
 				mem[IDX.POSTURE] * 10 + orientation;
 	}
-	
+
 	/**
 	 * if left is true,the critter will turn left;
 	 * otherwise it will turn right
@@ -375,35 +375,35 @@ public class Critter extends Element {
 		if(orientation < 0)
 			orientation += 6;
 	}
-	
+
 	/**
 	 * check if the critter has used up its energy
 	 */
 	public boolean stillAlive() {
 		return mem[IDX.ENERGY] > 0;
 	}
-	
+
 	/**
 	 * set the direction of the critter
 	 */
 	public void setDir(int dir) {
 		orientation = dir;
 	}
-	
+
 	/**
 	 * return the name of the critter
 	 */
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * return the maximum energy that this critter could have
 	 */
 	public int maxEnergy() {
 		return mem[IDX.SIZE] * Constant.ENERGY_PER_SIZE;
 	}
-	
+
 	/**
 	 * Increase a certain amount of energy
 	 * @param amount the amount of energy to increase, may be negative
@@ -411,13 +411,13 @@ public class Critter extends Element {
 	public void increaseEnergy(int amount) {
 		mem[IDX.ENERGY] += amount;
 	}
-	
+
 	/**
 	 * return a description of the critter
 	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder ();
-//		sb.append("at position: " + getPosition()); // check if position update
+		//		sb.append("at position: " + getPosition()); // check if position update
 		sb.append("SPECIES:" + name + "\n");
 		sb.append("MEMSIZE:" + mem[IDX.MEMLEN] + "\n");
 		sb.append("DEFENSE:" + mem[IDX.DEFENSE] + "\n");
@@ -435,8 +435,24 @@ public class Critter extends Element {
 					+ "rule has been executed");
 		return sb.toString();
 	}
-	
+
 	public int[] getMeMArray() {
 		return mem;
+	}
+
+	/**
+	 * Remove a critter from the world and update the GUI
+	 * @param world
+	 * @param pos
+	 * @param session_id
+	 * @return
+	 */
+	public static HashMap<Position, HexToUpdate> deleteCritterFromWorld(World world, Position pos, int session_id) {
+		HashMap<Position, HexToUpdate> result = new HashMap<>();
+		result.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
+		Element e = world.getElemAtPosition(pos);
+		world.removeElemAtPosition(pos);
+		world.order.remove(e);
+		return result;
 	}
 }
