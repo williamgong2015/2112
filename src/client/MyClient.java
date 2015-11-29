@@ -70,7 +70,7 @@ public class MyClient {
 		return session_id;
 	}
 
-	//TODO
+	//TODO: not sure what to do about the result it returns
 	public ArrayList<CritterState> lisAllCritters() throws IOException {
 		URL l = new URL(url + "critters?session_id" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
@@ -108,8 +108,8 @@ public class MyClient {
 		w.flush();
 		BufferedReader r = new BufferedReader(new InputStreamReader(
 				connection.getInputStream()));
-//		ResponseToCreateCritters response = 
-//				UnpackJson.unpackResponseToCreateCritters(r);
+		ResponseToCreateCritters response = 
+				UnpackJson.unpackResponseToCreateCritters(r);
 		dumpResponse(r);
 		return connection.getResponseCode();
 	}
@@ -160,17 +160,26 @@ public class MyClient {
 		URL l = new URL(url + "critter/" + id + "?session_id=" + session_id);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
-		connection.setRequestProperty(//TODO
-				"Content-Type", "No Content" );
+		connection.setRequestProperty("Content-Type", "No Content");
 		connection.setRequestMethod("DELETE");
 		connection.connect();
 	}
 
 	/**
 	 * Create a new world
+	 * @throws IOException 
 	 */
-	public void newWorld() {
-
+	public void newWorld(String description) throws IOException {
+		URL l = new URL(url + "CritterWorld/world?session_id=" + session_id);
+		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Content-Type", "Create" );
+		connection.setRequestMethod("POST");
+		connection.connect();
+		PrintWriter w = new PrintWriter(connection.getOutputStream());
+		String tmp = PackJson.packNewWorld(description);
+		w.println(tmp);
+		w.flush();
 	}
 
 	/**
@@ -179,28 +188,56 @@ public class MyClient {
 	 * If {@code update_sice} is less than 0, return the entire state of the 
 	 * world. 
 	 * @param update_since
+	 * @param from_col, from_row, to_col, to_row: specify the range of world
 	 * @throws IOException
 	 */
-	public void getStateOfWorld(int update_since) throws IOException{
-		if(update_since < 0) {
-			URL l = new URL(url + "world?session_id=session_id");
-			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
-			connection.connect();
-			BufferedReader r = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
-			WorldState state = UnpackJson.unpackWorldState(r);
-			world = new ClientWorld(state);
-		} else {
-			//TODO
-			URL l = new URL(url + "world?update_since=" + update_since 
-					+"&session_id=" + session_id);
-			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
-			connection.connect();
-			BufferedReader r = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
-			WorldState state = UnpackJson.unpackWorldState(r);
-			world = new ClientWorld(state);
-		}
+	public void getStateOfWorld(int update_since, int from_col, 
+			int from_row, int to_col, int to_row) throws IOException{
+		URL l = new URL(url + "world?update_since=" + update_since 
+				+ "&from_row=" + from_row + "&to_row=" + to_row 
+				+ "&from_col=" + from_col + "&to_col=" + to_col
+				+"&session_id=" + session_id);
+		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+		connection.connect();
+		BufferedReader r = new BufferedReader(new InputStreamReader(
+				connection.getInputStream()));
+		WorldState state = UnpackJson.unpackWorldState(r);
+		world = new ClientWorld(state);
+	}
+	
+	/**
+	 * Advance the world by {@code n} step
+	 * @throws IOException 
+	 */
+	public void advanceWorldByStep(int n) throws IOException {
+		URL l = new URL(url + "CritterWorld/step?session_id=" + session_id);
+		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Content-Type", "OK" );
+		connection.setRequestMethod("POST");
+		connection.connect();
+		PrintWriter w = new PrintWriter(connection.getOutputStream());
+		String tmp = PackJson.packAdvWorldCount(n);
+		w.println(tmp);
+		w.flush();
+	}
+	
+	/**
+	 * Let the world at servlet to run at rate {@code n}
+	 * @param n
+	 * @throws IOException 
+	 */
+	public void runWorldAtSpeed(int n) throws IOException {
+		URL l = new URL(url + "CritterWorld/run?session_id=" + session_id);
+		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
+		connection.setDoOutput(true);
+		connection.setRequestProperty("Content-Type", "OK" );
+		connection.setRequestMethod("POST");
+		connection.connect();
+		PrintWriter w = new PrintWriter(connection.getOutputStream());
+		String tmp = PackJson.packAdvWorldCount(n);
+		w.println(tmp);
+		w.flush();
 	}
 	
 	/** Read back output from the server. Could change to parse JSON... */

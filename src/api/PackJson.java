@@ -140,8 +140,42 @@ public class PackJson {
 		Hashtable<Position, Element> table = 
 				w.getUpdatesSinceMap(update_since, from_col, 
 						from_row, to_col, to_row);
-		WorldState tmp = w.getWorldState(session_id, isAdmin, table);
-		return gson.toJson(tmp, WorldState.class);
+		ArrayList<Integer> tmp = w.getDeadCritterIDSince(update_since);
+		int[] deadCritters = new int[tmp.size()];
+		int index = 0;
+		for (Integer i : tmp) {
+			deadCritters[index++] = i;
+		}
+		WorldState state = w.getWorldState(session_id, isAdmin, table, 
+				deadCritters);
+		return gson.toJson(state, WorldState.class);
+	}
+	
+	/**
+	 * Create by client: ask the servlet to create a new world
+	 * @param description
+	 * @return
+	 */
+	public static String packNewWorld(String description) {
+		return gson.toJson(new CreateNewWorld(description));
+	}
+	
+	/**
+	 * Create by client: ask the servlet to run the world at rate {@code n}
+	 * @param n
+	 * @return
+	 */
+	public static String packAdvanceWorldRate(double n) {
+		return gson.toJson(new AdvanceWorldRate(n));
+	}
+	
+	/**
+	 * Create by client: ask the servlet world to advance by {@code n} steps
+	 * @param n
+	 * @return
+	 */
+	public static String packAdvWorldCount(int n) {
+		return gson.toJson(new AdvanceWorldCount(n));
 	}
 	
 	/**

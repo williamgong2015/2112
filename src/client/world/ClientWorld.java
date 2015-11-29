@@ -20,7 +20,7 @@ public class ClientWorld {
 	public int current_timestep;
 	public int current_version_number;
 	public int update_since;
-	public int rate;             // how fast the world run
+	public double rate;             // how fast the world run
 	public String name;
 	public int population;       // number of critter alive
 	public int row;

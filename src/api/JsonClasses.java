@@ -222,7 +222,7 @@ public class JsonClasses {
 		public int current_timestep;
 		public int current_version_number;
 		public int update_since;
-		public int rate;
+		public double rate;
 		public String name;
 		public int population;
 		public int row;
@@ -255,8 +255,8 @@ public class JsonClasses {
 	 * wrap advance world rate  
 	 */
 	public static class AdvanceWorldRate {
-		public int rate;
-		public AdvanceWorldRate(int rate) {
+		public double rate;
+		public AdvanceWorldRate(double rate) {
 			this.rate = rate;
 		}
 	}

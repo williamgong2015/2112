@@ -389,7 +389,7 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		int rate = gson.fromJson(r, AdvanceWorldRate.class).rate;
+		double rate = gson.fromJson(r, AdvanceWorldRate.class).rate;
 		if (rate < 0 || world == null) {
 			w.println("Not Acceptable");
 			response.setStatus(406);

@@ -21,6 +21,7 @@ import servlet.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.element.Food;
+import servlet.element.Nothing;
 import servlet.element.Rock;
 import servlet.executor.Executor;
 import servlet.executor.ResultList;
@@ -51,7 +52,7 @@ public class World {
 	private String name;
 	private int size;
 	public int version_number;
-	public int rate;
+	public double rate;
 	public int critterIDCount = 0;
 
 	// maps position to element in the world
@@ -133,8 +134,6 @@ public class World {
 						0, 0, 0));
 			}
 		}
-		System.out.println("last Log is log " + (logs.size()-1) + ":");
-		System.out.println(logs.get(logs.size()-1));
 	}
 
 	/**
@@ -196,8 +195,6 @@ public class World {
 				}
 			}
 			r.close();
-			System.out.println("last Log is log " + (world.logs.size()-1) + ":");
-			System.out.println(world.logs.get(world.logs.size()-1));
 			return world;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -270,14 +267,13 @@ public class World {
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
 				executor.execute(new Outcome("wait"), hexToUpdate, logs);
-			System.out.println("last Log is log " + (logs.size()-1) + ":");
-			System.out.println(logs.get(logs.size()-1));
 		}
 
 		// remove the critter need to be delete and insert the critter need 
 		// to be inserted
 		for (Critter critter : toDelete) {
 			order.remove(critter);
+			logs.get(version_number).deadCritterID.add(critter.ID);
 		}
 	}
 
@@ -362,7 +358,7 @@ public class World {
 		if (!hexes.containsKey(pos))
 			return false;
 		Log logTmp = logs.get(logs.size()-1);
-		logTmp.updates.put(pos, null);
+		logTmp.updates.put(pos, new Nothing());
 		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
@@ -573,6 +569,20 @@ public class World {
 		}
 		return result;
 	}
+	
+	/**
+	 * Get all the critter that died since {@code update_since}
+	 * @param update_since
+	 * @return
+	 */
+	public ArrayList<Integer> getDeadCritterIDSince(int update_since) {
+		ArrayList<Integer> result = new ArrayList<>();
+		for (int i = update_since; i< this.version_number; ++i) {
+			for (Integer id : logs.get(i).deadCritterID)
+				result.add(id);
+		}
+		return result;
+	}
 
 	/**
 	 * Pack the world state info with {@code table}, which contains the 
@@ -583,7 +593,8 @@ public class World {
 	 * @return 
 	 */
 	public JsonClasses.WorldState getWorldState(int session_id, 
-			boolean isAdmin, Hashtable<Position, Element> table) {
+			boolean isAdmin, Hashtable<Position, Element> table,
+			int[] deadCritters) {
 		JsonClasses.WorldState s = new JsonClasses.WorldState();
 		s.col = column;
 		s.current_timestep = turns;
@@ -594,6 +605,7 @@ public class World {
 		s.update_since = 0;
 		s.rate = rate;
 		s.state = new JsonClasses.State[table.size()];
+		s.dead_critters = deadCritters;
 		//TODO dead critters.
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = table.entrySet();
