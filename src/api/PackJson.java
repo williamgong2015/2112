@@ -70,7 +70,7 @@ public class PackJson {
 	/**
 	 * Created by client: create a food or rock object
 	 */
-	public static String packRockorFood(int row, int col, int amount, 
+	public static String packRockorFood(int row, int col, Integer amount, 
 			String type) {
 		if(!type.equals(JsonClasses.FOOD) && 
 				!type.equals(JsonClasses.ROCK))

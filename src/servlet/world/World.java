@@ -690,7 +690,6 @@ public class World {
 		s.dead_critters = new Integer[deadCritters.size()];
 		for (int i = 0; i < deadCritters.size(); ++i) 
 			s.dead_critters[i] = deadCritters.get(i);
-		//TODO dead critters.
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = table.entrySet();
 		for(Map.Entry<Position, Element> m : set) {

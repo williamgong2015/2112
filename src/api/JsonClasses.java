@@ -53,8 +53,8 @@ public class JsonClasses {
 		public int row;
 		public int col;
 		public String type;
-		public int amount;
-		public FoodOrRock(int r, int c, String s, int a) {
+		public Integer amount;
+		public FoodOrRock(int r, int c, String s, Integer a) {
 			row = r;
 			col = c;
 			type = s;

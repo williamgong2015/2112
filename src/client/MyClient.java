@@ -161,7 +161,7 @@ public class MyClient {
 	 * @param type
 	 * @throws IOException
 	 */
-	public int createFoodOrRock(ClientPosition pos, int amount, String type) 
+	public int createFoodOrRock(ClientPosition pos, Integer amount, String type) 
 			throws IOException{
 		String tmpURL = url + "CritterWorld/" + "create_entity?session_id=" + 
 				session_id;
