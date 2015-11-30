@@ -157,7 +157,7 @@ public class JsonClasses {
 			type = NOTHING;
 		}
 		
-		public void setCriiter(Critter c) {
+		public void setCriiter(Critter c, boolean allInfo) {
 			type = CRITTER;
 			id = c.ID;
 			species_id = c.getName();
@@ -168,6 +168,10 @@ public class JsonClasses {
 			}
 			direction = c.getDir();
 			mem = c.getMeMArray();
+			if(allInfo) {
+				program = c.getProgram().toString();
+				recently_executed_rule = c.getLastRuleIndex();
+			}
 		}
 		
 		public String getType() {

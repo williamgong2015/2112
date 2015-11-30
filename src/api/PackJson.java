@@ -48,12 +48,8 @@ public class PackJson {
 	public static String packCritterInfo(Critter c,
 			int session_id, boolean isAdmin) {
 		State tmp = new State(c.getPosition());
-		tmp.setCriiter(c);
+		tmp.setCriiter(c, session_id == c.session_id || isAdmin == true);
 		tmp.setType(null);
-		if(session_id == c.session_id || isAdmin == true) {
-			tmp.program = c.getProgram().toString();
-			tmp.recently_executed_rule = c.getLastRuleIndex();
-		}
 		return gson.toJson(tmp, State.class);
 	}
 	
@@ -85,6 +81,7 @@ public class PackJson {
 	 */
 	public static String packCreateCritter(ClientElement c, ArrayList<ClientPosition> a) {
 		CreateCritter tmp = new CreateCritter(c, a);
+		tmp.program = c.program;
 		return gson.toJson(tmp, CreateCritter.class);
 	}
 	
@@ -121,17 +118,9 @@ public class PackJson {
 		ArrayList<State> tmp = new ArrayList<>();
 		for(Critter c : al) {
 			State critter = new State(c.getPosition());
-			critter.setCriiter(c);
+			critter.setCriiter(c, c.session_id == session_id || isAdmin == true);
 			critter.setType(null);
-			if (c.session_id == session_id || isAdmin == true) {
-				critter.program = c.getProgram().toString();
-				critter.recently_executed_rule = c.getLastRuleIndex();
-				tmp.add(critter);
-			} else {
-				State tmp2 = new State(c.getPosition());
-				tmp2.setCriiter(c);
-				tmp.add(tmp2);
-			}
+			tmp.add(critter);
 		}
 		return gson.toJson(tmp, ArrayList.class);
 	}

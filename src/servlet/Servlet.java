@@ -58,7 +58,7 @@ public class Servlet extends HttpServlet {
 
 	private Gson gson = new Gson();
 	
-	private final static boolean isDebugging = false;
+	private final static boolean isDebugging = true;
 
 	/**
 	 * Handle DElETE request
@@ -66,9 +66,8 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doDelete(HttpServletRequest request, 
 			HttpServletResponse response) throws IOException {
-		PrintWriter w = response.getWriter();
 		if (isDebugging)
-			w.println("Doing DELETE ");
+			System.out.println("Doing DELETE ");
 		
 		// process URI and parameters in it
 		String requestURI = 
@@ -87,7 +86,7 @@ public class Servlet extends HttpServlet {
 		try {
 			if (requestURI.startsWith("/CritterWorld/critter")) {
 				if (isDebugging)
-					w.println("Deleting a Critter");
+					System.out.println("Deleting a Critter");
 				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
@@ -98,8 +97,6 @@ public class Servlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		w.flush();
-		w.close();
 	}
 
 
@@ -109,9 +106,8 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, 
 			HttpServletResponse response) throws IOException {
-		PrintWriter w = response.getWriter();
 		if (isDebugging)
-			w.println("Doing GET ");
+			System.out.println("Doing GET ");
 		
 		// process URI and parameters in it
 		String requestURI = 
@@ -152,7 +148,7 @@ public class Servlet extends HttpServlet {
 			// get a critter
 			if (requestURI.startsWith("/CritterWorld/critter/")) {
 				if (isDebugging)
-					w.println("Retrieve a Critter");
+					System.out.println("Retrieve a Critter");
 				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
@@ -161,13 +157,13 @@ public class Servlet extends HttpServlet {
 			// get list of all critters
 			else if (requestURI.startsWith("/CritterWorld/critters/")) {
 				if (isDebugging)
-					w.println("Retrieve a List of Critter");
+					System.out.println("Retrieve a List of Critter");
 				handleRetrieveCritterList(request, response, session_id);
 			}
 			// get the world
 			else if (requestURI.startsWith("/CritterWorld/world")) {
 				if (isDebugging)
-					w.println("Get the World");
+					System.out.println("Get the World");
 				handleGetWorldSection(request, response, session_id, 
 						update_since, from_col, from_row, 
 						to_col, to_row);
@@ -176,8 +172,6 @@ public class Servlet extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		w.flush();
-		w.close();
 	}
 
 
@@ -188,9 +182,8 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		PrintWriter w = response.getWriter();
-//		if (isDebugging)
-//			w.println("Doing POST ");
+		if (isDebugging)
+			System.out.println("Doing POST ");
 
 		
 		// process URI and parameters in it
@@ -216,14 +209,14 @@ public class Servlet extends HttpServlet {
 			// insert a critter
 			else if (requestURI.startsWith("/CritterWorld/critter")) {
 				if (isDebugging)
-					w.println("Create Critter");
+					System.out.println("Create Critter");
 				world.version_number++;
 				handleCreateCritter(request, response, session_id);
 			}
 			// create a new world
 			else if (requestURI.startsWith("/CritterWorld/world")) {
 				if (isDebugging)
-					w.println("Create New World");
+					System.out.println("Create New World");
 				// a new world object will be created, the version number
 				// will get initialized to 1
 				handleCreateNewWorld(request, response, session_id);
@@ -232,28 +225,26 @@ public class Servlet extends HttpServlet {
 			else if (requestURI.startsWith("/CritterWorld/"
 					+ "world/create_entity")) {
 				if (isDebugging)				
-					w.println("Create Food Or Rock");
+					System.out.println("Create Food Or Rock");
 				world.version_number++;
 				handleCreateEntity(request, response, session_id);
 			}
 			// world step ahead for n
 			else if (requestURI.startsWith("/CritterWorld/step")) {
 				if (isDebugging)
-					w.println("Advance World by Step");
+					System.out.println("Advance World by Step");
 				handleAdvWorldByStep(request, response, session_id);
 			}
 			// let the world run at spped n
 			else if (requestURI.startsWith("/CritterWorld/run")) {
 				if (isDebugging)
-					w.println("World Start Running");
+					System.out.println("World Start Running");
 				handleRunWorld(request, response, session_id);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		w.flush();
-		w.close();
 	}
 	
 
@@ -287,9 +278,12 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		w.println(PackJson.packStateOfWorld(world, session_id, 
+		String result = PackJson.packStateOfWorld(world, session_id, 
 				sessionIdTable.get(session_id).equals(ADMIN_LV), 
-				update_since, from_col, from_row, to_col, to_row));
+				update_since, from_col, from_row, to_col, to_row);
+		if (isDebugging)
+			System.out.println("Server body: " + result);
+		w.println(result);
 		response.setStatus(200);
 		w.flush();
 		w.close();
@@ -318,8 +312,11 @@ public class Servlet extends HttpServlet {
 			return;
 		}
 		// retrieve a list of all critter info 
-		w.println(PackJson.packListOfCritters(world.order, session_id, 
-				sessionIdTable.get(session_id).equals(ADMIN_LV)));
+		String result = PackJson.packListOfCritters(world.order, session_id, 
+				sessionIdTable.get(session_id).equals(ADMIN_LV));
+		w.println(result);
+		if (isDebugging)
+			System.out.println("Server body: " + result);
 		response.setStatus(200);
 		w.flush();
 		w.close();
@@ -357,8 +354,11 @@ public class Servlet extends HttpServlet {
 		for (Critter c : world.order) {
 			if (c.ID != id) 
 				continue;
-			w.println(PackJson.packCritterInfo(c, session_id, 
-					sessionIdTable.get(session_id).equals(ADMIN_LV)));
+			String result = PackJson.packCritterInfo(c, session_id, 
+					sessionIdTable.get(session_id).equals(ADMIN_LV));
+			w.println(result);
+			if (isDebugging)
+				System.out.println(result);
 			response.setStatus(200);
 			w.flush();
 			w.close();
@@ -734,7 +734,10 @@ public class Servlet extends HttpServlet {
 	    {
 	        ids[i] = idTmp.get(i).intValue();
 	    }
-		w.println(PackJson.packResponseToCreateCritters(species_id, ids));
+	    String result = PackJson.packResponseToCreateCritters(species_id, ids);
+		w.println(result);
+		if (isDebugging)
+			System.out.println(result);
 		response.setStatus(201);
 		w.flush();
 		w.close();

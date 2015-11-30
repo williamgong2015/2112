@@ -145,17 +145,11 @@ public class World {
 			int b = Math.abs(RandomGen.randomNumber(column));
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
-				String file = critterTest.class.getResource("critter1.txt").getPath();
-				Critter c;
-				try {
-					c = new Critter(file, 1, 0);
-					hexes.put(pos, c);
-					Log logTmp = logs.get(logs.size()-1);
-					logTmp.updates.put(pos, c);
-				} catch (IOException | SyntaxError e) {
-					e.printStackTrace();
-				}
-				
+				Rock rock;
+				rock = new Rock();
+				hexes.put(pos, rock);
+				Log logTmp = logs.get(logs.size()-1);
+				logTmp.updates.put(pos, rock);
 			}
 		}
 	}
@@ -714,14 +708,8 @@ public class World {
 			case Element.CRITTER :
 				Critter c = (Critter)e;
 				State critter = new State(c.getPosition());
-				critter.setCriiter(c);
-				if(c.session_id == session_id || isAdmin == true) {
-					critter.program = c.getProgram().toString();
-					critter.recently_executed_rule = c.getLastRuleIndex();
-					s.state[index++] = critter;
-				} else {
-					s.state[index++] = critter;
-				}
+				critter.setCriiter(c, c.session_id == session_id || isAdmin == true);
+				s.state[index++] = critter;
 				break;
 			case Element.NOTHING :
 				State nothing = new State(p);
