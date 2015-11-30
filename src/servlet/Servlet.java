@@ -91,6 +91,7 @@ public class Servlet extends HttpServlet {
 				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
+				world.version_number++;
 				handleRemoveCritter(request, response, session_id, id);
 			}
 		} catch (Exception e) {
@@ -148,6 +149,7 @@ public class Servlet extends HttpServlet {
 		}
 		
 		try {
+			// get a critter
 			if (requestURI.startsWith("/CritterWorld/critter/")) {
 				if (isDebugging)
 					w.println("Retrieve a Critter");
@@ -156,11 +158,13 @@ public class Servlet extends HttpServlet {
 				int id = Integer.parseInt(idStr);
 				handleRetrieveCritter(request, response, session_id, id);
 			} 
+			// get list of all critters
 			else if (requestURI.startsWith("/CritterWorld/critters/")) {
 				if (isDebugging)
 					w.println("Retrieve a List of Critter");
 				handleRetrieveCritterList(request, response, session_id);
 			}
+			// get the world
 			else if (requestURI.startsWith("/CritterWorld/world")) {
 				if (isDebugging)
 					w.println("Get the World");
@@ -209,27 +213,36 @@ public class Servlet extends HttpServlet {
 //					w.println("Log In");
 				handleGetSessionID(request, response);
 			} 
+			// insert a critter
 			else if (requestURI.startsWith("/CritterWorld/critter")) {
 				if (isDebugging)
 					w.println("Create Critter");
+				world.version_number++;
 				handleCreateCritter(request, response, session_id);
 			}
+			// create a new world
 			else if (requestURI.startsWith("/CritterWorld/world")) {
 				if (isDebugging)
 					w.println("Create New World");
+				// a new world object will be created, the version number
+				// will get initialized to 1
 				handleCreateNewWorld(request, response, session_id);
 			}
+			// insert a food or rock
 			else if (requestURI.startsWith("/CritterWorld/"
 					+ "world/create_entity")) {
 				if (isDebugging)				
 					w.println("Create Food Or Rock");
+				world.version_number++;
 				handleCreateEntity(request, response, session_id);
 			}
+			// world step ahead for n
 			else if (requestURI.startsWith("/CritterWorld/step")) {
 				if (isDebugging)
 					w.println("Advance World by Step");
 				handleAdvWorldByStep(request, response, session_id);
 			}
+			// let the world run at spped n
 			else if (requestURI.startsWith("/CritterWorld/run")) {
 				if (isDebugging)
 					w.println("World Start Running");
@@ -680,7 +693,6 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		world.version_number++;
 		r.mark(10);
 		char tmp = (char)r.read();
 		// skip space, bracket and quota

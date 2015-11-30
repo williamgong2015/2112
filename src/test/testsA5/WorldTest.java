@@ -28,7 +28,7 @@ public class WorldTest {
 	int session_id = 0;
 	
 	@Test 
-	public void defaultWorldTest() throws IOException {
+	public void defaultWorldTest() throws IOException, SyntaxError {
 		World w = new World();
 		w.printCoordinatesASCIIMap();
 		w.printASCIIMap();

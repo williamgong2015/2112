@@ -2,10 +2,7 @@ package servlet.executor;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import client.world.HexToUpdate;
-import client.world.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.DIR;
 import game.constant.IDX;
@@ -47,8 +44,7 @@ public class Executor {
 	 * @param hexToUpdate
 	 * @return
 	 */
-	public ResultList execute(Outcome out, 
-			HashMap<Position, HexToUpdate> hexToUpdate, ArrayList<Log> logs) {
+	public ResultList execute(Outcome out, ArrayList<Log> logs) {
 		resultList = new ResultList();
 		for(String i : out) {
 			char ch = i.charAt(0);
@@ -82,15 +78,15 @@ public class Executor {
 				else if (i.equals("backward"))
 					critterMove(false);
 				else if (i.equals("left"))
-					critterTurn(true, hexToUpdate, logs);
+					critterTurn(true, logs);
 				else if (i.equals("right"))
-					critterTurn(false, hexToUpdate, logs);
+					critterTurn(false, logs);
 				else if (i.equals("eat"))
 					critterEat();
 				else if (i.equals("attack"))
 					critterAttack();
 				else if (i.equals("grow"))
-					critterGrow(hexToUpdate, logs);
+					critterGrow(logs);
 				else if (i.equals("bud"))
 					critterBud();
 				else if (i.equals("mate"))
@@ -164,8 +160,7 @@ public class Executor {
 	 * @param hexToUpdate - a list of updates need to be executed
 	 *                      in GUI world
 	 */
-	public void critterTurn(boolean left, 
-			HashMap<Position, HexToUpdate> hexToUpdate, ArrayList<Log> logs) {
+	public void critterTurn(boolean left, ArrayList<Log> logs) {
 		c.increaseEnergy(-c.getMem(IDX.SIZE));
 		if (!c.stillAlive()) {
 			handleCritterDeath(c, w);
@@ -292,8 +287,7 @@ public class Executor {
 	/**
 	 * A critter may use energy to increase its size by one unit.
 	 */
-	public void critterGrow(HashMap<Position, HexToUpdate> hexToUpdate, 
-			ArrayList<Log> logs) {
+	public void critterGrow(ArrayList<Log> logs) {
 		c.increaseEnergy(-Constant.GROW_COST * c.getMem(IDX.SIZE)
 				* c.getComplexity());
 		if (!c.stillAlive()) {

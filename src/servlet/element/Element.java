@@ -13,6 +13,11 @@ public abstract class Element {
 	// the position of the element in the world
 	private Position pos;
 	
+	public final static String FOOD = "FOOD";
+	public final static String ROCK = "ROCK";
+	public final static String CRITTER = "CRITTER";
+	public final static String NOTHING = "NOTHING";
+	
 	public Element(String t) {
 		type = t;
 	}

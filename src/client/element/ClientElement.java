@@ -8,6 +8,7 @@ import api.JsonClasses.CritterState;
 import api.JsonClasses.FoodState;
 import api.JsonClasses.NothingState;
 import api.JsonClasses.RockState;
+import api.JsonClasses.State;
 import game.constant.Constant;
 import game.constant.IDX;
 
@@ -134,6 +135,7 @@ public class ClientElement {
 	public ClientElement() {
 		type = SOMETHING;
 	}
+
 
 	
 }

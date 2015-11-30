@@ -3,16 +3,14 @@ package servlet.world;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
-import client.world.HexToUpdate;
-import client.world.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
@@ -21,7 +19,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.animation.Animation.Status;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
@@ -35,6 +32,7 @@ import servlet.executor.Executor;
 import servlet.executor.ResultList;
 import servlet.interpreter.InterpreterImpl;
 import servlet.interpreter.Outcome;
+import test.testsA5.critterTest;
 
 /**
  * The critter world
@@ -59,7 +57,7 @@ public class World {
 	private int column;
 	private String name;
 	private int size;
-	public int version_number;
+	public int version_number = 1; // be 1 after it has been constructed
 	private int rate;  // how many steps per second the world is simulating
 	public int critterIDCount = 0;
 
@@ -68,9 +66,6 @@ public class World {
 
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order = new ArrayList<>();
-
-	// record the change of state in each turn
-	private HashMap<Position, HexToUpdate> hexToUpdate = new HashMap<>();
 
 	private ArrayList<Log> logs = new ArrayList<>();
 	
@@ -149,9 +144,17 @@ public class World {
 			int b = Math.abs(RandomGen.randomNumber(column));
 			Position pos = new Position(b,a);
 			if(checkPosition(pos) && hexes.get(pos) == null) {
-				hexes.put(pos, new Rock());
-				Log logTmp = logs.get(logs.size()-1);
-				logTmp.updates.put(pos, new Rock());
+				String file = critterTest.class.getResource("critter1.txt").getPath();
+				Critter c;
+				try {
+					c = new Critter(file, 1, 0);
+					hexes.put(pos, c);
+					Log logTmp = logs.get(logs.size()-1);
+					logTmp.updates.put(pos, c);
+				} catch (IOException | SyntaxError e) {
+					e.printStackTrace();
+				}
+				
 			}
 		}
 	}
@@ -172,7 +175,6 @@ public class World {
 			int column = Integer.parseInt(temp[1]);
 			int row = Integer.parseInt(temp[2]);
 			world = new World(column,row,name);
-			world.hexToUpdate = new HashMap<>();
 			world.logs = new ArrayList<>();
 			// create a new log when the world is created
 			world.logs.add(new Log());
@@ -316,14 +318,6 @@ public class World {
 		order.add(c);
 	}
 	
-	/**
-	 * @return all the update to hex should be enforced after this turn
-	 */
-	public HashMap<Position, HexToUpdate> getHexToUpdate() {
-		HashMap<Position, HexToUpdate> tmp = hexToUpdate;
-		hexToUpdate = new HashMap<>();
-		return tmp;
-	}
 
 
 	/**
@@ -332,6 +326,7 @@ public class World {
 	 */
 	public void lapse() {
 		turns++;
+		version_number++;
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)
@@ -353,7 +348,7 @@ public class World {
 				if (outcomes.hasAction())
 					hasAction = true;
 
-				ResultList tmp = executor.execute(outcomes, hexToUpdate, logs);
+				ResultList tmp = executor.execute(outcomes, logs);
 				toDelete.addAll(tmp.toDelete);
 				// insert the new born critters
 				for (Critter critter : tmp.toInsert)
@@ -362,7 +357,7 @@ public class World {
 			c.setMem(IDX.PASS, Constant.INIT_PASS);
 			// if after the loop, the critter still does not take any action
 			if (!hasAction) 
-				executor.execute(new Outcome("wait"), hexToUpdate, logs);
+				executor.execute(new Outcome("wait"), logs);
 		}
 
 		// remove the critter need to be delete and insert the critter need 
@@ -459,7 +454,6 @@ public class World {
 	public boolean removeCritter(Critter critter) {
 		if (order.contains(critter)) {
 			order.remove(critter);
-			version_number++;
 			return true;
 		}
 		else 
@@ -537,11 +531,11 @@ public class World {
 		Element e = hexes.get(pos);
 		if(e == null)
 			return "-";
-		if(e.getType().equals("FOOD"))
+		if(e.getType().equals(Element.FOOD))
 			return "F";
-		if(e.getType().equals("CRITTER"))
+		if(e.getType().equals(Element.CRITTER))
 			return "" + ((Critter)e).getDir();
-		if(e.getType().equals("ROCK"))
+		if(e.getType().equals(Element.ROCK))
 			return "#";
 		return null;
 	}
@@ -567,11 +561,11 @@ public class World {
 	public void hex(int r,int c) {
 		Position pos = new Position(c,r);
 		Element e = hexes.get(pos);
-		if(e == null || e.getType().equals("ROCK"))
+		if(e == null || e.getType().equals(Element.ROCK))
 			return;
-		if(e.getType().equals("FOOD"))
+		if(e.getType().equals(Element.FOOD))
 			System.out.println(((Food)e).getAmount());
-		if(e.getType().equals("CRITTER")) {
+		if(e.getType().equals(Element.CRITTER)) {
 			Critter temp = (Critter)e;
 			System.out.println(temp.toString());
 		}
@@ -707,13 +701,13 @@ public class World {
 				continue;
 			}
 			switch(e.getType()) {
-			case "rock" :
+			case Element.ROCK :
 				s.state[index++] = new JsonClasses.RockState(p);
 				break;
-			case "food" :
+			case Element.FOOD :
 				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
 				break;
-			case "critter" :
+			case Element.CRITTER :
 				Critter c = (Critter)e;
 				JsonClasses.CritterState critter
 				= new JsonClasses.CritterState(c);
@@ -724,6 +718,9 @@ public class World {
 				} else {
 					s.state[index++] = critter;
 				}
+				break;
+			case Element.NOTHING :
+				s.state[index++] = new JsonClasses.NothingState(p);
 				break;
 			}
 		}

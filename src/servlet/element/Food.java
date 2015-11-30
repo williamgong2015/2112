@@ -16,7 +16,7 @@ public class Food extends Element {
 	private int amount; 
 	
 	public Food(int a) {
-		super("FOOD");
+		super(Element.FOOD);
 		amount = a;
 	}
 	

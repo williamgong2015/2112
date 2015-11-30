@@ -47,7 +47,7 @@ public class Critter extends Element {
 	 */
 	public Critter(int[] mem, String name, ProgramImpl pro, int id,
 			int session_id) {
-		super("CRITTER");
+		super(Element.CRITTER);
 		this.mem = mem;
 		this.name = name;
 		this.pro = pro;
@@ -66,7 +66,7 @@ public class Critter extends Element {
 	 */
 	public Critter(File file, int id, int session_id) throws IOException, 
 	SyntaxError {
-		super("CRITTER");
+		super(Element.CRITTER);
 		FileReader f = new FileReader(file);
 		BufferedReader br = new BufferedReader(f);
 		String n = br.readLine();
@@ -120,7 +120,7 @@ public class Critter extends Element {
 	}
 
 	public Critter(CritterState c, int session_id) throws SyntaxError {
-		super("CRITTER");
+		super(Element.CRITTER);
 		this.ID = c.id;
 		this.session_id = session_id;
 		name = c.species_id;
@@ -138,7 +138,7 @@ public class Critter extends Element {
 
 	public Critter(CreateCritter c, int id, int session_id) 
 			throws SyntaxError {
-		super("CRITTER");
+		super(Element.CRITTER);
 		this.mem = c.mem;
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);
@@ -150,7 +150,7 @@ public class Critter extends Element {
 
 	public Critter(CreateRandomPositionCritter c, String name, int id,
 			int session_id) throws SyntaxError {
-		super("CRITTER");
+		super(Element.CRITTER);
 		mem = c.mem;
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);

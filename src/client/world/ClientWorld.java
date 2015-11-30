@@ -106,7 +106,8 @@ public class ClientWorld {
 						0, 0, 0));
 				break;
 			case "rock":
-				board.put(pos, new ClientElement((RockState) s));
+				RockState rockState = (RockState) s;
+				board.put(pos, new ClientElement(rockState));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 				break;

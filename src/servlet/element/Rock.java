@@ -13,7 +13,7 @@ import servlet.world.World;
 public class Rock extends Element {
 
 	public Rock() {
-		super("ROCK");
+		super(Element.ROCK);
 	}
 	
 	public String toString() {
