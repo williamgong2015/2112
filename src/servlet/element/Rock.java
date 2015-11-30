@@ -1,10 +1,7 @@
 package servlet.element;
 
 import java.io.IOException;
-import java.util.HashMap;
 
-import api.HexToUpdate;
-import api.HexToUpdate.HEXType;
 import game.exceptions.SyntaxError;
 import servlet.world.Position;
 import servlet.world.World;
@@ -32,17 +29,14 @@ public class Rock extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public static HashMap<Position, HexToUpdate> 
+	public static void
 		insertRockIntoWorld(World world, Position pos, int session_id
 				) throws IOException, SyntaxError {
-		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		Rock newRock = new Rock();
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {
-			result.put(pos, new HexToUpdate(HEXType.ROCK, pos, 0, 0, 0));
 			world.setElemAtPosition(newRock, pos);
 		}
-		return result;
 	}
 	
 

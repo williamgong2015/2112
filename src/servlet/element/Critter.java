@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
 
-import api.HexToUpdate;
-import api.HexToUpdate.HEXType;
 import api.JsonClasses.*;
 import game.constant.Constant;
 import game.constant.IDX;
@@ -172,12 +169,9 @@ public class Critter extends Element {
 	 * @param session_id - id of the user who load critter into the world
 	 * @throws IOException
 	 * @throws SyntaxError
-	 * @return an array of Position the critter are inserted into
 	 */
-	public static HashMap<Position, HexToUpdate> 
-	loadCrittersIntoWorld(World world, File filename, 
+	public static void loadCrittersIntoWorld(World world, File filename, 
 			int n, int session_id) throws IOException, SyntaxError {
-		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		// check there are enough slot to put the critter 
 		if (n > world.availableSlot())
 			n = world.availableSlot();
@@ -189,14 +183,11 @@ public class Critter extends Element {
 			Position pos = new Position(b, a);
 			if(world.checkPosition(pos) &&
 					world.getElemAtPosition(pos) == null) {
-				result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
-						c.getSize(), c.getMem(IDX.POSTURE)));
 				world.setElemAtPosition(c, pos);
 				world.addCritterToList(c);
 				i++;
 			}
 		}
-		return result;
 	}
 
 	/**
@@ -208,12 +199,11 @@ public class Critter extends Element {
 	 * @param session_id - user who load critter into the world
 	 * @throws IOException
 	 * @throws SyntaxError
-	 * @return an array of Position the critter are inserted into
 	 */
-	public static HashMap<Position, HexToUpdate> 
+	public static void
 	loadCrittersIntoWorld(World world, String filename, 
 			int n, int session_id) throws IOException, SyntaxError {
-		return loadCrittersIntoWorld(world, new File(filename), n, session_id);
+		loadCrittersIntoWorld(world, new File(filename), n, session_id);
 	}
 
 	/**
@@ -227,20 +217,16 @@ public class Critter extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public static HashMap<Position, HexToUpdate> 
-	insertCritterIntoWorld(World world, File filename, int column, 
+	public static void
+		insertCritterIntoWorld(World world, File filename, int column, 
 			int row, int session_id) throws IOException, SyntaxError {
-		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		Critter c = new Critter(filename, world.critterIDCount++, session_id);
 		Position pos = new Position(column, row);
 		if(world.checkPosition(pos) &&
 				world.getElemAtPosition(pos) == null) {
-			result.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 0, 
-					c.getSize(), c.getMem(IDX.POSTURE)));
 			world.setElemAtPosition(c, pos);
 			world.addCritterToList(c);
 		}
-		return result;
 	}
 
 
@@ -445,14 +431,11 @@ public class Critter extends Element {
 	 * @param world
 	 * @param pos
 	 * @param session_id
-	 * @return
 	 */
-	public static HashMap<Position, HexToUpdate> deleteCritterFromWorld(World world, Position pos, int session_id) {
-		HashMap<Position, HexToUpdate> result = new HashMap<>();
-		result.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
+	public static void deleteCritterFromWorld(World world, 
+			Position pos, int session_id) {
 		Element e = world.getElemAtPosition(pos);
 		world.removeElemAtPosition(pos);
 		world.order.remove(e);
-		return result;
 	}
 }

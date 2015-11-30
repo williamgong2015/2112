@@ -2,23 +2,23 @@ package client.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
-import api.HexToUpdate;
-import api.PositionInterpreter;
+import api.JsonClasses.CritterState;
+import api.JsonClasses.WorldState;
+import api.JsonClasses;
+import client.MyClient;
+import client.element.ClientElement;
 import client.world.ClientPoint;
 import client.world.ClientPosition;
-import game.exceptions.SyntaxError;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.animation.Animation.Status;
+import client.world.ClientWorld;
+import client.world.HexToUpdate;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,16 +28,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.MouseEvent;
@@ -48,14 +45,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.util.Duration;
 import javafx.util.Pair;
-import servlet.element.Critter;
-import servlet.element.Element;
-import servlet.element.Food;
-import servlet.element.Rock;
-import servlet.world.Position;
-import servlet.world.World;
 
 /**
  * Graphical User Interface at the client side. It draws all the hexes in the 
@@ -97,32 +87,17 @@ public class GUIMain extends Application {
 	private final static int HELP_MENU_IDX = 4;
 	private final static int HOW_USE_IDX = 0;
 	private final static int ABOUT_IDX = 1;
-	
-	private final static String HOW_TO_USE_INFO = 
-			"Click 'New World' Button to generate or load a new world.\n"
-			+ "Click 'Load Critter' Button to load a critter file.\n"
-			+ "Specify an amount. Then click 'Add' to add some critters.\n"
-			+ "Click a hex. Then click 'Insert' to insert critter at "
-			+ "that specific hex.\n"
-			+ "Click 'Run' to start simulation, you may adjust the "
-			+ "simulation speed using the slider.\n"
-			+ "Click 'Stop' to stop the simulation.\n"
-			+ "Click 'Step' to proceeed one step of the simulation.\n";
-
 
 	private File worldFile = null;  // path to world file 
 	private File critterFile = null;  // path to critter file
 	private GUIHex current = null; // current selected hex
 	private Parent root;
-	private Pane worldPane;
+	private Pane worldPane; 
 	private Label worldInfoLabel;
-	private Label critterInfoLabel;
-	public World world;
-	private int worldCol;
-	private int worldRow;
-	private int intialStepsPerSecond = 1;
+	private Label critterInfoLabel; 
+	public ClientWorld world;
 	private GraphicsContext gc;
-	private HashMap<Integer, Color> speciesColor;
+	private HashMap<Integer, Color> speciesColor = new HashMap<>();
 
 	// - if the speed <= 30, each cycle lapse the world, draw the world, 
 	//   so counterWorldLapse = counterWorldDraw
@@ -130,24 +105,29 @@ public class GUIMain extends Application {
 	//   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
 	//   and have counterWorldDraw++ after drawing the world
 	private volatile int speed;
-	private volatile int counterWorldLapse;
-	private volatile int counterWorldDraw;
-	Timeline timeline;
 
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
 	public static final double SQRT_THREE = Math.sqrt(3);
 
 	public int session_id = 0;
+	
+	private MyClient myClient;
+	
+	private int from_col;
+	private int from_row;
+	private int to_col;
+	private int to_row;
 
 	@FXML 
 	private MenuItem newworld_custom_manuitem;
-
+	
 
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			root = FXMLLoader.load(getClass().getResource("/client/gui/a7.fxml"));
+			root = FXMLLoader.load
+					(getClass().getResource("/client/gui/a7.fxml"));
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			System.out.println("can't find the fxml file");
@@ -156,38 +136,52 @@ public class GUIMain extends Application {
 		primaryStage.setScene(new Scene(root));
 		primaryStage.show();
 
-		speciesColor = new HashMap<>();
-
+		
+		critterInfoLabel = 
+				(Label) root.lookup("#critterinfodetails_label");
+		worldInfoLabel = 
+				(Label) root.lookup("#worldinfodetails_label");
 		worldPane = (Pane) root.lookup("#world_pane"); 
-		worldInfoLabel = (Label) root.lookup("#worldinfodetails_label");
-		critterInfoLabel = (Label) root.lookup("#critterinfodetails_label");
-		// set the iteration count to be as large as it can
-		timeline = new Timeline();
-		timeline.setCycleCount(Integer.MAX_VALUE);
-		// recounts cycle count every time it plays again
-		timeline.setAutoReverse(false);  
-		timeline.getKeyFrames().add(
-				getWorldSimulationKeyFrame(intialStepsPerSecond));
-
-
-		showLoginDialog();
-
-		// initialize the default world and load default critter file
-		world = new World();
-		drawWorldLayout();
-		HashMap<Position, HexToUpdate> tmp = 
-				world.getHexToUpdate();
-		executeHexUpdate(tmp.values());
-		critterFile = new File(Main.class.
-				getResource("colorful_critter.txt").getPath());
-
-
-		// initialize button
-
+		
+		// create a client connection to the server
+		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
+		myClient = new MyClient(url);
+		
+		// initialize menu bar
 		initializeMenuBar(primaryStage);
+		
+		// ask the user to login
+		Pair<String, String> result = showLoginDialog(primaryStage);
+		int respondCode = myClient.logIn(result.getKey(), result.getValue());
+		while (respondCode == 401) {
+			Alerts.alert401Error("Your password or level is incorrect. \n"
+					+ "Level should be one of the 'admin', 'write', 'read'\n"
+					+ "If you forgot password, call 6073799054." );
+			result = showLoginDialog(primaryStage);
+			respondCode = myClient.logIn(result.getKey(), result.getValue());
+		}
+		Alerts.alert200Success("Congratulation, you has successfully"
+				+ "login to Critter World, you session id is " +
+				myClient.getSessionID() + "\nClick help for tutorial");
 
-
+		// initialize the default world and draw it on the GUI
+		try {
+			WorldState state = 
+					myClient.getStateOfWorld(0, from_col, 
+							from_row, to_col, to_row);
+			world = new ClientWorld(state);
+			drawWorldLayout();
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
+			executeHexUpdate(hexToUpdate.values());
+		} catch (IOException e) {
+			e.printStackTrace();
+			primaryStage.close();
+		}
 	}
+	
+
 
 	/**
 	 * Set onActionListener on items on menu bar
@@ -204,11 +198,14 @@ public class GUIMain extends Application {
 
 		new_menuitems.get(DEFAULT_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
-			world = new World();
+			// initialize the default world and draw it on the GUI
+			try {
+				world = new ClientWorld(myClient.getStateOfWorld(0, 
+						from_col, from_row, to_col, to_row));
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			drawWorldLayout();
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
 		});
 
 		new_menuitems.get(CUSTOM_WORLD_IDX).setOnAction(e -> {
@@ -216,11 +213,14 @@ public class GUIMain extends Application {
 			worldFile = loadFile(primaryStage);
 			if (worldFile == null)
 				return;
-			world = World.loadWorld(worldFile, session_id);
-			drawWorldLayout(); 
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
+			// initialize the default world and draw it on the GUI
+			try {
+				world = new ClientWorld(myClient.getStateOfWorld(0, 
+						from_col, from_row, to_col, to_row));
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			drawWorldLayout();
 		});
 
 		ObservableList<MenuItem> modify_menuitems = 
@@ -246,6 +246,7 @@ public class GUIMain extends Application {
 
 		modify_menuitems.get(RANDOM_CRITTER_IDX).setOnAction(e -> { 
 			stopSimulating();
+			critterFile = loadFile(primaryStage);
 			int amount = getAmountInput("Add Critter Dialog", 
 					"Please specify the number of critters you want to add.");
 			addCritter(amount);
@@ -270,7 +271,6 @@ public class GUIMain extends Application {
 			if (speed < 0)
 				speed = 0;
 			changeSimulationSpeed(speed);
-			timeline.play();
 		});
 		
 		simulate_menuitems.get(SIMULATE_PAUSE_IDX).setOnAction(e -> { 
@@ -279,6 +279,14 @@ public class GUIMain extends Application {
 		
 		ObservableList<MenuItem> inspect_menuitems = 
 				menus.get(INSPECT_MENU_IDX).getItems();
+		
+		inspect_menuitems.get(DEAD_CRITTERS_IDX).setOnAction(e -> { 
+			displayDeadCritterInfo();
+		});
+		
+		inspect_menuitems.get(ALL_CRITTERS_IDX).setOnAction(e -> { 
+			displayAllCritterInfo();
+		});
 		
 		ObservableList<MenuItem> help_menuitems = 
 				menus.get(HELP_MENU_IDX).getItems();
@@ -290,10 +298,6 @@ public class GUIMain extends Application {
 		help_menuitems.get(ABOUT_IDX).setOnAction(e -> { 
 			Alerts.alertDisplayAbout(); 
 		});
-		
-//		private final static int INSPECT_MENU_IDX = 3;
-//		private final static int DEAD_CRITTERS_IDX = 0;
-//		private final static int ALL_CRITTERS_IDX = 1;
 
 
 	}
@@ -303,11 +307,44 @@ public class GUIMain extends Application {
 	}
 	
 	/**
+	 * Get dead critter info from the server and display it to the 
+	 * information panel
+	 */
+	private void displayDeadCritterInfo() {
+		ArrayList<Integer> critters = world.dead_critters;
+		StringBuilder s = new StringBuilder();
+		s.append("the dead critters id are: \n");
+		for (Integer critter : critters) 
+			s.append(critter + "/n");
+		printToInfomationPanel(s.toString());
+	}
+	
+	/**
+	 * Get all critter info from the server and display it to the 
+	 * information panel
+	 */
+	private void displayAllCritterInfo() {
+		try {
+			ArrayList<CritterState> critters = myClient.lisAllCritters();
+			StringBuilder s = new StringBuilder();
+			for (CritterState critter : critters) 
+				s.append(critter + "/n");
+			printToInfomationPanel(s.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Stop the world from running
 	 */
 	private void stopSimulating() {
-		timeline.stop();
-		HashMap<Position, HexToUpdate> hexToUpdate = 
+		try {
+			myClient.runWorldAtSpeed(0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
 				world.getHexToUpdate();
 		executeHexUpdate(hexToUpdate.values());
 	}
@@ -319,46 +356,20 @@ public class GUIMain extends Application {
 	 *        = {@code sliderVal}
 	 */
 	private void changeSimulationSpeed(int sliderVal) {
-		boolean wasRunning = false;
-		if (timeline.statusProperty().get() == Status.RUNNING)
-			wasRunning = true;
-		timeline.stop();
-		timeline.getKeyFrames().setAll(
-				getWorldSimulationKeyFrame(sliderVal)
-				);
-		if (wasRunning)
-			timeline.play();
+		try {
+			myClient.runWorldAtSpeed(sliderVal);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	/**
-	 * Get the KeyFrame for the timeline which controls the world running speed
-	 * @param stepsPerSecond
-	 * @return
-	 */
-	private KeyFrame getWorldSimulationKeyFrame(int stepsPerSecond) {
-		speed = stepsPerSecond;
-		counterWorldLapse = 0;
-		counterWorldDraw = 0;
-		KeyValue tmp = null;
-		return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
-				"world lapse",
-				new EventHandler<ActionEvent>() {
-			@Override 
-			public void handle(ActionEvent e) {
-				worldRunAhead();
-			}
-		}, tmp);
-	}
 
 	/**
 	 * Draw all the hex into the canvas
 	 */
 	private void drawWorldLayout() {
-		worldRow = Position.getH(world.getColumn(), 
-				world.getRow());
-		worldCol = Position.getV(world.getColumn(), 
-				world.getRow());
-		world.printCoordinatesASCIIMap();
+		int worldRow = world.row;
+		int worldCol = world.col;
 		worldPane.getChildren().clear();
 		final Canvas canvas = 
 				new Canvas(worldCol*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
@@ -385,67 +396,16 @@ public class GUIMain extends Application {
 		canvas.setOnMouseClicked(new ClickHexHandler());
 	}
 
-	/**
-	 * Have the underlying world proceed for one turn and update the GUI
-	 * with a maximum speed limitation of 30
-	 */
-	private void worldRunAhead() {
-		// no need to bother with the counter if speed <= 30
-		// because always lapse and draw the world at the same time
-		if (speed <= 30) {
-			new Thread() { // Create a new background process
-				public void run() {
-					// world simulation in background
-					world.lapse();
-					Platform.runLater(new Runnable() { // Go back to UI/application thread
-						public void run() {
-							// Update UI to reflect changes to the model
-							executeHexUpdate(world.getHexToUpdate().values());
-						}
-					});
-				}
-			}.start(); // Starts the background thread!
-			return;
-		}
-		// detect overflow, lose a little precision of interval here
-		if (counterWorldLapse == Integer.MAX_VALUE) {
-			counterWorldLapse = 0;
-			counterWorldDraw = 0;
-		}
-		new Thread() { // Create a new background process
-			public void run() {
-				// world simulation in background
-				world.lapse();
-				counterWorldLapse++;
-				Platform.runLater(new Runnable() { // Go back to UI/application thread
-					public void run() {
-						// Update UI to reflect changes to the model
-						if ((int) 30*counterWorldLapse/speed > counterWorldDraw) {
-							executeHexUpdate(world.getHexToUpdate().values());
-							counterWorldDraw++;
-						}
-					}
-				});
-			}
-		}.start(); // Starts the background thread!
-	}
-
+	
 	/**
 	 * Have the underlying world proceed for one turn and update the GUI
 	 */
 	private void worldStepAhead() {
-		new Thread() { // Create a new background process
-			public void run() {
-				// world simulation in background
-				world.lapse();
-				Platform.runLater(new Runnable() { // Go back to UI/application thread
-					public void run() {
-						// Update UI to reflect changes to the model
-						executeHexUpdate(world.getHexToUpdate().values());
-					}
-				});
-			}
-		}.start(); // Starts the background thread!
+		try {
+			myClient.advanceWorldByStep(1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -453,26 +413,25 @@ public class GUIMain extends Application {
 	 *         clear the critter info (because it may has changed)
 	 */
 	synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
+		
 		for (HexToUpdate update : list) {
-			ClientPosition loc = PositionInterpreter.serverToClient(
-					update.pos, worldCol, worldRow);
 
 			switch (update.type) {
 			case CRITTER:
-				drawCritterAt(gc, loc, 
+				drawCritterAt(gc, update.pos, 
 						update.direction, update.size, update.species);
 				break;
 
 			case ROCK:
-				drawRockAt(gc, loc);
+				drawRockAt(gc, update.pos);
 				break;
 
 			case FOOD:
-				drawFoodAt(gc, loc);
+				drawFoodAt(gc, update.pos);
 				break;
 
 			case EMPTY:
-				drawEmptyAt(gc, loc);
+				drawEmptyAt(gc, update.pos);
 				break;
 			}
 		}
@@ -503,7 +462,7 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawEmptyAt(GraphicsContext gc, ClientPosition loc) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
+		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
 		gc.setFill(Color.WHITE);
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -520,7 +479,7 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawRockAt(GraphicsContext gc, ClientPosition loc) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
+		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
 		gc.setFill(new ImagePattern(Resource.rockImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -538,7 +497,7 @@ public class GUIMain extends Application {
 	 */
 	private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
 		System.out.println("draw food");
-		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
+		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
 		gc.setFill(new ImagePattern(Resource.foodImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -557,7 +516,7 @@ public class GUIMain extends Application {
 	 */
 	private void drawCritterAt(GraphicsContext gc, ClientPosition loc, 
 			int dir, int size, int species) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, worldRow);
+		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
 		double radio = getRadio(size);
 
 		// body
@@ -653,10 +612,13 @@ public class GUIMain extends Application {
 		}
 		try {
 			ClientPosition loc = current.getLoc();
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					Food.insertFoodIntoWorld(world, 
-							PositionInterpreter.clientToServer(loc), 
-							session_id, amount);
+			myClient.createFoodOrRock(loc,amount, JsonClasses.FOOD);
+			WorldState state = 
+					myClient.getStateOfWorld(world.current_version_number, 
+							from_col, from_row, to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -664,7 +626,8 @@ public class GUIMain extends Application {
 	}
 	
 	/**
-	 * Insert a rock at the selected position
+	 * Insert a rock at the selected position and 
+	 * refresh GUI right after the insertion
 	 * @param amount
 	 */
 	private void insertRock() {
@@ -674,35 +637,44 @@ public class GUIMain extends Application {
 		}
 		try {
 			ClientPosition loc = current.getLoc();
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					Rock.insertRockIntoWorld(world, 
-							PositionInterpreter.clientToServer(loc), 
-							session_id);
+			myClient.createFoodOrRock(loc, 0, JsonClasses.ROCK);
+			WorldState state = 
+					myClient.getStateOfWorld(world.current_version_number, 
+							from_col, from_row, to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
 	}
 
-	
+	/**
+	 * Delete a selected critter and refresh GUI right after the deletion
+	 */
 	private void deleteCritter() {
 		if (current == null) {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}
-		Position pos = PositionInterpreter.clientToServer(current.loc);
-		if (world.getElemAtPosition(pos) == null ||
-				world.getElemAtPosition(pos).getType() != "CRITTER") {
+		if (world.board.get(current.loc) == null ||
+				world.board.get(current.loc).type != JsonClasses.CRITTER) {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}
 		try {
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					Critter.deleteCritterFromWorld(world, pos, session_id);
+			myClient.removeCritter(world.board.get(current.loc).id);
+			WorldState state = 
+					myClient.getStateOfWorld(world.current_version_number, 
+							from_col, from_row, to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
-		} catch (Exception err) {
-			err.printStackTrace();
-		} 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -715,12 +687,15 @@ public class GUIMain extends Application {
 			return;
 		}
 		try {
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					Critter.loadCrittersIntoWorld(world, critterFile, number,
-							session_id);
+			myClient.createCritter(critterFile, 
+					world.getListOfEmptyPosition(number), number);
+			WorldState state = 
+					myClient.getStateOfWorld(world.current_version_number, 
+							from_col, from_row, to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
-		} catch (SyntaxError err) {
-			Alerts.alertCritterFileIllegal();
 		} catch (Exception expt) {
 			Alerts.alertSpecifyNumOfCritter();
 		}
@@ -737,10 +712,15 @@ public class GUIMain extends Application {
 		}
 		try {
 			ClientPosition loc = current.getLoc();
-			HashMap<Position, HexToUpdate> hexToUpdate = 
-					Critter.insertCritterIntoWorld(world, critterFile, 
-							Position.getC(loc.c, loc.r),
-							Position.getR(loc.c, loc.r), session_id);
+			ArrayList<ClientPosition> tmp = new ArrayList<>();
+			tmp.add(loc);
+			myClient.createCritter(critterFile, tmp, 1);
+			WorldState state = 
+					myClient.getStateOfWorld(world.current_version_number, 
+							from_col, from_row, to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -767,12 +747,12 @@ public class GUIMain extends Application {
 			double x = event.getX();
 			double y = event.getY();
 			int[] nearestHexIndex = 
-					GUIHex.classifyPoint(x, y, worldRow, worldCol);
+					GUIHex.classifyPoint(x, y, world.row, world.col);
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
 			GUIHex tmp = new GUIHex(nearestHexIndex[0],
-					nearestHexIndex[1], worldRow);
+					nearestHexIndex[1], world.row);
 			// un-select click
 			if (tmp == current) {
 				current = null;
@@ -794,9 +774,8 @@ public class GUIMain extends Application {
 			}
 			// check if there is a critter in the selected hex,
 			// if so, need to display the critter info
-			Position pos = PositionInterpreter.clientToServer(tmp.getLoc());
-			Element elem = world.getElemAtPosition(pos);
-			if (elem != null)
+			ClientElement elem = world.board.get(tmp.getLoc());
+			if (elem != null && elem.type == JsonClasses.CRITTER)
 				critterInfoLabel.setText(elem.toString());
 			else
 				critterInfoLabel.setText("");
@@ -860,7 +839,7 @@ public class GUIMain extends Application {
 	}
 
 
-	private Pair<String, String> showLoginDialog() {
+	private Pair<String, String> showLoginDialog(Stage primaryStage) {
 		// Create the custom dialog.
 		Dialog<Pair<String, String>> dialog = new Dialog<>();
 		dialog.setTitle("Login Dialog");
@@ -877,7 +856,7 @@ public class GUIMain extends Application {
 		grid.setPadding(new Insets(20, 150, 10, 10));
 
 		TextField username = new TextField();
-		username.setPromptText("admin/writer/reader");
+		username.setPromptText("admin/write/read");
 		PasswordField password = new PasswordField();
 		password.setPromptText("Password");
 
@@ -905,6 +884,9 @@ public class GUIMain extends Application {
 			if (dialogButton == loginButtonType) {
 				return new Pair<>(username.getText(), password.getText());
 			}
+			else {
+				primaryStage.close();
+			}
 			return null;
 		});
 
@@ -914,7 +896,7 @@ public class GUIMain extends Application {
 			System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
 		});
 
-		return null;
+		return result.get();
 
 	}
 

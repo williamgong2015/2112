@@ -4,8 +4,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import api.HexToUpdate;
-import api.HexToUpdate.HEXType;
+import client.world.HexToUpdate;
+import client.world.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.DIR;
 import game.constant.IDX;
@@ -175,9 +175,6 @@ public class Executor {
 		int current = logs.size()-1;
 		Log logTmp = logs.get(current);
 		logTmp.updates.put(c.getPosition(), c);
-		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
-				c.getPosition(), c.getDir(), c.getSize(), 
-				c.getMem(IDX.POSTURE)));
 	}
 
 	
@@ -307,9 +304,6 @@ public class Executor {
 		int current = logs.size()-1;
 		Log logTmp = logs.get(current);
 		logTmp.updates.put(c.getPosition(), c);
-		hexToUpdate.put(c.getPosition(), new HexToUpdate(HEXType.CRITTER, 
-				c.getPosition(), c.getDir(), c.getSize(), 
-				c.getMem(IDX.POSTURE)));
 	}
 	
 	/**

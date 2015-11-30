@@ -41,19 +41,19 @@ public class Servlet extends HttpServlet {
 	private static final String ADMIN_PW = "admin";
 	private static final String WRITER_PW = "writer";
 	private static final String READER_PW = "reader";
-	private static final int ADMIN_LV = 1;
-	private static final int WRITER_LV = 2;
-	private static final int READER_LV = 3;
+	private static final String ADMIN_LV = "admin";
+	private static final String WRITER_LV = "write";
+	private static final String READER_LV = "read";
 	private static final int MAX_CAPACITY = 2 ^ 30;
 
 	// the base url of the servlet are goint received
 	private static final String BASE_URL = 
-			"/2112/servlet/servlet.Servlet/";
+			"/2112/servlet/servlet.Servlet";
 
 	// use synchronized java collection (mapping session id to level)
-	private Hashtable<Integer, Integer> sessionIdTable = new Hashtable<>();
+	private Hashtable<Integer, String> sessionIdTable = new Hashtable<>();
 
-	private World world;
+	private World world = new World();
 
 	private Gson gson = new Gson();
 
@@ -77,8 +77,8 @@ public class Servlet extends HttpServlet {
 		}
 		
 		try {
-			if (requestURI.startsWith("CritterWorld/critter")) {
-				String subURI = "CritterWorld/critter/";
+			if (requestURI.startsWith("/CritterWorld/critter")) {
+				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				handleRemoveCritter(request, response, session_id, id);
@@ -91,12 +91,21 @@ public class Servlet extends HttpServlet {
 
 	/**
 	 * Handle GET request
+	 * @throws IOException 
 	 */
 	protected void doGet(HttpServletRequest request, 
-			HttpServletResponse response) {
+			HttpServletResponse response) throws IOException {
+		PrintWriter w = response.getWriter();
+		
+		
 		// process URI and parameters in it
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
+		
+		w.println("Request URI: " + requestURI);
+		w.flush();
+		w.close();
+		
 		// default value of parameters
 		int session_id = 0; 
 		int update_since = 0;
@@ -129,16 +138,16 @@ public class Servlet extends HttpServlet {
 		}
 		
 		try {
-			if (requestURI.startsWith("CritterWorld/critter/")) {
-				String subURI = "CritterWorld/critter/";
+			if (requestURI.startsWith("/CritterWorld/critter/")) {
+				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				handleRetrieveCritter(request, response, session_id, id);
 			} 
-			else if (requestURI.startsWith("CritterWorld/critters/")) {
+			else if (requestURI.startsWith("/CritterWorld/critters/")) {
 				handleRetrieveCritterList(request, response, session_id);
 			}
-			else if (requestURI.startsWith("CritterWorld/world")) {
+			else if (requestURI.startsWith("/CritterWorld/world")) {
 				handleGetWorldSection(request, response, session_id, 
 						update_since, from_col, from_row, 
 						to_col, to_row);
@@ -171,23 +180,23 @@ public class Servlet extends HttpServlet {
 		}
 
 		try {
-			if (requestURI.startsWith("login")) {
+			if (requestURI.startsWith("/login")) {
 				handleGetSessionID(request, response);
 			} 
-			else if (requestURI.startsWith("critter")) {
+			else if (requestURI.startsWith("/critter")) {
 				handleCreateCritter(request, response, session_id);
 			}
-			else if (requestURI.startsWith("world")) {
+			else if (requestURI.startsWith("/world")) {
 				handleCreateNewWorld(request, response, session_id);
 			}
-			else if (requestURI.startsWith("CritterWorld/"
+			else if (requestURI.startsWith("/CritterWorld/"
 					+ "world/create_entity")) {
 				handleCreateEntity(request, response, session_id);
 			}
-			else if (requestURI.startsWith("CritterWorld/step")) {
+			else if (requestURI.startsWith("/CritterWorld/step")) {
 				handleAdvWorldByStep(request, response, session_id);
 			}
-			else if (requestURI.startsWith("CritterWorld/run")) {
+			else if (requestURI.startsWith("/CritterWorld/run")) {
 				handleRunWorld(request, response, session_id);
 			}
 		} catch (Exception e) {
@@ -389,7 +398,7 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		double rate = gson.fromJson(r, AdvanceWorldRate.class).rate;
+		int rate = gson.fromJson(r, AdvanceWorldRate.class).rate;
 		if (rate < 0 || world == null) {
 			w.println("Not Acceptable");
 			response.setStatus(406);
@@ -397,7 +406,11 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		world.rate = rate;
+		world.changeSimulationSpeed(rate);
+		if (rate <= 0)
+			world.timeline.stop();
+		else
+			world.timeline.play();
 		response.setStatus(200);
 		w.flush();
 		w.close();
@@ -432,7 +445,7 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		if (world == null || world.rate != 0) {
+		if (world == null || world.getSimulationRate() != 0) {
 			w.println("Not Acceptable");
 			response.setStatus(406);
 			w.flush();
@@ -550,7 +563,7 @@ public class Servlet extends HttpServlet {
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
 		Password input = UnpackJson.unpackPassword(r);
-		int level = input.level;
+		String level = input.level;
 		String password = input.password;
 		if (sessionIdTable.size() > MAX_CAPACITY) {
 			response.setStatus(406);

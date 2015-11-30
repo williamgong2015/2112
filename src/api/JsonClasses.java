@@ -16,6 +16,12 @@ public class JsonClasses {
 
 	static Gson gson = new Gson();
 	
+	public final static String ROCK = "rock";
+	public final static String FOOD = "food";
+	public final static String NOTHING = "nothing";
+	public final static String CRITTER = "critter";
+	
+	
 	/**
 	 * Wrap session id
 	 */
@@ -31,10 +37,10 @@ public class JsonClasses {
 	 * wrap password and level
 	 */
 	public static class Password {
-		public int level;
+		public String level;
 		public String password;
 		
-		public Password(int l, String pw) {
+		public Password(String l, String pw) {
 			level = l;
 			password = pw;
 		}
@@ -144,7 +150,7 @@ public class JsonClasses {
 	public static class RockState extends State {
 		
 		public RockState(Position p) {
-			super("rock");
+			super(ROCK);
 			row = p.getRow();
 			col = p.getColumn();
 		}
@@ -161,7 +167,7 @@ public class JsonClasses {
 		public int value;
 		
 		public FoodState(int v, Position p) {
-			super("food");
+			super(FOOD);
 			value = v;
 			row = p.getRow();
 			col = p.getColumn();
@@ -177,7 +183,7 @@ public class JsonClasses {
 	 */
 	public static class NothingState extends State {
 		public NothingState(Position p) {
-			super("nothing");
+			super(NOTHING);
 			row = p.getRow();
 			col = p.getColumn();
 		}
@@ -198,7 +204,7 @@ public class JsonClasses {
 		public String program;
 		public Integer recently_executed_rule;
 		public CritterState(Critter c) {
-			super("critter");
+			super(CRITTER);
 			id = c.ID;
 			species_id = c.getName();
 			Position p = c.getPosition();
@@ -227,7 +233,7 @@ public class JsonClasses {
 		public int population;
 		public int row;
 		public int col;
-		public int[] dead_critters;
+		public ArrayList<Integer> dead_critters;
 		public State[] state;
 	}
 	
@@ -255,8 +261,8 @@ public class JsonClasses {
 	 * wrap advance world rate  
 	 */
 	public static class AdvanceWorldRate {
-		public double rate;
-		public AdvanceWorldRate(double rate) {
+		public int rate;
+		public AdvanceWorldRate(int rate) {
 			this.rate = rate;
 		}
 	}

@@ -29,6 +29,8 @@ public class ClientElement {
 	public String program;
 	public int recently_executed_rule = -1;
 	
+	public final static String SOMETHING = "something";
+	
 	/**
 	 * Create a critter with critter file 
 	 * {@code type}, {@code species_id}, {@code mem} and 
@@ -87,7 +89,7 @@ public class ClientElement {
 	 * @param c
 	 */
 	public ClientElement(CritterState c) {
-		type = "critter";
+		type = c.getType();
 		id = c.id;
 		species_id = c.species_id;
 		row = c.row;
@@ -127,6 +129,10 @@ public class ClientElement {
 		type = s.getType();
 		row = s.row;
 		col = s.col;
+	}
+
+	public ClientElement() {
+		type = SOMETHING;
 	}
 
 	

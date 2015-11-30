@@ -18,7 +18,7 @@ public class Alerts {
 		String s = "Please first create a new world, then add some critters.\n"
 				+ "Click help button for more information.";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
 	
 	/**
@@ -29,7 +29,7 @@ public class Alerts {
 		alert.setHeaderText("Please create a new world before adding critter");
 		String s = "Please click new world button to create a new world";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
 	}
 	
 	/**
@@ -41,7 +41,7 @@ public class Alerts {
 				+ "critter to add");
 		String s ="Please enter a positive number";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
 	
     /**
@@ -53,7 +53,7 @@ public class Alerts {
 		String s = "Please choose a critter file use "
 				+ "Load Critter button";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
     
     /**
@@ -64,7 +64,7 @@ public class Alerts {
 		alert.setHeaderText("The critter file has illegal syntax");
 		String s ="Please load an legal critter file";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
     
     /**
@@ -75,7 +75,7 @@ public class Alerts {
 		alert.setHeaderText("Hasn't select a legal hex to insert");
 		String s ="Please select an empty hex to insert";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
     
     /**
@@ -94,7 +94,7 @@ public class Alerts {
 				+ "Click 'Stop' to stop the simulation.\n"
 				+ "Click 'Step' to proceeed one step of the simulation.\n";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
 
     
@@ -107,7 +107,7 @@ public class Alerts {
 		String s ="This is CS 2112 final project: Critter World! \n"
 				+ "built by Yining Gong, Yuxin Cao in Fall 2015.\n";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
     }
     
     /**
@@ -118,6 +118,26 @@ public class Alerts {
 		alert.setHeaderText("Hasn't select a critter to delete");
 		String s ="Please select an critter hex to delete";
 		alert.setContentText(s);
-		alert.show();
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 401 error message to the user
+	 */
+	public static void alert401Error(String content) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("Unauthorized Error 401");
+		alert.setContentText(content);
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 200 success message to the user
+	 */
+	public static void alert200Success(String content) {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("Success 200");
+		alert.setContentText(content);
+		alert.showAndWait();
 	}
 }

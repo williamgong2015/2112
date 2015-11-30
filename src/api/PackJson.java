@@ -59,7 +59,7 @@ public class PackJson {
 	/**
 	 * Created by Client: login to the server
 	 */
-	public static String packPassword(int level, String password) {
+	public static String packPassword(String level, String password) {
 		if (password == null)
 			password = "";
 		Password tmp = new Password(level, password);
@@ -71,7 +71,8 @@ public class PackJson {
 	 */
 	public static String packRockorFood(int row, int col, int amount, 
 			String type) {
-		if(!type.equals("food") && !type.equals("rock"))
+		if(!type.equals(JsonClasses.FOOD) && 
+				!type.equals(JsonClasses.ROCK))
 			return null;
 		FoodOrRock tmp = 
 				new FoodOrRock(row, col, type, amount);
@@ -141,13 +142,8 @@ public class PackJson {
 				w.getUpdatesSinceMap(update_since, from_col, 
 						from_row, to_col, to_row);
 		ArrayList<Integer> tmp = w.getDeadCritterIDSince(update_since);
-		int[] deadCritters = new int[tmp.size()];
-		int index = 0;
-		for (Integer i : tmp) {
-			deadCritters[index++] = i;
-		}
 		WorldState state = w.getWorldState(session_id, isAdmin, table, 
-				deadCritters);
+				tmp);
 		return gson.toJson(state, WorldState.class);
 	}
 	
@@ -165,7 +161,7 @@ public class PackJson {
 	 * @param n
 	 * @return
 	 */
-	public static String packAdvanceWorldRate(double n) {
+	public static String packAdvanceWorldRate(int n) {
 		return gson.toJson(new AdvanceWorldRate(n));
 	}
 	

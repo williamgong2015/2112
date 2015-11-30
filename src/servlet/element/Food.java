@@ -1,10 +1,6 @@
 package servlet.element;
 
 import java.io.IOException;
-import java.util.HashMap;
-
-import api.HexToUpdate;
-import api.HexToUpdate.HEXType;
 import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
 import servlet.world.Position;
@@ -95,16 +91,13 @@ public class Food extends Element {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public static HashMap<Position, HexToUpdate> 
+	public static void
 		insertFoodIntoWorld(World world, Position pos, int session_id, 
 				int amount) throws IOException, SyntaxError {
-		HashMap<Position, HexToUpdate> result = new HashMap<>();
 		Food newFood = new Food(amount);
 		if(world.checkPosition(pos) &&
     			world.getElemAtPosition(pos) == null) {
-			result.put(pos, new HexToUpdate(HEXType.FOOD, pos, 0, 0, 0));
 			world.setElemAtPosition(newFood, pos);
 		}
-		return result;
 	}
 }

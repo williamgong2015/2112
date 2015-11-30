@@ -9,14 +9,22 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import api.HexToUpdate;
 import api.JsonClasses;
-import api.HexToUpdate.HEXType;
 import api.JsonClasses.CreateRandomPositionCritter;
+import client.world.HexToUpdate;
+import client.world.HexToUpdate.HEXType;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.animation.Animation.Status;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.util.Duration;
 import servlet.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
@@ -52,7 +60,7 @@ public class World {
 	private String name;
 	private int size;
 	public int version_number;
-	public double rate;
+	private int rate;  // how many steps per second the world is simulating
 	public int critterIDCount = 0;
 
 	// maps position to element in the world
@@ -66,7 +74,20 @@ public class World {
 
 	private ArrayList<Log> logs = new ArrayList<>();
 	
+	// stepup a timeline to trigger the world to step another step 
+	public Timeline timeline;
+	private int intialStepsPerSecond = 1;
+	
+	// - if the speed <= 30, each cycle lapse the world, draw the world, 
+	//   so counterWorldLapse = counterWorldDraw
+	// - if the speed > 30, each cycle lapse the world but 
+	//   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
+	//   and have counterWorldDraw++ after drawing the world
+	private volatile int speed;
+	private volatile int counterWorldLapse;
+	private volatile int counterWorldDraw;
 
+	
 	/**
 	 * Initialize a world
 	 * Check: {@code r} > 0, {@code c} > 0, 
@@ -130,8 +151,6 @@ public class World {
 				hexes.put(pos, new Rock());
 				Log logTmp = logs.get(logs.size()-1);
 				logTmp.updates.put(pos, new Rock());
-				hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
-						0, 0, 0));
 			}
 		}
 	}
@@ -212,7 +231,82 @@ public class World {
 	public static World loadWorld(String filename, int session_id) {
 		return loadWorld(new File(filename), session_id);
 	}
-
+	
+	/**
+	 * Return the timeline which controls the world simulation
+	 */
+	private Timeline setupTimeline() {
+		// set the iteration count to be as large as it can
+		Timeline tmp = new Timeline();
+		tmp.setCycleCount(Integer.MAX_VALUE);
+		// recounts cycle count every time it plays again
+		tmp.setAutoReverse(false);  
+		tmp.getKeyFrames().add(
+				getWorldSimulationKeyFrame(intialStepsPerSecond));
+		return tmp;
+	}
+	
+	/**
+	 * Change the simulation rate of the world and store it in 
+	 * {@code rate}
+	 * @param rate
+	 */
+	public void changeSimulationSpeed(int rate) {
+		boolean wasRunning = false;
+		if (timeline.statusProperty().get() == Status.RUNNING)
+			wasRunning = true;
+		timeline.stop();
+		timeline.getKeyFrames().setAll(
+				getWorldSimulationKeyFrame(rate)
+				);
+		if (wasRunning)
+			timeline.play();
+		this.rate = rate;
+	}
+	
+	/**
+	 * Get the KeyFrame for the timeline which controls the world running speed
+	 * @param stepsPerSecond
+	 * @return
+	 */
+	private KeyFrame getWorldSimulationKeyFrame(int stepsPerSecond) {
+		speed = stepsPerSecond;
+		counterWorldLapse = 0;
+		counterWorldDraw = 0;
+		KeyValue tmp = null;
+		return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
+				"world lapse",
+				new EventHandler<ActionEvent>() {
+			@Override 
+			public void handle(ActionEvent e) {
+				worldRunAhead();
+			}
+		}, tmp);
+	}
+	
+	/**
+	 * Have the underlying world proceed for one turn and update the GUI
+	 * with a maximum speed limitation of 30
+	 */
+	private void worldRunAhead() {
+		// no need to bother with the counter if speed <= 30
+		// because always lapse and draw the world at the same time
+		if (speed <= 30) {
+			lapse();
+			return;
+		}
+		// detect overflow, lose a little precision of interval here
+		if (counterWorldLapse == Integer.MAX_VALUE) {
+			counterWorldLapse = 0;
+			counterWorldDraw = 0;
+		}
+		lapse();
+	}
+	
+	public int getSimulationRate() {
+		return rate;
+	}
+	
 	/**
 	 * add a critter to the arraylist
 	 */
@@ -313,24 +407,16 @@ public class World {
 		Log logTmp;
 		switch (elem.getType()) {
 		case "CRITTER":
-			Critter critterTmp = (Critter) elem;
 			logTmp = logs.get(logs.size()-1);
 			logTmp.updates.put(pos, elem);
-			hexToUpdate.put(pos, new HexToUpdate(HEXType.CRITTER, pos, 
-					critterTmp.getDir(), critterTmp.getSize(), 
-					critterTmp.getMem(IDX.POSTURE)));
 			break;
 		case "FOOD":
 			logTmp = logs.get(logs.size()-1);
 			logTmp.updates.put(pos, elem);
-			hexToUpdate.put(pos, new HexToUpdate(HEXType.FOOD, pos, 
-					0, 0, 0));
 			break;
 		case "ROCK":
 			logTmp = logs.get(logs.size()-1);
 			logTmp.updates.put(pos, elem);
-			hexToUpdate.put(pos, new HexToUpdate(HEXType.ROCK, pos, 
-					0, 0, 0));
 			break;
 		default:
 			System.out.println("can't resolve the type for update");
@@ -359,7 +445,6 @@ public class World {
 			return false;
 		Log logTmp = logs.get(logs.size()-1);
 		logTmp.updates.put(pos, new Nothing());
-		hexToUpdate.put(pos, new HexToUpdate(HEXType.EMPTY, pos, 0, 0, 0));
 		hexes.remove(pos);
 		return true;
 	}
@@ -594,7 +679,7 @@ public class World {
 	 */
 	public JsonClasses.WorldState getWorldState(int session_id, 
 			boolean isAdmin, Hashtable<Position, Element> table,
-			int[] deadCritters) {
+			ArrayList<Integer> deadCritters) {
 		JsonClasses.WorldState s = new JsonClasses.WorldState();
 		s.col = column;
 		s.current_timestep = turns;

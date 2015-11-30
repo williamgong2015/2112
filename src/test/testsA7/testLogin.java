@@ -15,9 +15,9 @@ public class testLogin {
 	private static final String ADMIN_PW = "admin";
 	private static final String WRITER_PW = "writer";
 	private static final String READER_PW = "reader";
-	private static final int ADMIN_LV = 1;
-	private static final int WRITER_LV = 2;
-	private static final int READER_LV = 3;
+	private static final String ADMIN_LV = "admin";
+	private static final String WRITER_LV = "write";
+	private static final String READER_LV = "read";
 	
 	/**
 	 * Test on all level with correct passwords

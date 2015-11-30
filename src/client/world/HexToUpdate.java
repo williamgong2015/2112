@@ -1,6 +1,4 @@
-package api;
-
-import servlet.world.Position;
+package client.world;
 
 /**
  * A class store the information of which hex need to be updated in GUI and
@@ -11,7 +9,7 @@ import servlet.world.Position;
 public class HexToUpdate {
 
 	public HEXType type;
-	public Position pos;
+	public ClientPosition pos;
 	public int size;
 	public int direction;
 	public int species;
@@ -20,8 +18,8 @@ public class HexToUpdate {
 	    CRITTER, ROCK, FOOD, EMPTY
 	}
 	
-	public HexToUpdate(HEXType type, Position pos, int direction, int size, 
-			int species) {
+	public HexToUpdate(HEXType type, ClientPosition pos, int direction, 
+			int size, int species) {
 		this.type = type;
 		this.pos = pos;
 		this.direction = direction;
