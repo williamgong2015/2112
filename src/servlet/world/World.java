@@ -140,6 +140,7 @@ public class World {
 		setSize();
 		turns = 0;
 		name = "Default World";
+		// create a new log when the world is created
 		logs.add(new Log());
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
@@ -173,6 +174,7 @@ public class World {
 			world = new World(column,row,name);
 			world.hexToUpdate = new HashMap<>();
 			world.logs = new ArrayList<>();
+			// create a new log when the world is created
 			world.logs.add(new Log());
 			while((s = br.readLine()) != null) {
 				if(s.startsWith("//"))
@@ -690,7 +692,9 @@ public class World {
 		s.update_since = 0;
 		s.rate = rate;
 		s.state = new JsonClasses.State[table.size()];
-		s.dead_critters = deadCritters;
+		s.dead_critters = new Integer[deadCritters.size()];
+		for (int i = 0; i < deadCritters.size(); ++i) 
+			s.dead_critters[i] = deadCritters.get(i);
 		//TODO dead critters.
 		int index = 0;
 		Set<Map.Entry<Position, Element>> set = table.entrySet();

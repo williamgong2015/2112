@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 
+import api.JsonClasses;
 import api.PackJson;
 import api.UnpackJson;
 import api.JsonClasses.*;
@@ -51,17 +52,24 @@ public class Servlet extends HttpServlet {
 			"/2112/servlet/servlet.Servlet";
 
 	// use synchronized java collection (mapping session id to level)
-	private Hashtable<Integer, String> sessionIdTable = new Hashtable<>();
+	private volatile Hashtable<Integer, String> sessionIdTable = new Hashtable<>();
 
 	private World world = new World();
 
 	private Gson gson = new Gson();
+	
+	private final static boolean isDebugging = false;
 
 	/**
 	 * Handle DElETE request
+	 * @throws IOException 
 	 */
 	protected void doDelete(HttpServletRequest request, 
-			HttpServletResponse response) {
+			HttpServletResponse response) throws IOException {
+		PrintWriter w = response.getWriter();
+		if (isDebugging)
+			w.println("Doing DELETE ");
+		
 		// process URI and parameters in it
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
@@ -78,6 +86,8 @@ public class Servlet extends HttpServlet {
 		
 		try {
 			if (requestURI.startsWith("/CritterWorld/critter")) {
+				if (isDebugging)
+					w.println("Deleting a Critter");
 				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
@@ -86,6 +96,9 @@ public class Servlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		w.flush();
+		w.close();
 	}
 
 
@@ -96,15 +109,12 @@ public class Servlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, 
 			HttpServletResponse response) throws IOException {
 		PrintWriter w = response.getWriter();
-		
+		if (isDebugging)
+			w.println("Doing GET ");
 		
 		// process URI and parameters in it
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
-		
-		w.println("Request URI: " + requestURI);
-		w.flush();
-		w.close();
 		
 		// default value of parameters
 		int session_id = 0; 
@@ -139,15 +149,21 @@ public class Servlet extends HttpServlet {
 		
 		try {
 			if (requestURI.startsWith("/CritterWorld/critter/")) {
+				if (isDebugging)
+					w.println("Retrieve a Critter");
 				String subURI = "/CritterWorld/critter/";
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				handleRetrieveCritter(request, response, session_id, id);
 			} 
 			else if (requestURI.startsWith("/CritterWorld/critters/")) {
+				if (isDebugging)
+					w.println("Retrieve a List of Critter");
 				handleRetrieveCritterList(request, response, session_id);
 			}
 			else if (requestURI.startsWith("/CritterWorld/world")) {
+				if (isDebugging)
+					w.println("Get the World");
 				handleGetWorldSection(request, response, session_id, 
 						update_since, from_col, from_row, 
 						to_col, to_row);
@@ -155,6 +171,9 @@ public class Servlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		w.flush();
+		w.close();
 	}
 
 
@@ -165,6 +184,11 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		PrintWriter w = response.getWriter();
+//		if (isDebugging)
+//			w.println("Doing POST ");
+
+		
 		// process URI and parameters in it
 		String requestURI = 
 				request.getRequestURI().substring(BASE_URL.length());
@@ -180,28 +204,43 @@ public class Servlet extends HttpServlet {
 		}
 
 		try {
-			if (requestURI.startsWith("/login")) {
+			if (requestURI.startsWith("/CritterWorld/login")) {
+//				if (isDebugging)
+//					w.println("Log In");
 				handleGetSessionID(request, response);
 			} 
-			else if (requestURI.startsWith("/critter")) {
+			else if (requestURI.startsWith("/CritterWorld/critter")) {
+				if (isDebugging)
+					w.println("Create Critter");
 				handleCreateCritter(request, response, session_id);
 			}
-			else if (requestURI.startsWith("/world")) {
+			else if (requestURI.startsWith("/CritterWorld/world")) {
+				if (isDebugging)
+					w.println("Create New World");
 				handleCreateNewWorld(request, response, session_id);
 			}
 			else if (requestURI.startsWith("/CritterWorld/"
 					+ "world/create_entity")) {
+				if (isDebugging)				
+					w.println("Create Food Or Rock");
 				handleCreateEntity(request, response, session_id);
 			}
 			else if (requestURI.startsWith("/CritterWorld/step")) {
+				if (isDebugging)
+					w.println("Advance World by Step");
 				handleAdvWorldByStep(request, response, session_id);
 			}
 			else if (requestURI.startsWith("/CritterWorld/run")) {
+				if (isDebugging)
+					w.println("World Start Running");
 				handleRunWorld(request, response, session_id);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		w.flush();
+		w.close();
 	}
 	
 
@@ -235,9 +274,12 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		PackJson.packStateOfWorld(world, session_id, 
-				sessionIdTable.get(session_id) == ADMIN_LV, 
-				update_since, from_col, from_row, to_col, to_row);
+		w.println(PackJson.packStateOfWorld(world, session_id, 
+				sessionIdTable.get(session_id).equals(ADMIN_LV), 
+				update_since, from_col, from_row, to_col, to_row));
+		response.setStatus(200);
+		w.flush();
+		w.close();
 	}
 	
 	/**
@@ -264,7 +306,7 @@ public class Servlet extends HttpServlet {
 		}
 		// retrieve a list of all critter info 
 		w.println(PackJson.packListOfCritters(world.order, session_id, 
-				sessionIdTable.get(session_id) == ADMIN_LV ));
+				sessionIdTable.get(session_id).equals(ADMIN_LV)));
 		response.setStatus(200);
 		w.flush();
 		w.close();
@@ -303,7 +345,7 @@ public class Servlet extends HttpServlet {
 			if (c.ID != id) 
 				continue;
 			w.println(PackJson.packCritterInfo(c, session_id, 
-					sessionIdTable.get(session_id) == ADMIN_LV));
+					sessionIdTable.get(session_id).equals(ADMIN_LV)));
 			response.setStatus(200);
 			w.flush();
 			w.close();
@@ -346,8 +388,8 @@ public class Servlet extends HttpServlet {
 		for (Critter c : world.order) {
 			if (c.ID != id) 
 				continue;
-			if (sessionIdTable.get(session_id) == ADMIN_LV ||
-				(sessionIdTable.get(session_id) == WRITER_LV && 
+			if (sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+				(sessionIdTable.get(session_id).equals(WRITER_LV) && 
 				c.session_id == session_id)) {
 				// remove critter from array list, map and increase version num
 				world.removeCritter(c);  
@@ -390,8 +432,8 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "OK");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (sessionIdTable.get(session_id) != ADMIN_LV ||
-				sessionIdTable.get(session_id) != WRITER_LV) {
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
 			w.flush();
@@ -437,8 +479,8 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "OK");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (sessionIdTable.get(session_id) != ADMIN_LV ||
-				sessionIdTable.get(session_id) != WRITER_LV) {
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
 			w.flush();
@@ -478,8 +520,8 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "Created");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (sessionIdTable.get(session_id) != ADMIN_LV ||
-				sessionIdTable.get(session_id) != WRITER_LV) {
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
 			w.flush();
@@ -498,9 +540,9 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		if (foodOrRock.type.equals("food"))
+		if (foodOrRock.type.equals(JsonClasses.FOOD))
 			world.setElemAtPosition(new Food(foodOrRock.amount), pos);
-		else if (foodOrRock.type.equals("rock"))
+		else if (foodOrRock.type.equals(JsonClasses.ROCK))
 			world.setElemAtPosition(new Rock(), pos);
 		else {
 			w.println("Not Acceptable type: " + foodOrRock.type);
@@ -532,9 +574,10 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "Created");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (sessionIdTable.get(session_id) != ADMIN_LV) {
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV)) {
+			w.println("session id: " + session_id);
 			w.println("Unauthorized");
-			response.setStatus(401);
+			response.setStatus(201);
 			w.flush();
 			w.close();
 			return;
@@ -622,8 +665,8 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "application/json");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (sessionIdTable.get(session_id) != ADMIN_LV ||
-				sessionIdTable.get(session_id) != WRITER_LV) {
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("wrong session_id");
 			response.setStatus(401);
 			w.flush();

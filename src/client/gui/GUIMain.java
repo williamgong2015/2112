@@ -88,7 +88,6 @@ public class GUIMain extends Application {
 	private final static int HOW_USE_IDX = 0;
 	private final static int ABOUT_IDX = 1;
 
-	private File worldFile = null;  // path to world file 
 	private File critterFile = null;  // path to critter file
 	private GUIHex current = null; // current selected hex
 	private Parent root;
@@ -98,13 +97,6 @@ public class GUIMain extends Application {
 	public ClientWorld world;
 	private GraphicsContext gc;
 	private HashMap<Integer, Color> speciesColor = new HashMap<>();
-
-	// - if the speed <= 30, each cycle lapse the world, draw the world, 
-	//   so counterWorldLapse = counterWorldDraw
-	// - if the speed > 30, each cycle lapse the world but 
-	//   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
-	//   and have counterWorldDraw++ after drawing the world
-	private volatile int speed;
 
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
@@ -166,10 +158,12 @@ public class GUIMain extends Application {
 
 		// initialize the default world and draw it on the GUI
 		try {
+			myClient.newWorld("initialworld");
 			WorldState state = 
-					myClient.getStateOfWorld(0, from_col, 
-							from_row, to_col, to_row);
+					myClient.getStateOfWorld(0, myClient.getSessionID());
 			world = new ClientWorld(state);
+			to_col = world.col;
+			to_row = world.row;
 			drawWorldLayout();
 			world.updateWithWorldState(state);
 			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
@@ -210,9 +204,6 @@ public class GUIMain extends Application {
 
 		new_menuitems.get(CUSTOM_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
-			worldFile = loadFile(primaryStage);
-			if (worldFile == null)
-				return;
 			// initialize the default world and draw it on the GUI
 			try {
 				world = new ClientWorld(myClient.getStateOfWorld(0, 
@@ -435,7 +426,7 @@ public class GUIMain extends Application {
 				break;
 			}
 		}
-		printToSimulationPanel("World running at the speed of " + speed + 
+		printToSimulationPanel("World running at the speed of " + world.rate + 
 				" steps per second. \n" + world.getWorldInfo());
 		printToInfomationPanel("");
 	}

@@ -86,7 +86,8 @@ public class ClientWorld {
 		population = w.population;   
 		row = w.row;
 		col = w.col;
-		dead_critters.addAll(w.dead_critters);
+		for (int i = 0; i < w.dead_critters.length; ++i)
+			dead_critters.add(w.dead_critters[i]);
 		
 		for (State s : w.state) {
 			ClientPosition pos = 

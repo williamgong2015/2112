@@ -29,8 +29,8 @@ public class UnpackJson {
 	/**
 	 * @return session id
 	 */
-	public static int unpackSessionID(String json) {
-		SessionID tmp = gson.fromJson(json, SessionID.class);
+	public static int unpackSessionID(BufferedReader r) {
+		SessionID tmp = gson.fromJson(r, SessionID.class);
 		return tmp.session_id;
 	}
 	

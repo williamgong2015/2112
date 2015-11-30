@@ -233,7 +233,7 @@ public class JsonClasses {
 		public int population;
 		public int row;
 		public int col;
-		public ArrayList<Integer> dead_critters;
+		public Integer[] dead_critters;
 		public State[] state;
 	}
 	
