@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
-import api.JsonClasses.CritterState;
+import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
 import api.JsonClasses;
 import client.MyClient;
@@ -316,9 +316,9 @@ public class GUIMain extends Application {
 	 */
 	private void displayAllCritterInfo() {
 		try {
-			ArrayList<CritterState> critters = myClient.lisAllCritters();
+			ArrayList<State> critters = myClient.lisAllCritters();
 			StringBuilder s = new StringBuilder();
-			for (CritterState critter : critters) 
+			for (State critter : critters) 
 				s.append(critter + "/n");
 			printToInfomationPanel(s.toString());
 		} catch (IOException e) {

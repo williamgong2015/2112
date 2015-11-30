@@ -11,6 +11,7 @@ import java.util.Set;
 
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
+import api.JsonClasses.State;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
@@ -685,7 +686,7 @@ public class World {
 		s.row = this.row;
 		s.update_since = 0;
 		s.rate = rate;
-		s.state = new JsonClasses.State[table.size()];
+		s.state = new State[table.size()];
 		s.dead_critters = new Integer[deadCritters.size()];
 		for (int i = 0; i < deadCritters.size(); ++i) 
 			s.dead_critters[i] = deadCritters.get(i);
@@ -697,20 +698,24 @@ public class World {
 			Position p = m.getKey();
 			// for cleaning up the hex
 			if (e == null) {
-				s.state[index++] = new JsonClasses.NothingState(p);
+				s.state[index++] = new State(p);
 				continue;
 			}
 			switch(e.getType()) {
 			case Element.ROCK :
-				s.state[index++] = new JsonClasses.RockState(p);
+				State rock = new State(p);
+				rock.setRock();
+				s.state[index++] = rock;
 				break;
 			case Element.FOOD :
-				s.state[index++] = new JsonClasses.FoodState(((Food)e).getAmount(), p);
+				State food = new State(p);
+				food.setFood(((Food)e).getAmount());
+				s.state[index++] = food;
 				break;
 			case Element.CRITTER :
 				Critter c = (Critter)e;
-				JsonClasses.CritterState critter
-				= new JsonClasses.CritterState(c);
+				State critter = new State(c.getPosition());
+				critter.setCriiter(c);
 				if(c.session_id == session_id || isAdmin == true) {
 					critter.program = c.getProgram().toString();
 					critter.recently_executed_rule = c.getLastRuleIndex();
@@ -720,7 +725,9 @@ public class World {
 				}
 				break;
 			case Element.NOTHING :
-				s.state[index++] = new JsonClasses.NothingState(p);
+				State nothing = new State(p);
+				nothing.setNothing();
+				s.state[index++] = nothing;
 				break;
 			}
 		}

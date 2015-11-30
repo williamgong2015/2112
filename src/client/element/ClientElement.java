@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import api.JsonClasses.CritterState;
-import api.JsonClasses.FoodState;
-import api.JsonClasses.NothingState;
-import api.JsonClasses.RockState;
+import api.JsonClasses;
 import api.JsonClasses.State;
 import game.constant.Constant;
 import game.constant.IDX;
@@ -89,53 +86,30 @@ public class ClientElement {
 	 * Create a critter element with a CritterState {@code c}
 	 * @param c
 	 */
-	public ClientElement(CritterState c) {
+	public ClientElement(State c) {
 		type = c.getType();
-		id = c.id;
-		species_id = c.species_id;
 		row = c.row;
 		col = c.col;
-		direction = c.direction;
-		mem = c.mem;
-		program = c.program;
-		recently_executed_rule = c.recently_executed_rule;
-	}
-
-	/**
-	 * Create a food element with a FoodState {@code s}
-	 * @param s
-	 */
-	public ClientElement(FoodState s) {
-		type = s.getType();
-		row = s.row;
-		col = s.col;
-		value = s.value;
-	}
-	
-	/**
-	 * Create a rock element with a FoodState {@code s}
-	 * @param s
-	 */
-	public ClientElement(RockState s) {
-		type = s.getType();
-		row = s.row;
-		col = s.col;
-	}
-	
-	/**
-	 * Create a food element with a FoodState {@code s}
-	 * @param s
-	 */
-	public ClientElement(NothingState s) {
-		type = s.getType();
-		row = s.row;
-		col = s.col;
+		switch(type) {
+		case JsonClasses.CRITTER :
+			id = c.id;
+			species_id = c.species_id;
+			direction = c.direction;
+			mem = c.mem;
+			program = c.program;
+			if(c.recently_executed_rule != null)
+				recently_executed_rule = c.recently_executed_rule;
+		break;
+		
+		case JsonClasses.FOOD :
+			value = c.food_value;
+		break;
+		
+		}
 	}
 
 	public ClientElement() {
 		type = SOMETHING;
 	}
 
-
-	
 }

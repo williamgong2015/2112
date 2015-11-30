@@ -7,10 +7,6 @@ import java.util.Hashtable;
 import com.google.gson.Gson;
 
 import api.JsonClasses;
-import api.JsonClasses.CritterState;
-import api.JsonClasses.FoodState;
-import api.JsonClasses.NothingState;
-import api.JsonClasses.RockState;
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
 import client.element.ClientElement;
@@ -94,25 +90,23 @@ public class ClientWorld {
 					new ClientPosition(s.col, s.row, w.row, GUIHex.HEX_SIZE);
 			switch (s.getType()) {
 			case "critter":
-				CritterState state = (CritterState) s;
-				board.put(pos, new ClientElement(state));
+				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.CRITTER, pos, 
-						state.direction, state.mem[IDX.SIZE], 
-						state.mem[IDX.POSTURE]));
+						s.direction, s.mem[IDX.SIZE], 
+						s.mem[IDX.POSTURE]));
 				break;
 			case "food":
-				board.put(pos, new ClientElement((FoodState) s));
+				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.FOOD, pos, 
 						0, 0, 0));
 				break;
 			case "rock":
-				RockState rockState = (RockState) s;
-				board.put(pos, new ClientElement(rockState));
+				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 				break;
 			case "nothing":
-				board.put(pos, new ClientElement((NothingState) s));
+				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.EMPTY, pos, 
 						0, 0, 0));
 				break;

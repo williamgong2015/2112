@@ -130,81 +130,35 @@ public class JsonClasses {
 		String type;
 		public int row;
 		public int col;
+		public Integer food_value;
 		
-		State(String s){
-			type = s;
-		}
-		
-		public String getType() {
-			return type;
-		}
-		
-		public void setType(String s) {
-			type = s;
-		}
-	}
-	
-	/**
-	 * wrap information of the position of a rock
-	 */
-	public static class RockState extends State {
-		
-		public RockState(Position p) {
-			super(ROCK);
-			row = p.getRow();
-			col = p.getColumn();
-		}
-		
-		public String toString() {
-			return "Rock at (" + col + "," + row + ")";
-		}
-	}
-	
-	/**
-	 * wrap the information of the food and its position
-	 */
-	public static class FoodState extends State {
-		public int value;
-		
-		public FoodState(int v, Position p) {
-			super(FOOD);
-			value = v;
-			row = p.getRow();
-			col = p.getColumn();
-		}
-		
-		public String toString() {
-			return "Food at (" + col + "," + row + ") with value " + value;
-		}
-	}
-	
-	/**
-	 * the information of an element being removed
-	 */
-	public static class NothingState extends State {
-		public NothingState(Position p) {
-			super(NOTHING);
-			row = p.getRow();
-			col = p.getColumn();
-		}
-		
-		public String toString() {
-			return "Nothing at (" + col + "," + row + ")";
-		}
-	}
-	
-	/**
-	 * wrap the information of a critter and its position
-	 */
-	public static class CritterState extends State{
-		public int id;
+		public Integer id;
 		public String species_id;
-		public int direction;
+		public Integer direction;
 		public int[] mem;
 		public String program;
 		public Integer recently_executed_rule;
-		public CritterState(Critter c) {
-			super(CRITTER);
+		
+		public State(Position p) {
+			row = p.getRow();
+			col = p.getColumn();
+		}
+		
+		public void setRock() {
+			type = ROCK;
+		}
+		
+		public void setFood(int v) {
+			food_value = v;
+			type = FOOD;
+		}
+	
+		public void setNothing() {
+			type = NOTHING;
+		}
+		
+		public void setCriiter(Critter c) {
+			type = CRITTER;
 			id = c.ID;
 			species_id = c.getName();
 			Position p = c.getPosition();
@@ -216,8 +170,12 @@ public class JsonClasses {
 			mem = c.getMeMArray();
 		}
 		
-		public String toString() {
-			return gson.toJson(this);
+		public String getType() {
+			return type;
+		}
+		
+		public void setType(String s) {
+			type = s;
 		}
 	}
 	

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane minHeight="400.0" minWidth="400.0" prefHeight="559.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.gui.Controller">
+   <items>
+      <VBox fx:id="root_vbox">
+         <children>
+            <MenuBar id="menubar">
+              <menus>
+                <Menu id="new_menu" mnemonicParsing="false" text="New">
+                  <items>
+                    <MenuItem fx:id="defaultworld_menuitem" mnemonicParsing="false" text="Default World" />
+                        <MenuItem mnemonicParsing="false" text="Open..." />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Modify">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Insert a Critter at..." />
+                        <MenuItem mnemonicParsing="false" text="Insert a Food at..." />
+                        <MenuItem mnemonicParsing="false" text="Insert a Rock at..." />
+                        <MenuItem mnemonicParsing="false" text="Randomly Create Critters" />
+                        <MenuItem mnemonicParsing="false" text="Delete Critters at..." />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="Simulate">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Step" />
+                        <MenuItem mnemonicParsing="false" text="Run" />
+                        <MenuItem mnemonicParsing="false" text="Pause" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Inspect">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Dead Critters" />
+                        <MenuItem mnemonicParsing="false" text="All Critters" />
+                     </items>
+                  </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="How to Use" />
+                        <MenuItem mnemonicParsing="false" text="About" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <SplitPane fx:id="secondary_splitpane" dividerPositions="0.7688442211055276" prefHeight="392.0" prefWidth="445.0" VBox.vgrow="ALWAYS">
+               <items>
+                  <VBox fx:id="thirdary_vbox" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <SplitPane fx:id="underthirdaryvbox_splitpane" dividerPositions="0.7636022514071295" orientation="VERTICAL" prefHeight="535.0" prefWidth="607.0" VBox.vgrow="ALWAYS">
+                          <items>
+                              <AnchorPane fx:id="worldframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <ScrollPane fx:id="worldframe_scrollpane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <Pane fx:id="world_pane" prefHeight="200.0" prefWidth="200.0" />
+                                       </content>
+                                    </ScrollPane>
+                                    <Slider fx:id="worldframe_slider" blockIncrement="1.0" max="50.0" min="1.0" minHeight="100.0" orientation="VERTICAL" prefHeight="100.0" prefWidth="16.0" value="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="15.0" />
+                                    <Label text="Zoom" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="5.0">
+                                       <font>
+                                          <Font size="10.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </AnchorPane>
+                              <ScrollPane fx:id="critterinfoframe_scrollpane">
+                                 <content>
+                                    <AnchorPane fx:id="critterinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Simulation Panel" />
+                                          <Label fx:id="worldinfodetails_label" layoutY="16.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </ScrollPane>
+                          </items>
+                        </SplitPane>
+                     </children>
+                  </VBox>
+                  <ScrollPane fx:id="worldinfoframe_scrollpane" prefHeight="345.0" prefWidth="81.0">
+                     <content>
+                        <AnchorPane fx:id="worldinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Information Panel" />
+                              <Label fx:id="critterinfodetails_label" layoutY="16.0" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+         </children>
+      </VBox>
+   </items>
+</SplitPane>

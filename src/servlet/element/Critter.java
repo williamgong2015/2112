@@ -119,7 +119,7 @@ public class Critter extends Element {
 		this(new File(file), id, session_id);
 	}
 
-	public Critter(CritterState c, int session_id) throws SyntaxError {
+	public Critter(State c, int session_id) throws SyntaxError {
 		super(Element.CRITTER);
 		this.ID = c.id;
 		this.session_id = session_id;

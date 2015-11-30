@@ -75,7 +75,7 @@ public class MyClient {
 	}
 
 	//TODO: not sure what to do about the result it returns
-	public ArrayList<CritterState> lisAllCritters() throws IOException {
+	public ArrayList<State> lisAllCritters() throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
 		System.out.println("Client list all critters url: " + tmpURL);

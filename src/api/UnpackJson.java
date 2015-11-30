@@ -46,7 +46,7 @@ public class UnpackJson {
 	 *  the program of the critter will be null
 	 */
 	public static ClientElement unpackCritter(BufferedReader json) {
-		CritterState tmp = gson.fromJson(json, CritterState.class);
+		State tmp = gson.fromJson(json, State.class);
 		return new ClientElement(tmp);
 	}
 	
@@ -100,9 +100,9 @@ public class UnpackJson {
 	 * Used by client :unpack the information of list of critters sent
 	 * from the server
 	 */
-	public static ArrayList<CritterState> unpackListOfCritters(BufferedReader br) {
-		Type t = new TypeToken<ArrayList<CritterState>>(){}.getType();
-		ArrayList<CritterState> tmp = gson.fromJson(br, t);//TODO
+	public static ArrayList<State> unpackListOfCritters(BufferedReader br) {
+		Type t = new TypeToken<ArrayList<State>>(){}.getType();
+		ArrayList<State> tmp = gson.fromJson(br, t);//TODO
 		return tmp;
 	}
 	
@@ -113,7 +113,7 @@ public class UnpackJson {
 	
 	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
 		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
-		ArrayList<CritterState> tmp = unpackListOfCritters(br);
+		ArrayList<State> tmp = unpackListOfCritters(br);
 		//Critter c = new Critter(tmp.get(0));
 		//System.out.println(c);
 	}
