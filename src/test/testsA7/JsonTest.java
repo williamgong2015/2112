@@ -38,10 +38,10 @@ public class JsonTest {
 	
 	public void test() throws IOException {
 		Gson gson = new Gson();
-		File f = new File("A7.txt");
-		BufferedReader r = new BufferedReader(new FileReader(f));
-		String t = r.readLine();
+		String s = "abc" + '\n' + "ghjk";
+		System.out.println(s);
+		String x = gson.toJson(s);
+		String t = gson.fromJson(x, String.class);
 		System.out.println(t);
-		gson.fromJson(t, State.class);
 	}
 }

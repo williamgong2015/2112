@@ -74,6 +74,7 @@ public class ClientElement {
 			String next = br.readLine();
 			while (next != null) {
 				builder.append(next);
+				builder.append('\n');
 				next = br.readLine();
 			}
 			program = builder.toString();
@@ -89,7 +90,6 @@ public class ClientElement {
 	 * @param c
 	 */
 	public ClientElement(State c) {
-		System.out.println(c);
 		type = c.getType();
 		row = c.row;
 		col = c.col;

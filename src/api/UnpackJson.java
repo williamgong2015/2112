@@ -106,6 +106,7 @@ public class UnpackJson {
 		ArrayList<State> tmp = gson.fromJson(br, t);//TODO
 		ArrayList<ClientElement> array = new ArrayList<>();
 		for(State s : tmp) {
+			s.type = JsonClasses.CRITTER;
 			array.add(new ClientElement(s));
 		}
 		return array;
@@ -118,7 +119,7 @@ public class UnpackJson {
 	
 	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
 		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
-		ArrayList<State> tmp = unpackListOfCritters(br);
+		//ArrayList<State> tmp = unpackListOfCritters(br);
 		//Critter c = new Critter(tmp.get(0));
 		//System.out.println(c);
 	}
