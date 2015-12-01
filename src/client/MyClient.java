@@ -334,7 +334,7 @@ public class MyClient {
 			dumpResponse(r);
 		return connection.getResponseCode();
 	}
-	
+		
 	/** Read back output from the server. Could change to parse JSON... */
 	void dumpResponse(BufferedReader r) throws IOException {
 		for (;;) {

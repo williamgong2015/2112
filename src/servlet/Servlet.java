@@ -91,6 +91,7 @@ public class Servlet extends HttpServlet {
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				world.version_number++;
+				world.logs.add(new Log());
 				handleRemoveCritter(request, response, session_id, id);
 			}
 		} catch (Exception e) {
@@ -212,6 +213,7 @@ public class Servlet extends HttpServlet {
 				if (isDebugging)
 					System.out.println("Create Critter");
 				world.version_number++;
+				world.logs.add(new Log());
 				handleCreateCritter(request, response, session_id);
 			}
 			// insert a food or rock
@@ -220,6 +222,7 @@ public class Servlet extends HttpServlet {
 				if (isDebugging)				
 					System.out.println("Create Food Or Rock");
 				world.version_number++;
+				world.logs.add(new Log());
 				handleCreateEntity(request, response, session_id);
 			}
 			// create a new world
