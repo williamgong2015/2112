@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
+import api.PositionInterpreter;
 import api.JsonClasses;
 import client.MyClient;
 import client.element.ClientElement;
@@ -160,7 +161,7 @@ public class GUIMain extends Application {
 		try {
 			myClient.newWorld("initialworld");
 			WorldState state = 
-					myClient.getStateOfWorld(0, myClient.getSessionID());
+					myClient.getStateOfWorld(0);
 			world = new ClientWorld(state);
 			to_col = world.col;
 			to_row = world.row;
@@ -453,7 +454,8 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawEmptyAt(GraphicsContext gc, ClientPosition loc) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
+		GUIHex tmp = new GUIHex(loc.x, loc.y, 
+				PositionInterpreter.getY(world.col, world.row));
 		gc.setFill(Color.WHITE);
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -470,7 +472,8 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawRockAt(GraphicsContext gc, ClientPosition loc) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
+		GUIHex tmp = new GUIHex(loc.x, loc.y, 
+				PositionInterpreter.getY(world.col, world.row));
 		gc.setFill(new ImagePattern(Resource.rockImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -488,7 +491,8 @@ public class GUIMain extends Application {
 	 */
 	private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
 		System.out.println("draw food");
-		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
+		GUIHex tmp = new GUIHex(loc.x, loc.y,
+				PositionInterpreter.getY(world.col, world.row));
 		gc.setFill(new ImagePattern(Resource.foodImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -507,7 +511,8 @@ public class GUIMain extends Application {
 	 */
 	private void drawCritterAt(GraphicsContext gc, ClientPosition loc, 
 			int dir, int size, int species) {
-		GUIHex tmp = new GUIHex(loc.c, loc.r, world.row);
+		GUIHex tmp = new GUIHex(loc.x, loc.y,
+				PositionInterpreter.getY(world.col, world.row));
 		double radio = getRadio(size);
 
 		// body
@@ -523,7 +528,7 @@ public class GUIMain extends Application {
 			System.out.println("eyes is null");
 			System.out.println("dir: " + dir + ", radio: " + radio + 
 					"Hex cen: " + tmp.centroid + ", Hex c,r: " + 
-					tmp.getLoc().c + "," + tmp.getLoc().r);
+					tmp.getLoc().x + "," + tmp.getLoc().y);
 			return;
 		}
 		gc.fillOval(eyes[0].x - 1.5*radio - 0.5, eyes[0].y - 1.5*radio - 0.5, 
@@ -603,7 +608,7 @@ public class GUIMain extends Application {
 		}
 		try {
 			ClientPosition loc = current.getLoc();
-			myClient.createFoodOrRock(loc,amount, JsonClasses.FOOD);
+			myClient.createFoodOrRock(loc, amount, JsonClasses.FOOD);
 			WorldState state = 
 					myClient.getStateOfWorld(world.current_version_number, 
 							from_col, from_row, to_col, to_row);

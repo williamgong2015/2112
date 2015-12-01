@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 import api.PackJson;
+import api.PositionInterpreter;
 import api.UnpackJson;
 import client.element.ClientElement;
 import client.world.ClientPosition;
@@ -93,7 +94,7 @@ public class MyClient {
 	
 	/**
 	 * Create 
-	 * @param c
+	 * @param x
 	 * @param a
 	 * @param number
 	 * @return
@@ -172,7 +173,8 @@ public class MyClient {
 		connection.setRequestMethod("POST");
 		connection.setRequestProperty("Content-Type", "Created");
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
-		String tmp = PackJson.packRockorFood(pos.r, pos.c, amount, type);
+		String tmp = PackJson.packRockorFood(PositionInterpreter.getR(pos.x, pos.y), 
+				PositionInterpreter.getC(pos.x, pos.y), amount, type);
 		System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();
@@ -263,7 +265,7 @@ public class MyClient {
 	 * @return
 	 * @throws IOException
 	 */
-	public WorldState getStateOfWorld(int update_since, int sessionID) 
+	public WorldState getStateOfWorld(int update_since) 
 			throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since +"&session_id=" + session_id;

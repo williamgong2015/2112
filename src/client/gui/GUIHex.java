@@ -4,6 +4,7 @@ package client.gui;
 
 import java.util.ArrayList;
 
+import api.PositionInterpreter;
 import client.world.ClientPosition;
 import client.world.ClientPoint;
 
@@ -32,8 +33,8 @@ public class GUIHex {
 	public static final double HEX_SIZE = 10;
 	public static final double SQRT_THREE = Math.sqrt(3);
 
-	public GUIHex(int column, int row, int worldRow) {
-		this.loc = new ClientPosition(column, row, worldRow, HEX_SIZE);
+	public GUIHex(int x, int y, int worldY) {
+		this.loc = new ClientPosition(x, y, worldY, HEX_SIZE);
 		centroid = new ClientPoint(loc.xPos, loc.yPos);
 		xPoints = getXPoints();
 		yPoints = getYPoints();
@@ -72,31 +73,34 @@ public class GUIHex {
 		if (x < 0 || y < 0)
 			return new int[] {-1, -1};
 		// roughly compute column and row index
-		int roughCol = (int) (x*2/3/HEX_SIZE);
-		int roughRow =  worldRow - (int) (y*2/SQRT_THREE/HEX_SIZE);
+		int roughX = (int) (x*2/3/HEX_SIZE);
+		int roughY =  PositionInterpreter.getY(worldRow, worldCol) 
+				- (int) (y*2/SQRT_THREE/HEX_SIZE);
+		int roughCol = PositionInterpreter.getC(roughX, roughY);
+		int roughRow = PositionInterpreter.getR(roughX, roughY);
 		// the {roughCol, roughRow} NewHex and all six NewHex if exists
 		// surrounding it could be the NewHex we are looking for
 		ArrayList<ClientPosition> toCheck = new ArrayList<>();
 		toCheck.add(new ClientPosition(roughCol, roughRow, 
-				worldRow, HEX_SIZE));
+				worldRow, worldCol, HEX_SIZE));
 		if (roughCol > 0 && roughRow < worldRow-1) // has top left hex
 			toCheck.add(new ClientPosition(roughCol-1, roughRow+1,
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		if (roughCol > 0 && roughRow > 0) // has bottom left hex
 			toCheck.add(new ClientPosition(roughCol-1, roughRow-1,
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		if (roughRow > 1) // has bottom hex
 			toCheck.add(new ClientPosition(roughCol, roughRow-1, 
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		if (roughCol < worldCol-1 && roughRow > 0) // has bottom right
 			toCheck.add(new ClientPosition(roughCol+1, roughRow-1,
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		if (roughCol < worldCol-1 && roughRow < worldRow-1) // top right
 			toCheck.add(new ClientPosition(roughCol+1, roughRow+1,
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		if (roughRow < worldRow-1)
 			toCheck.add(new ClientPosition(roughCol, roughRow-1,
-					worldRow, HEX_SIZE));
+					worldRow, worldCol, HEX_SIZE));
 		return findClosestPoint(toCheck, x, y);
 	}
 
@@ -116,8 +120,8 @@ public class GUIHex {
 					hexLoc.yPos, targetYPos);
 			if (tmp < closestDistance) {
 				closestDistance = tmp;
-				closestPoint[0] = hexLoc.c;
-				closestPoint[1] = hexLoc.r;
+				closestPoint[0] = hexLoc.x;
+				closestPoint[1] = hexLoc.y;
 			}
 		}
 		return closestPoint;
