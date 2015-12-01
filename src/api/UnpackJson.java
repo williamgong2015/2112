@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import api.JsonClasses.*;
 import client.element.ClientElement;
 import game.exceptions.SyntaxError;
-
+ 
 
 /**
  * A class contains static methods to create Java objects from JSON object.

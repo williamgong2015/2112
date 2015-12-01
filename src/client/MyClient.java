@@ -237,7 +237,7 @@ public class MyClient {
 	 * @param update_since
 	 * @param from_col, from_row, to_col, to_row: specify the range of world
 	 * @throws IOException
-	 */
+	 */ 
 	public WorldState getStateOfWorld(int update_since, int from_col, 
 			int from_row, int to_col, int to_row) throws IOException{
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
