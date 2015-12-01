@@ -490,7 +490,7 @@ public class Servlet extends HttpServlet {
 	 *              or simulation is running continuously
 	 *          200 if succeed 
 	 * @throws IOException 
-	 */
+	 */ 
 	private void handleAdvWorldByStep(HttpServletRequest request, 
 			HttpServletResponse response, int session_id) throws IOException {
 		response.addHeader("Content-Type", "OK");

@@ -145,4 +145,8 @@ public class ClientPosition {
 	public static int parseXFromID(String ID) {
 		return parseXYFromID(ID, false);
 	}
+	
+	public String toString() {
+		return "(" + x + "," + y + ")";
+	}
 }

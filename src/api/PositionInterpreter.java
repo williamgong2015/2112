@@ -64,10 +64,10 @@ public class PositionInterpreter {
 	public static int getC(int x, int y) {
 		return x;
 	}
-	public static int getX(int c, int r) {
+	public static int getY(int c, int r) {
 		return 2*r-c;
 	}
-	public static int getY(int c, int r) {
+	public static int getX(int c, int r) {
 		return c;
 	}
 }

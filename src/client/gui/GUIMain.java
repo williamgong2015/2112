@@ -395,9 +395,9 @@ public class GUIMain extends Application {
 	 */
 	private void displayAllCritterInfo() {
 		try {
-			ArrayList<State> critters = myClient.lisAllCritters();
+			ArrayList<ClientElement> critters = myClient.lisAllCritters();
 			StringBuilder s = new StringBuilder();
-			for (State critter : critters) 
+			for (ClientElement critter : critters) 
 				s.append(critter + "/n");
 			printToInfomationPanel(s.toString());
 		} catch (IOException e) {
