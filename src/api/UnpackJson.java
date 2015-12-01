@@ -47,6 +47,7 @@ public class UnpackJson {
 	 */
 	public static ClientElement unpackCritter(BufferedReader json) {
 		State tmp = gson.fromJson(json, State.class);
+		tmp.type = JsonClasses.CRITTER;
 		return new ClientElement(tmp);
 	}
 	
@@ -100,10 +101,14 @@ public class UnpackJson {
 	 * Used by client :unpack the information of list of critters sent
 	 * from the server
 	 */
-	public static ArrayList<State> unpackListOfCritters(BufferedReader br) {
+	public static ArrayList<ClientElement> unpackListOfCritters(BufferedReader br) {
 		Type t = new TypeToken<ArrayList<State>>(){}.getType();
 		ArrayList<State> tmp = gson.fromJson(br, t);//TODO
-		return tmp;
+		ArrayList<ClientElement> array = new ArrayList<>();
+		for(State s : tmp) {
+			array.add(new ClientElement(s));
+		}
+		return array;
 	}
 	
 	public static WorldState unpackWorldState(BufferedReader br) {

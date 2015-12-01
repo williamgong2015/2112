@@ -76,7 +76,7 @@ public class MyClient {
 	}
 
 	//TODO: not sure what to do about the result it returns
-	public ArrayList<State> lisAllCritters() throws IOException {
+	public ArrayList<ClientElement> lisAllCritters() throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
 		System.out.println("Client list all critters url: " + tmpURL);
@@ -139,7 +139,7 @@ public class MyClient {
 	 * @throws SyntaxError
 	 */
 	public ClientElement retrieveCritter(int id) throws IOException, SyntaxError{
-		String tmpURL = url + "CritterWorld/" + id + "?session_id=" + 
+		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
 		System.out.println("Client retrieve critter url: " + tmpURL);
 		URL l = new URL(tmpURL);

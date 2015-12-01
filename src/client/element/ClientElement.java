@@ -89,6 +89,7 @@ public class ClientElement {
 	 * @param c
 	 */
 	public ClientElement(State c) {
+		System.out.println(c);
 		type = c.getType();
 		row = c.row;
 		col = c.col;
