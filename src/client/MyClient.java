@@ -164,7 +164,7 @@ public class MyClient {
 	 */
 	public int createFoodOrRock(ClientPosition pos, Integer amount, String type) 
 			throws IOException{
-		String tmpURL = url + "CritterWorld/" + "create_entity?session_id=" + 
+		String tmpURL = url + "CritterWorld/" + "world/create_entity?session_id=" + 
 				session_id;
 		System.out.println("Client create food or rock url: " + tmpURL);
 		URL l = new URL(tmpURL);
