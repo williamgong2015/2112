@@ -192,7 +192,7 @@ public class MyClient {
 	 * @throws IOException
 	 */
 	public int removeCritter(int id) throws IOException {
-		String tmpURL = url + "CritterWorld/" + id + "?session_id=" + 
+		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
 		System.out.println("Client remove critter url: " + tmpURL);
 		URL l = new URL(tmpURL);

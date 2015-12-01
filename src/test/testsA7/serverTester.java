@@ -31,12 +31,13 @@ public class serverTester {
 		
 		
 		
-		client.logIn("write", "writer");
+		client.logIn("admin", "admin");
 		ArrayList<ClientPosition> a = new ArrayList<>();
 		a.add(new ClientPosition(3,4,0,0,0));
 		a.add(new ClientPosition(2,4,0,0,0));
 		a.add(new ClientPosition(5,4,0,0,0));
 		client.createCritter(new File("Critter1.txt"), a, 0);
+		client.removeCritter(5);
 		WorldState t = client.getStateOfWorld(0);
 		for(State x : t.state) 
 			System.out.println(x);
