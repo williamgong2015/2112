@@ -13,6 +13,8 @@ import game.constant.IDX;
  * Element stored in client.world World
  * Could be Critter, Food, Rock or Nothing, indicated by {@code type}
  * some fields may be not used for some type of element. 
+ * 
+ * The row and col here are in Hex Coordinate 
  */
 public class ClientElement {
 

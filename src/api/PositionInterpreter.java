@@ -20,9 +20,9 @@ public class PositionInterpreter {
 	 */
 	public static ClientPosition serverToClient(Position pos, 
 			int worldCol, int worldRow) {
-    	return new ClientPosition(Position.getV(pos.getColumn(), pos.getRow()),
-    			Position.getH(pos.getColumn(), pos.getRow()), 
-    			Position.getV(worldCol, worldRow), 
+    	return new ClientPosition(getY(pos.getColumn(), pos.getRow()),
+    			getX(pos.getColumn(), pos.getRow()), 
+    			getY(worldCol, worldRow), 
     			GUIHex.HEX_SIZE);
 	}
 	
@@ -49,7 +49,25 @@ public class PositionInterpreter {
 	 * @return
 	 */
 	public static Position clientToServer(ClientPosition loc) {
-		return new Position(Position.getC(loc.c, loc.r), 
-				Position.getR(loc.c, loc.r));
+		return new Position(getC(loc.x, loc.y), 
+				getR(loc.x, loc.y));
+	}
+	
+	/**
+	 * Coordinate transform between Cartesian coordinate and Hex coordinate
+	 * Formula:  y = 2r-c, x = c, 
+	 *           r = (x+y+1)/2, c = x
+	 */
+	public static int getR(int x, int y) {
+		return (x+y+1)/2;
+	}
+	public static int getC(int x, int y) {
+		return x;
+	}
+	public static int getX(int c, int r) {
+		return 2*r-c;
+	}
+	public static int getY(int c, int r) {
+		return c;
 	}
 }

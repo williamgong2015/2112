@@ -18,6 +18,7 @@ import game.utils.RandomGen;
 /**
  * A world stored at client side for display and interaction with users
  *
+ * col and row here are in Hex Coordinate
  */
 public class ClientWorld {
 
@@ -87,7 +88,7 @@ public class ClientWorld {
 		
 		for (State s : w.state) {
 			ClientPosition pos = 
-					new ClientPosition(s.col, s.row, w.row, GUIHex.HEX_SIZE);
+					new ClientPosition(s.col, s.row, w.row, w.col, GUIHex.HEX_SIZE);
 			switch (s.getType()) {
 			case "critter":
 				board.put(pos, new ClientElement(s));
@@ -147,7 +148,7 @@ public class ClientWorld {
 		for(int i = 0;i < number;) {
 			int row = RandomGen.randomNumber(tmp.row);
 			int col = RandomGen.randomNumber(tmp.col);
-			ClientPosition pos = new ClientPosition(col, row, tmp.row, 
+			ClientPosition pos = new ClientPosition(col, row, tmp.row, tmp.col,
 					GUIHex.HEX_SIZE);
 			if(tmp.board.get(pos) == null ||
 					tmp.board.get(pos).type == JsonClasses.NOTHING) {

@@ -12,6 +12,7 @@ import java.util.Set;
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
 import api.JsonClasses.State;
+import api.PositionInterpreter;
 import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
@@ -480,8 +481,8 @@ public class World {
 	public String printASCII(boolean printElement, String indent) {
 		StringBuilder s = new StringBuilder();
 		int h; int v;
-		int horizonalBound = Position.getH(column, row);
-		int verticalBound = Position.getV(column, row);
+		int horizonalBound = PositionInterpreter.getX(column, row);
+		int verticalBound = PositionInterpreter.getY(column, row);
 		for (h = horizonalBound-1; h >= 0; --h) {
 			if (h % 2 == 1) {
 				s.append(indent);
@@ -493,10 +494,11 @@ public class World {
 			for (; v < verticalBound; v += 2) {
 				if (printElement)
 					s.append(
-							enquery(Position.getC(v,h),Position.getR(v,h)));
+							enquery(PositionInterpreter.getC(v,h),
+									PositionInterpreter.getR(v,h)));
 				else 
-					s.append("(" + Position.getC(v,h) + "," + 
-							Position.getR(v,h) + ")");
+					s.append("(" + PositionInterpreter.getC(v,h) + "," + 
+							PositionInterpreter.getR(v,h) + ")");
 				s.append(indent);
 			}
 			s.append("\n");
@@ -572,8 +574,8 @@ public class World {
 	private void setSize() {
 		int s = 0;
 		int h; int v;
-		int horizonalBound = Position.getH(column, row);
-		int verticalBound = Position.getV(column, row);
+		int horizonalBound = PositionInterpreter.getX(column, row);
+		int verticalBound = PositionInterpreter.getY(column, row);
 		for (h = horizonalBound-1; h >= 0; --h) {
 			if (h % 2 == 1) 
 				v = 1;
@@ -740,7 +742,7 @@ public class World {
 				String species_id, int session_id) {
 		int num = c.num;
 		ArrayList<Integer> idTmp = new ArrayList<>();
-		for(int i = 0; i < num;) {
+		for(int i = 0; i < num; ++i) {
 			try {
 				String critterName = species_id;
 				idTmp.add(critterIDCount);

@@ -1,5 +1,6 @@
 package client.world;
 
+import api.PositionInterpreter;
 
 /**
  * Position of a hex (column,row) defined by its centroid in the ClientWorld, 
@@ -18,66 +19,81 @@ package client.world;
  */
 public class ClientPosition {
 
-	public final int c;  // column
-	public final int r;  // row
+	public int x;
+	public int y;
 	public final double xPos;  // position of the centroid along x axis
 	public final double yPos;  // position of the centroid along y axis
 	private final static double SQRT_THREE = Math.sqrt(3);
 	
 	/**
 	 * Constructor: initialize the a location of hex in the world
-	 * @param column - column index in the world, starting from left
-	 * @param row - row index in the world, starting from bottom
-	 * @param worldRow - total row in the world, to compute offset from top
+	 * @param column - column index in the world, in Hex Coordinate
+	 * @param row - row index in the world, in Hex Coordinate
+	 * @param worldRow - total row in the world, to compute offset 
+	 *                   from top, in Hex Coordinate
 	 * @param OFFSET - size of each hex 
 	 *                 (defined by the distance from centroid to vertex) 
 	 */
-	public ClientPosition(int column, int row, int worldRow, double OFFSET) {
-		this.c = column;
-		this.r = row;
-		xPos = getXPos(column, row, OFFSET);
-		yPos = getYPos(row, worldRow, OFFSET);
+	public ClientPosition(int column, int row, int worldRow, int worldCol, double OFFSET) {
+		this.x = PositionInterpreter.getX(column, row);
+		this.y = PositionInterpreter.getY(column, row);
+		xPos = getXPos(x, y, OFFSET);
+		yPos = getYPos(y, PositionInterpreter.getY(worldCol, worldRow), OFFSET);
 	}
 	
 	/**
+	 * Create a Client Position with x, y and worldY all in Cartesian Coordinate
+	 * @param x
+	 * @param y
+	 * @param Y
+	 * @param OFFSET
+	 */
+	public ClientPosition(int x, int y, int worldY, double OFFSET) {
+		this.x = x;
+		this.y = y;
+		xPos = getXPos(x, y, OFFSET);
+		yPos = getYPos(y, worldY, OFFSET);
+	}
+
+	/**
 	 * Get the x position give column and row index of a location 
-	 * @param c - column, starting from the left
-	 * @param r - row, starting from the bottom
+	 * @param x - x, starting from the left, in Cartesian Coordinate
+	 * @param y - y, starting from the bottom, in Cartesian Coordinate
 	 * @param OFFSET - size of the hex
 	 *                 (defined by the distance from centroid to vertex) 
 	 * @return x position of the location (should be larger than or equal to 0)
 	 *         -1 if the given index is invalid 
 	 */
-	public static double getXPos(int c, int r, double OFFSET) {
+	private static double getXPos(int x, int y, double OFFSET) {
 		// class invariant
-		if (r % 2 != c % 2 || c < 0 || r < 0) 
+		if (y % 2 != x % 2 || x < 0 || y < 0) 
 			return -1;
-		if (r % 2 == 0) 
-			return c/2 * 3 * OFFSET + OFFSET;
+		if (y % 2 == 0) 
+			return x/2 * 3 * OFFSET + OFFSET;
 		else
-			return c/2 * 3 * OFFSET + 2.5 * OFFSET;
+			return x/2 * 3 * OFFSET + 2.5 * OFFSET;
 	}
 	
 	/**
 	 * Get the y position given the row index and the total row in the world
-	 * @param r
-	 * @param worldRow
+	 * @param y in Cartesian Coordinate
+	 * @param worldY in Cartesian Coordinate
 	 * @param OFFSET - size of the hex
 	 *                 (defined by the distance from centroid to vertex) 
 	 * @return y position of the location (should be larger than or equal to 0)
 	 *         -1 if the given index is invalid
 	 */
-	public static double getYPos(int r, int worldRow, double OFFSET) {
-		return (worldRow - r) * OFFSET * SQRT_THREE / 2 ;
+	private static double getYPos(int y, int worldY, double OFFSET) {
+		return (worldY - y) * OFFSET * SQRT_THREE / 2 ;
 	}
 	
 	/**
-	 * @param c - column of the location
-	 * @param r - row of the location
+	 * @param x - column of the location in Cartesian Coordinate
+	 * @param y - row of the location in Cartesian Coordinate
 	 * @return the id of hex defined by the row and column of location
 	 */
-	public static String getID(int c, int r) {
-		return "" + c + "," + r;
+	public static String getID(int x, int y) {
+		return "" + x + "," + y;
 	}
 	
 	/**
@@ -85,23 +101,23 @@ public class ClientPosition {
 	 * @param ID
 	 * @param parseRow - {@code true} if need to parse row
 	 *                   {@code false} if need to parse column
-	 * @return column/row of the location (should be larger than or equal to 0)
+	 * @return x/y of the location (should be larger than or equal to 0)
 	 *         -1 if the given {@code ID} is illegal
 	 */
-	private static int parseColRowFromID(String ID, boolean parseRow) {
+	private static int parseXYFromID(String ID, boolean parseRow) {
 		String[] token = ID.split(",");
 		if (token.length != 2) {
 			System.out.println("illegal id: " + ID);
 			return -1;
 		}
 		try {
-			int col = Integer.parseInt(token[0]);
-			int row = Integer.parseInt(token[1]);
-			if (row < 0)
+			int x = Integer.parseInt(token[0]);
+			int y = Integer.parseInt(token[1]);
+			if (y < 0)
 				return -1;
 			if (parseRow)
-				return row;
-			return col;
+				return y;
+			return x;
 		} catch (Exception e) {
 			System.out.println("illegal id: " + ID);
 			return -1;
@@ -109,22 +125,24 @@ public class ClientPosition {
 	}
 	
 	/**
-	 * Get the row of the location given the String representation of ID
+	 * Get the y of the location given the String representation of ID
 	 * @param ID
-	 * @return row number of the location (should be larger than or equal to 0)
-	 *         -1 if the given {@code ID} is illegal
+	 * @return y number of the location (should be larger than or equal to 0)
+	 * 		   in Cartesian Coordinate
+	 *         -1 if the given {@code ID} is illegal 
 	 */
-	public static int parseRowFromID(String ID) {
-		return parseColRowFromID(ID, true);
+	public static int parseYFromID(String ID) {
+		return parseXYFromID(ID, true);
 	}
 	
 	/**
-	 * Get the column of the location given the String representation of ID
+	 * Get the x of the location given the String representation of ID
 	 * @param ID
-	 * @return column of the location (should be larger than or equal to 0)
+	 * @return x of the location (should be larger than or equal to 0)
+	 *         in Cartesian Coordinate
 	 *         -1 if the given {@code ID} is illegal
 	 */
-	public static int parseColFromID(String ID) {
-		return parseColRowFromID(ID, false);
+	public static int parseXFromID(String ID) {
+		return parseXYFromID(ID, false);
 	}
 }

@@ -55,23 +55,7 @@ public class Position {
 		return true;
 	}
 	
-	/**
-	 * Coordinate transform between Cartesian coordinate and Hex coordinate
-	 * Formula:  h = 2r-c, v = c, 
-	 *           r = (v+h+1)/2, c = v
-	 */
-	public static int getR(int v, int h) {
-		return (v+h+1)/2;
-	}
-	public static int getC(int v, int h) {
-		return v;
-	}
-	public static int getH(int c, int r) {
-		return 2*r-c;
-	}
-	public static int getV(int c, int r) {
-		return c;
-	}
+
 	
 	/**
 	 * return the position which is in the {@code dir} 

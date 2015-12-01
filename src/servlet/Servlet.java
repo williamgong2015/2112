@@ -445,7 +445,7 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "OK");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) &&
 				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
@@ -492,7 +492,7 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "OK");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) &&
 				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
@@ -533,7 +533,7 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "Created");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) &&
 				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("Unauthorized");
 			response.setStatus(401);
@@ -678,7 +678,7 @@ public class Servlet extends HttpServlet {
 		response.addHeader("Content-Type", "application/json");
 		PrintWriter w = response.getWriter();
 		BufferedReader r = request.getReader();
-		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) ||
+		if (!sessionIdTable.get(session_id).equals(ADMIN_LV) &&
 				!sessionIdTable.get(session_id).equals(WRITER_LV)) {
 			w.println("wrong session_id");
 			response.setStatus(401);
