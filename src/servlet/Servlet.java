@@ -91,6 +91,7 @@ public class Servlet extends HttpServlet {
 				String idStr = requestURI.substring(subURI.length());
 				int id = Integer.parseInt(idStr);
 				world.version_number++;
+				world.logs.add(new Log());
 				handleRemoveCritter(request, response, session_id, id);
 			}
 		} catch (Exception e) {
@@ -155,7 +156,7 @@ public class Servlet extends HttpServlet {
 				handleRetrieveCritter(request, response, session_id, id);
 			} 
 			// get list of all critters
-			else if (requestURI.startsWith("/CritterWorld/critters/")) {
+			else if (requestURI.startsWith("/CritterWorld/critters")) {
 				if (isDebugging)
 					System.out.println("Retrieve a List of Critter");
 				handleRetrieveCritterList(request, response, session_id);
@@ -199,6 +200,7 @@ public class Servlet extends HttpServlet {
 				break;
 			}
 		}
+		
 
 		try {
 			if (requestURI.startsWith("/CritterWorld/login")) {
@@ -211,7 +213,17 @@ public class Servlet extends HttpServlet {
 				if (isDebugging)
 					System.out.println("Create Critter");
 				world.version_number++;
+				world.logs.add(new Log());
 				handleCreateCritter(request, response, session_id);
+			}
+			// insert a food or rock
+			else if (requestURI.startsWith("/CritterWorld/"
+					+ "world/create_entity")) {
+				if (isDebugging)				
+					System.out.println("Create Food Or Rock");
+				world.version_number++;
+				world.logs.add(new Log());
+				handleCreateEntity(request, response, session_id);
 			}
 			// create a new world
 			else if (requestURI.startsWith("/CritterWorld/world")) {
@@ -220,14 +232,6 @@ public class Servlet extends HttpServlet {
 				// a new world object will be created, the version number
 				// will get initialized to 1
 				handleCreateNewWorld(request, response, session_id);
-			}
-			// insert a food or rock
-			else if (requestURI.startsWith("/CritterWorld/"
-					+ "world/create_entity")) {
-				if (isDebugging)				
-					System.out.println("Create Food Or Rock");
-				world.version_number++;
-				handleCreateEntity(request, response, session_id);
 			}
 			// world step ahead for n
 			else if (requestURI.startsWith("/CritterWorld/step")) {

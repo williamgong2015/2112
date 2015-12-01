@@ -74,6 +74,7 @@ public class ClientElement {
 			String next = br.readLine();
 			while (next != null) {
 				builder.append(next);
+				builder.append('\n');
 				next = br.readLine();
 			}
 			program = builder.toString();

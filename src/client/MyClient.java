@@ -76,7 +76,7 @@ public class MyClient {
 	}
 
 	//TODO: not sure what to do about the result it returns
-	public ArrayList<State> lisAllCritters() throws IOException {
+	public ArrayList<ClientElement> lisAllCritters() throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
 		System.out.println("Client list all critters url: " + tmpURL);
@@ -139,7 +139,7 @@ public class MyClient {
 	 * @throws SyntaxError
 	 */
 	public ClientElement retrieveCritter(int id) throws IOException, SyntaxError{
-		String tmpURL = url + "CritterWorld/" + id + "?session_id=" + 
+		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
 		System.out.println("Client retrieve critter url: " + tmpURL);
 		URL l = new URL(tmpURL);
@@ -164,7 +164,7 @@ public class MyClient {
 	 */
 	public int createFoodOrRock(ClientPosition pos, Integer amount, String type) 
 			throws IOException{
-		String tmpURL = url + "CritterWorld/" + "create_entity?session_id=" + 
+		String tmpURL = url + "CritterWorld/" + "world/create_entity?session_id=" + 
 				session_id;
 		System.out.println("Client create food or rock url: " + tmpURL);
 		URL l = new URL(tmpURL);
@@ -333,7 +333,7 @@ public class MyClient {
 			dumpResponse(r);
 		return connection.getResponseCode();
 	}
-	
+		
 	/** Read back output from the server. Could change to parse JSON... */
 	void dumpResponse(BufferedReader r) throws IOException {
 		for (;;) {

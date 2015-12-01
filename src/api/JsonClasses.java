@@ -181,6 +181,22 @@ public class JsonClasses {
 		public void setType(String s) {
 			type = s;
 		}
+		
+		public String toString() {
+			if(type.equals("rock")) {
+				return "rock   " + "row : "+ row + "col : " + col;
+			}
+			if(type.equals("food")) {
+				return "food   "  + "row : "+ row + "col : " + col + "amount  :" + food_value;
+			}
+			return type + '\n'
+				+ "row : "	+ row + '\n'
+				+ "col :"	+ col  + '\n'
+				+ "id :"	+id + '\n'
+				+ " species_id :"	+ species_id + '\n'
+				+ "direction :"	+ direction + '\n'
+				+ "program :"	+program;
+		}
 	}
 	
 	/**

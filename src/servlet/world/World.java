@@ -69,7 +69,7 @@ public class World {
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order = new ArrayList<>();
 
-	private ArrayList<Log> logs = new ArrayList<>();
+	public ArrayList<Log> logs = new ArrayList<>();
 	
 	// stepup a timeline to trigger the world to step another step 
 	public Timeline timeline = new Timeline();
@@ -323,6 +323,7 @@ public class World {
 	public void lapse() {
 		turns++;
 		version_number++;
+		logs.add(new Log());
 		ArrayList<Critter> toDelete = new ArrayList<>();
 		// update every critter until it execute a action or has being 
 		// updated for 999 PASS (for the second one, take a wait action)

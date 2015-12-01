@@ -9,9 +9,10 @@ import api.JsonClasses.WorldState;
 import client.MyClient;
 import client.element.ClientElement;
 import client.world.ClientPosition;
+import game.exceptions.SyntaxError;
 
-public class serverTester {
-	public static void main(String[] args) throws IOException {
+public class test {
+	public static void main(String[] args) throws IOException, SyntaxError {
 		MyClient client = new MyClient("http://localhost:8080/2112/servlet/servlet.Servlet/");
 		ClientElement c = new ClientElement(new File("Critter1.txt"));
 		client.logIn("admin", "admin");
@@ -19,13 +20,15 @@ public class serverTester {
 		client.createCritter(new File("Critter1.txt"), null, 3);
 		client.advanceWorldByStep(3);
 		client.createFoodOrRock(new ClientPosition(3,4,0,0), null, "rock");
-		ArrayList<State> t = client.lisAllCritters();
-		for(State x : t) {
-			System.out.println(x);
-		}
+//		ArrayList<ClientElement> t = client.lisAllCritters();
+//		for(ClientElement x : t) {
+//			System.out.println(x);
+//		}
 //		WorldState t = client.getStateOfWorld(0, client.getSessionID());
 //		for(State x :t.state) {
 //			System.out.println(x);
 //		}
+		ClientElement c1 = client.retrieveCritter(2);
+//		System.out.println(c1);
 	}
 }

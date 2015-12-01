@@ -1,11 +1,20 @@
 package test.testsA7;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import api.JsonClasses.State;
 
 
 public class JsonTest {
@@ -22,21 +31,17 @@ public class JsonTest {
 		public int[] mem;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		JsonTest js = new JsonTest();
 		js.test();
 	}
 	
-	public void test() {
+	public void test() throws IOException {
 		Gson gson = new Gson();
-		ArrayList<Integer> intArr = new ArrayList<>();
-		intArr.add(1);
-		intArr.add(2);
-		Type t = new TypeToken<ArrayList<Integer>>(){}.getType();
-		String s= gson.toJson(intArr, t);
-		ArrayList<Integer> tx = (ArrayList<Integer>) gson.fromJson(s, t);
+		String s = "abc" + '\n' + "ghjk";
 		System.out.println(s);
-		for (Integer i : tx)
-			System.out.println(i);
+		String x = gson.toJson(s);
+		String t = gson.fromJson(x, String.class);
+		System.out.println(t);
 	}
 }
