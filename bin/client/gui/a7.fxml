@@ -20,9 +20,17 @@
                         <MenuItem mnemonicParsing="false" text="Open..." />
                   </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="View">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="Whole World" />
+                        <MenuItem mnemonicParsing="false" text="Subsection of World" />
+                        <MenuItem mnemonicParsing="false" text="Refresh" />
+                        <CheckMenuItem mnemonicParsing="false" text="Keep up-to-date" />
+                     </items>
+                  </Menu>
                 <Menu mnemonicParsing="false" text="Modify">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Insert a Critter at..." />
+                    <MenuItem mnemonicParsing="false" text="Insert Critters at..." />
                         <MenuItem mnemonicParsing="false" text="Insert a Food at..." />
                         <MenuItem mnemonicParsing="false" text="Insert a Rock at..." />
                         <MenuItem mnemonicParsing="false" text="Randomly Create Critters" />
@@ -36,10 +44,10 @@
                         <MenuItem mnemonicParsing="false" text="Pause" />
                      </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Inspect">
+                  <Menu mnemonicParsing="false" text="More">
                      <items>
-                        <MenuItem mnemonicParsing="false" text="Dead Critters" />
-                        <MenuItem mnemonicParsing="false" text="All Critters" />
+                        <MenuItem mnemonicParsing="false" text="Dead Critters Informations" />
+                        <MenuItem mnemonicParsing="false" text="All Critters Informations" />
                      </items>
                   </Menu>
                 <Menu mnemonicParsing="false" text="Help">
@@ -54,9 +62,9 @@
                <items>
                   <VBox fx:id="thirdary_vbox" prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <SplitPane fx:id="underthirdaryvbox_splitpane" dividerPositions="0.7636022514071295" orientation="VERTICAL" prefHeight="535.0" prefWidth="607.0" VBox.vgrow="ALWAYS">
+                        <SplitPane fx:id="underthirdaryvbox_splitpane" orientation="VERTICAL" prefHeight="449.0" prefWidth="608.0" VBox.vgrow="ALWAYS">
                           <items>
-                              <AnchorPane fx:id="worldframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
+                              <AnchorPane fx:id="worldframe_anchorpane" prefHeight="204.0" prefWidth="606.0">
                                  <children>
                                     <ScrollPane fx:id="worldframe_scrollpane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
@@ -71,30 +79,56 @@
                                     </Label>
                                  </children>
                               </AnchorPane>
-                              <ScrollPane fx:id="critterinfoframe_scrollpane">
-                                 <content>
-                                    <AnchorPane fx:id="critterinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
-                                       <children>
-                                          <Label text="Simulation Panel" />
-                                          <Label fx:id="worldinfodetails_label" layoutY="16.0" />
-                                       </children>
-                                    </AnchorPane>
-                                 </content>
-                              </ScrollPane>
                           </items>
                         </SplitPane>
+                        <ScrollPane fx:id="critterinfoframe_scrollpane12" prefHeight="166.0" prefWidth="180.0">
+                           <content>
+                              <AnchorPane fx:id="critterinfoframe_anchorpane12" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <Label text="Console">
+                                       <font>
+                                          <Font name="System Bold Italic" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="consolenfodetails_label" layoutY="25.0" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </ScrollPane>
                      </children>
                   </VBox>
-                  <ScrollPane fx:id="worldinfoframe_scrollpane" prefHeight="345.0" prefWidth="81.0">
-                     <content>
-                        <AnchorPane fx:id="worldinfoframe_anchorpane" prefHeight="200.0" prefWidth="200.0">
-                           <children>
-                              <Label text="Information Panel" />
-                              <Label fx:id="critterinfodetails_label" layoutY="16.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </ScrollPane>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <ScrollPane fx:id="critterinfoframe_scrollpane1" prefHeight="188.0" prefWidth="180.0">
+                           <content>
+                              <AnchorPane fx:id="critterinfoframe_anchorpane1" prefHeight="166.0" prefWidth="158.0">
+                                 <children>
+                                    <Label text="Simulation Info">
+                                       <font>
+                                          <Font name="System Bold" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="worldinfodetails_label" layoutY="30.0" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </ScrollPane>
+                        <ScrollPane fx:id="critterinfoframe_scrollpane11" prefHeight="350.0" prefWidth="180.0">
+                           <content>
+                              <AnchorPane fx:id="critterinfoframe_anchorpane11" prefHeight="269.0" prefWidth="200.0">
+                                 <children>
+                                    <Label text="Other Information">
+                                       <font>
+                                          <Font name="System Bold Italic" size="16.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="otherinfodetails_label" layoutY="25.0" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </VBox>
                </items>
             </SplitPane>
          </children>

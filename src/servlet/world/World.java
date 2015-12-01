@@ -72,7 +72,7 @@ public class World {
 	private ArrayList<Log> logs = new ArrayList<>();
 	
 	// stepup a timeline to trigger the world to step another step 
-	public Timeline timeline;
+	public Timeline timeline = new Timeline();
 	private int intialStepsPerSecond = 1;
 	
 	// - if the speed <= 30, each cycle lapse the world, draw the world, 

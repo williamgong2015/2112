@@ -17,9 +17,14 @@ import client.world.ClientPoint;
 import client.world.ClientPosition;
 import client.world.ClientWorld;
 import client.world.HexToUpdate;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +35,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -46,6 +52,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Duration;
 import javafx.util.Pair;
 
 /**
@@ -68,24 +75,30 @@ public class GUIMain extends Application {
 	private final static int NEW_MENU_IDX = 0;
 	private final static int DEFAULT_WORLD_IDX = 0;
 	private final static int CUSTOM_WORLD_IDX = 1;
+	
+	private final static int VIEW_MENU_IDX = 1;
+	private final static int WHOLE_WORLD_IDX = 0;
+	private final static int SUBSECTION_WORLD_IDX = 1;
+	private final static int REFRESH_WORLD_IDX = 2;
+	private final static int KEEPUPDATE_WORLD_IDX = 3;
 
-	private final static int MODIFY_MENU_IDX = 1;
+	private final static int MODIFY_MENU_IDX = 2;
 	private final static int INSERT_CRITTER_IDX = 0;
 	private final static int INSERT_FOOD_IDX = 1;
 	private final static int INSERT_ROCK_IDX = 2;
 	private final static int RANDOM_CRITTER_IDX = 3;
 	private final static int DELETE_CRITTER_IDX = 4;
 
-	private final static int SIMULATE_MENU_IDX = 2;
+	private final static int SIMULATE_MENU_IDX = 3;
 	private final static int SIMULATE_STEP_IDX = 0;
 	private final static int SIMULATE_RUN_IDX = 1;
 	private final static int SIMULATE_PAUSE_IDX = 2;
 
-	private final static int INSPECT_MENU_IDX = 3;
+	private final static int MORE_MENU_IDX = 4;
 	private final static int DEAD_CRITTERS_IDX = 0;
 	private final static int ALL_CRITTERS_IDX = 1;
 
-	private final static int HELP_MENU_IDX = 4;
+	private final static int HELP_MENU_IDX = 5;
 	private final static int HOW_USE_IDX = 0;
 	private final static int ABOUT_IDX = 1;
 
@@ -94,13 +107,15 @@ public class GUIMain extends Application {
 	private Parent root;
 	private Pane worldPane; 
 	private Label worldInfoLabel;
-	private Label critterInfoLabel; 
+	private Label otherInfoLabel; 
+	private Label consoleInfoLabel;
 	public ClientWorld world;
 	private GraphicsContext gc;
 	private HashMap<Integer, Color> speciesColor = new HashMap<>();
 
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
+	private static final int REFRESH_SPEED = 30;  // 30 times per second
 	public static final double SQRT_THREE = Math.sqrt(3);
 
 	public int session_id = 0;
@@ -112,8 +127,7 @@ public class GUIMain extends Application {
 	private int to_col;
 	private int to_row;
 
-	@FXML 
-	private MenuItem newworld_custom_manuitem;
+	public Timeline timeline = new Timeline();
 	
 
 	@Override
@@ -130,15 +144,21 @@ public class GUIMain extends Application {
 		primaryStage.show();
 
 		
-		critterInfoLabel = 
-				(Label) root.lookup("#critterinfodetails_label");
+		otherInfoLabel = 
+				(Label) root.lookup("#otherinfodetails_label");
 		worldInfoLabel = 
 				(Label) root.lookup("#worldinfodetails_label");
+		consoleInfoLabel = 
+				(Label) root.lookup("#consolenfodetails_label");
 		worldPane = (Pane) root.lookup("#world_pane"); 
 		
 		// create a client connection to the server
 		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
 		myClient = new MyClient(url);
+		
+		timeline.getKeyFrames().setAll(
+				getGUIRefreshKeyFrame(REFRESH_SPEED)
+				);
 		
 		// initialize menu bar
 		initializeMenuBar(primaryStage);
@@ -157,7 +177,15 @@ public class GUIMain extends Application {
 				+ "login to Critter World, you session id is " +
 				myClient.getSessionID() + "\nClick help for tutorial");
 
-		// initialize the default world and draw it on the GUI
+		initializeWorld();
+	}
+	
+	/**
+	 * Request the server to create a new world and update the ClientWorld 
+	 * stored at the client side
+	 * @param myClient
+	 */
+	void initializeWorld() {
 		try {
 			myClient.newWorld("initialworld");
 			WorldState state = 
@@ -172,11 +200,41 @@ public class GUIMain extends Application {
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
 			e.printStackTrace();
-			primaryStage.close();
 		}
 	}
 	
-
+	
+	void refreshGUI() {
+		try {
+			WorldState state = myClient.getStateOfWorld(
+					world.current_version_number, from_col, from_row,
+					to_col, to_row);
+			world.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					world.getHexToUpdate();
+			executeHexUpdate(hexToUpdate.values());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Get the KeyFrame for the timeline which controls the world running speed
+	 * @param stepsPerSecond
+	 * @return
+	 */
+	private KeyFrame getGUIRefreshKeyFrame(int stepsPerSecond) {
+		KeyValue tmp = null;
+		return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
+				"GUI Refresh",
+				new EventHandler<ActionEvent>() {
+			@Override 
+			public void handle(ActionEvent e) {
+				refreshGUI();
+			}
+		}, tmp);
+	}
+	
 
 	/**
 	 * Set onActionListener on items on menu bar
@@ -193,67 +251,87 @@ public class GUIMain extends Application {
 
 		new_menuitems.get(DEFAULT_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
-			// initialize the default world and draw it on the GUI
-			try {
-				world = new ClientWorld(myClient.getStateOfWorld(0, 
-						from_col, from_row, to_col, to_row));
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			drawWorldLayout();
+			initializeWorld();
 		});
 
 		new_menuitems.get(CUSTOM_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
-			// initialize the default world and draw it on the GUI
-			try {
-				world = new ClientWorld(myClient.getStateOfWorld(0, 
-						from_col, from_row, to_col, to_row));
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			drawWorldLayout();
+			initializeWorld();
 		});
+		
+		
+		
+		ObservableList<MenuItem> view_menuitems = 
+				menus.get(VIEW_MENU_IDX).getItems();
+		
+		view_menuitems.get(WHOLE_WORLD_IDX).setOnAction(e -> { 
+			to_col = world.col;
+			to_row = world.row;
+		});
+		
+		view_menuitems.get(SUBSECTION_WORLD_IDX).setOnAction(e -> { 
+			to_col = getAmountInput("Subsection World Dialog", 
+					"Please specify the number of column you want to view.");
+			to_row = getAmountInput("Subsection World Dialog", 
+					"Please specify the number of row you want to view.");
+		});
+		
+		view_menuitems.get(REFRESH_WORLD_IDX).setOnAction(e -> { 
+			refreshGUI();
+		});
+		
+		view_menuitems.get(KEEPUPDATE_WORLD_IDX).setOnAction(e -> { 
+			CheckMenuItem tmp = (CheckMenuItem) 
+					view_menuitems.get(KEEPUPDATE_WORLD_IDX);
+			if (tmp.isSelected())
+				timeline.play();
+			else
+				timeline.stop();
+		});
+		
 
 		ObservableList<MenuItem> modify_menuitems = 
 				menus.get(MODIFY_MENU_IDX).getItems();
 
 		modify_menuitems.get(INSERT_CRITTER_IDX).setOnAction(e -> { 
-			stopSimulating();
 			critterFile = loadFile(primaryStage);
 			insertCritter();
+			refreshGUI();
 		});
 
 		modify_menuitems.get(INSERT_FOOD_IDX).setOnAction(e -> { 
-			stopSimulating();
 			int amount = getAmountInput("Insert Food Dialog", 
 					"Please specify the amount of food you want to insert.");
 			insertFood(amount);
+			refreshGUI();
 		});
 		
 		modify_menuitems.get(INSERT_ROCK_IDX).setOnAction(e -> { 
-			stopSimulating();
 			insertRock();
+			refreshGUI();
 		});
 
 		modify_menuitems.get(RANDOM_CRITTER_IDX).setOnAction(e -> { 
-			stopSimulating();
 			critterFile = loadFile(primaryStage);
 			int amount = getAmountInput("Add Critter Dialog", 
 					"Please specify the number of critters you want to add.");
 			addCritter(amount);
+			refreshGUI();
 		});
 		
 		modify_menuitems.get(DELETE_CRITTER_IDX).setOnAction(e -> { 
-			stopSimulating();
 			deleteCritter();
+			refreshGUI();
 		});
 		
 		ObservableList<MenuItem> simulate_menuitems = 
 				menus.get(SIMULATE_MENU_IDX).getItems();
 		
 		simulate_menuitems.get(SIMULATE_STEP_IDX).setOnAction(e -> { 
-			worldStepAhead();
+			int amount = getAmountInput("World Step Dialog", 
+					"Please specify the number of step you want to process.");
+			worldStepAhead(amount);
+			refreshGUI();
 		});
 		
 		simulate_menuitems.get(SIMULATE_RUN_IDX).setOnAction(e -> { 
@@ -269,14 +347,14 @@ public class GUIMain extends Application {
 			stopSimulating();
 		});
 		
-		ObservableList<MenuItem> inspect_menuitems = 
-				menus.get(INSPECT_MENU_IDX).getItems();
+		ObservableList<MenuItem> more_menuitems = 
+				menus.get(MORE_MENU_IDX).getItems();
 		
-		inspect_menuitems.get(DEAD_CRITTERS_IDX).setOnAction(e -> { 
+		more_menuitems.get(DEAD_CRITTERS_IDX).setOnAction(e -> { 
 			displayDeadCritterInfo();
 		});
 		
-		inspect_menuitems.get(ALL_CRITTERS_IDX).setOnAction(e -> { 
+		more_menuitems.get(ALL_CRITTERS_IDX).setOnAction(e -> { 
 			displayAllCritterInfo();
 		});
 		
@@ -343,13 +421,12 @@ public class GUIMain extends Application {
 
 	/**
 	 * Change the simulation speed 
-	 * @param sliderVal - the current value of slider (1-30)
-	 *        number of frame will be executed in one second 
-	 *        = {@code sliderVal}
+	 * @param speed - the number of frame will be executed in one second 
+	 *        = {@code speed}
 	 */
-	private void changeSimulationSpeed(int sliderVal) {
+	private void changeSimulationSpeed(int speed) {
 		try {
-			myClient.runWorldAtSpeed(sliderVal);
+			myClient.runWorldAtSpeed(speed);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -392,9 +469,9 @@ public class GUIMain extends Application {
 	/**
 	 * Have the underlying world proceed for one turn and update the GUI
 	 */
-	private void worldStepAhead() {
+	private void worldStepAhead(int n) {
 		try {
-			myClient.advanceWorldByStep(1);
+			myClient.advanceWorldByStep(n);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -427,9 +504,8 @@ public class GUIMain extends Application {
 				break;
 			}
 		}
-		printToSimulationPanel("World running at the speed of " + world.rate + 
-				" steps per second. \n" + world.getWorldInfo());
-		printToInfomationPanel("");
+		printToSimulationPanel(world.getWorldInfo());
+		printToConsolePanel("The world has been updated.");
 	}
 	
 	/**
@@ -443,7 +519,14 @@ public class GUIMain extends Application {
 	 * Print information to the information panel
 	 */
 	private void printToInfomationPanel(String info) {
-		critterInfoLabel.setText(info);
+		otherInfoLabel.setText(info);
+	}
+	
+	/**
+	 * Print response of request to the console panel
+	 */
+	private void printToConsolePanel(String info) {
+		consoleInfoLabel.setText(info);
 	}
 
 	/**
@@ -772,9 +855,9 @@ public class GUIMain extends Application {
 			// if so, need to display the critter info
 			ClientElement elem = world.board.get(tmp.getLoc());
 			if (elem != null && elem.type == JsonClasses.CRITTER)
-				critterInfoLabel.setText(elem.toString());
+				otherInfoLabel.setText(elem.toString());
 			else
-				critterInfoLabel.setText("");
+				otherInfoLabel.setText("");
 		}
 	}
 

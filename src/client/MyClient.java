@@ -261,7 +261,6 @@ public class MyClient {
 	/**
 	 * Get the state of whole world
 	 * @param update_since
-	 * @param sessionID
 	 * @return
 	 * @throws IOException
 	 */

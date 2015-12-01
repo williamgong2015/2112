@@ -133,8 +133,15 @@ public class ClientWorld {
 	 */
 	public String getWorldInfo() {
 		ClientWorld tmp = new ClientWorld(this);
-		Gson gson = new Gson();
-		return gson.toJson(tmp, this.getClass());
+		StringBuilder s = new StringBuilder();
+		s.append("Name:         " + tmp.name + "\n");
+		s.append("Population: " + tmp.population + "\n");
+		s.append("Size:           " + tmp.col + " x " + tmp.row + "\n");
+		s.append("Speed:        " + tmp.rate + "\n");
+		s.append("Current Time Step: " + tmp.current_timestep + "\n");
+		s.append("Current Version:   " + tmp.current_version_number + "\n");
+		
+		return s.toString();
 	}
 	
 	/**
