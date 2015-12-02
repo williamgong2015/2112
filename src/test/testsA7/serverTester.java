@@ -12,7 +12,7 @@ import client.element.ClientElement;
 import client.world.ClientPosition;
 
 public class serverTester {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		MyClient client = new MyClient("http://localhost:8080/2112/servlet/servlet.Servlet/");
 //		ClientElement c = new ClientElement(new File("Critter1.txt"));
 //		client.logIn("admin", "admin");

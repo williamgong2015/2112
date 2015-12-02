@@ -2,6 +2,7 @@ package client.element;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import api.JsonClasses;
@@ -28,63 +29,60 @@ public class ClientElement {
 	public int[] mem;
 	public String program;
 	public int recently_executed_rule = -1;
-	
+
 	public final static String SOMETHING = "something";
-	
+
 	/**
 	 * Create a critter with critter file 
 	 * {@code type}, {@code species_id}, {@code mem} and 
 	 * {@code program} will get initialized
 	 * @param file - critter file
+	 * @throws Exception 
 	 */
-	public ClientElement(File file) {
-		try {
-			FileReader f = new FileReader(file);
-			BufferedReader br = new BufferedReader(f);
-			String n = br.readLine();
-			int i = 0;
-			for(;n.charAt(i) != ':';i++);
+	public ClientElement(File file) throws Exception {
+		FileReader f = new FileReader(file);
+		BufferedReader br = new BufferedReader(f);
+		String n = br.readLine();
+		int i = 0;
+		for(;n.charAt(i) != ':';i++);
+		i++;
+		species_id = n.substring(i).trim();
+		String s = br.readLine();
+		i = 0;
+		while(s.charAt(i) > '9' || s.charAt(i) < '0')
 			i++;
-			species_id = n.substring(i).trim();
-			String s = br.readLine();
-			i = 0;
-			while(s.charAt(i) > '9' || s.charAt(i) < '0')
-				i++;
-			int temp = Integer.parseInt(s.substring(i).trim());
-			if(temp < Constant.MIN_MEMORY)
-				temp = Constant.MIN_MEMORY;
-			mem = new int[temp];
-			mem[IDX.MEMLEN] = temp; // memsize
-			for(int j = 1;j < 5;j++) {
-				s = br.readLine();
-				i = 0;
-				while(s.charAt(i) > '9' || s.charAt(i) < '0')
-					i++;
-				temp = Integer.parseInt(s.substring(i).trim());
-				mem[j] = temp;
-			}
-			mem[IDX.PASS] = Constant.INIT_PASS; // pass = 1
+		int temp = Integer.parseInt(s.substring(i).trim());
+		if(temp < Constant.MIN_MEMORY)
+			temp = Constant.MIN_MEMORY;
+		mem = new int[temp];
+		mem[IDX.MEMLEN] = temp; // memsize
+		for(int j = 1;j < 5;j++) {
 			s = br.readLine();
 			i = 0;
 			while(s.charAt(i) > '9' || s.charAt(i) < '0')
 				i++;
 			temp = Integer.parseInt(s.substring(i).trim());
-			mem[IDX.POSTURE] = temp;
-			StringBuilder builder = new StringBuilder();
-			String next = br.readLine();
-			while (next != null) {
-				builder.append(next);
-				builder.append('\n');
-				next = br.readLine();
-			}
-			program = builder.toString();
-			type = "critter";
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+			mem[j] = temp;
 		}
+		mem[IDX.PASS] = Constant.INIT_PASS; // pass = 1
+		s = br.readLine();
+		i = 0;
+		while(s.charAt(i) > '9' || s.charAt(i) < '0')
+			i++;
+		temp = Integer.parseInt(s.substring(i).trim());
+		mem[IDX.POSTURE] = temp;
+		StringBuilder builder = new StringBuilder();
+		String next = br.readLine();
+		while (next != null) {
+			builder.append(next);
+			builder.append('\n');
+			next = br.readLine();
+		}
+		program = builder.toString();
+		type = "critter";
+		br.close();
 	}
-	
+
 	/**
 	 * Create a critter element with a CritterState {@code c}
 	 * @param c
@@ -104,19 +102,19 @@ public class ClientElement {
 			program = c.program;
 			if(c.recently_executed_rule != null)
 				recently_executed_rule = c.recently_executed_rule;
-		break;
-		
+			break;
+
 		case JsonClasses.FOOD :
 			value = c.food_value;
-		break;
-		
+			break;
+
 		}
 	}
 
 	public ClientElement() {
 		type = SOMETHING;
 	}
-	
+
 	/**
 	 * Print the information of this element to the console based on the type 
 	 * of this ClientElement
@@ -135,7 +133,7 @@ public class ClientElement {
 				s.append(mem[i] + ",");
 			s.append(mem[mem.length-1] + "]\n");
 			s.append("Program: \n");
-			
+
 			if (program != null) {
 				String[] tokens = program.split("\n");
 				for (int i = 0; i < tokens.length; ++i)
@@ -145,7 +143,7 @@ public class ClientElement {
 							(recently_executed_rule+1) + ". " +
 							tokens[recently_executed_rule]);
 			}
-			
+
 			break;
 		case JsonClasses.FOOD:
 			s.append("Amount: " + value);

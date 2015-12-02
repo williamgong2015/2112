@@ -27,11 +27,10 @@ public class testCreateCritter {
 	
 	/**
 	 * Test on all level with correct passwords
-	 * @throws SyntaxError 
-	 * @throws IOException 
+	 * @throws Exception 
 	 */
 	@Test
-	public void testCorrect() throws IOException, SyntaxError {
+	public void testCorrect() throws Exception {
 		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
 		MyClient client = new MyClient(url);
 //		assertTrue("ADMIN_LV can't be verified", 

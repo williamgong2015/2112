@@ -102,9 +102,9 @@ public class GUIHex {
 		if (roughY < worldY-1)
 			toCheck.add(new ClientPosition(roughX, roughY-1,
 					worldY, HEX_SIZE));
-		for (ClientPosition p : toCheck) {
-			System.out.println("Checking: (" + p.xPos + "," + p.yPos + ")");
-		}
+//		for (ClientPosition p : toCheck) {
+//			System.out.println("Checking: (" + p.xPos + "," + p.yPos + ")");
+//		}
 		return findClosestPoint(toCheck, x, y);
 	}
 
@@ -128,8 +128,11 @@ public class GUIHex {
 				closestPoint[1] = hexLoc.y;
 			}
 		}
-		System.out.println("closest point index: (" + closestPoint[0] + 
-				"," + closestPoint[1] + ")");
+		// print closest point in Cartesian Coordinate
+		System.out.println("closest point index in Hex Coordinate: (" + 
+			PositionInterpreter.getC(closestPoint[0], closestPoint[1]) + ","
+			+ PositionInterpreter.getR(closestPoint[0], closestPoint[1]) + 
+			")");
 		System.out.println("closest distance: " + closestDistance);
 		return closestPoint;
 	}

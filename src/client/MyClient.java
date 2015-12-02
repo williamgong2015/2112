@@ -43,7 +43,8 @@ public class MyClient {
 	public int logIn(String level, String password) {
 		try {
 			String tmpURL = url + "CritterWorld/" + "login";
-			System.out.println("Client login url: " + tmpURL);
+			if (isDebugging)
+				System.out.println("Client login url: " + tmpURL);
 			URL l = new URL(tmpURL);
 			HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 			connection.setDoOutput(true);
@@ -51,7 +52,8 @@ public class MyClient {
 			connection.setRequestProperty("Content-Type", "application/json");
 			PrintWriter w = new PrintWriter(connection.getOutputStream());
 			String tmp = PackJson.packPassword(level, password);
-			System.out.println("Client request body: " + tmp);
+			if (isDebugging)
+				System.out.println("Client request body: " + tmp);
 			w.println(tmp);
 			w.flush();
 			BufferedReader r = new BufferedReader(new InputStreamReader(
@@ -79,7 +81,8 @@ public class MyClient {
 	public ArrayList<ClientElement> lisAllCritters() throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
-		System.out.println("Client list all critters url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client list all critters url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -98,13 +101,14 @@ public class MyClient {
 	 * @param a
 	 * @param number
 	 * @return
-	 * @throws IOException
+	 * @throws Exception 
 	 */
 	public int createCritter(File critterFile, ArrayList<ClientPosition> a, 
-			int number) throws IOException{
+			int number) throws Exception{
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
-		System.out.println("Client create critter url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client create critter url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -118,7 +122,8 @@ public class MyClient {
 		else
 			tmp = PackJson.packCreateCritter(
 					new ClientElement(critterFile), a);
-		System.out.println("Client request body: " + tmp);
+		if (isDebugging)
+			System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();
 		w.close();
@@ -141,7 +146,8 @@ public class MyClient {
 	public ClientElement retrieveCritter(int id) throws IOException, SyntaxError{
 		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
-		System.out.println("Client retrieve critter url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client retrieve critter url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -166,7 +172,8 @@ public class MyClient {
 			throws IOException{
 		String tmpURL = url + "CritterWorld/" + "world/create_entity?session_id=" + 
 				session_id;
-		System.out.println("Client create food or rock url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client create food or rock url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -175,7 +182,8 @@ public class MyClient {
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
 		String tmp = PackJson.packRockorFood(PositionInterpreter.getR(pos.x, pos.y), 
 				PositionInterpreter.getC(pos.x, pos.y), amount, type);
-		System.out.println("Client request body: " + tmp);
+		if (isDebugging)
+			System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();
 		w.close();
@@ -194,7 +202,8 @@ public class MyClient {
 	public int removeCritter(int id) throws IOException {
 		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
-		System.out.println("Client remove critter url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client remove critter url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -210,7 +219,8 @@ public class MyClient {
 	public int newWorld(String description) throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?session_id=" + 
 				session_id;
-		System.out.println("Client new world url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client new world url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -218,7 +228,8 @@ public class MyClient {
 		connection.setRequestMethod("POST");
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
 		String tmp = PackJson.packNewWorld(description);
-		System.out.println("Client request body: " + tmp);
+		if (isDebugging)
+			System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();
 		w.close();
@@ -244,7 +255,8 @@ public class MyClient {
 			update_since + "&from_row=" + from_row + "&to_row=" + to_row 
 						 + "&from_col=" + from_col + "&to_col=" + to_col
 						 +"&session_id=" + session_id;
-		System.out.println("Client get state of world url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client get state of world url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -268,7 +280,8 @@ public class MyClient {
 			throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since +"&session_id=" + session_id;
-		System.out.println("Client get state of world url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client get state of world url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -315,7 +328,8 @@ public class MyClient {
 	 */
 	public int runWorldAtSpeed(int n) throws IOException {
 		String tmpURL = url + "CritterWorld/" + "run?session_id=" + session_id;
-		System.out.println("Client runWorldAtSpeed url: " + tmpURL);
+		if (isDebugging)
+			System.out.println("Client runWorldAtSpeed url: " + tmpURL);
 		URL l = new URL(tmpURL);
 		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
 		connection.setDoOutput(true);
@@ -323,7 +337,8 @@ public class MyClient {
 		connection.setRequestProperty("Content-Type", "OK" );
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
 		String tmp = PackJson.packAdvanceWorldRate(n);
-		System.out.println("Client request body: " + tmp);
+		if (isDebugging)
+			System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();
 		w.close();

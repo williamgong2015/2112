@@ -619,8 +619,12 @@ public class World {
 				Element e = m.getValue();
 				Position p = m.getKey();
 				if (p.getColumn() >= from_col && p.getColumn() <= to_col &&
-					p.getRow() >= from_row && p.getRow() <= to_row)
+					p.getRow() >= from_row && p.getRow() <= to_row) {
+					System.out.println("Col " + from_col + " - " + to_col);
+					System.out.println("Row " + from_row + " - " + to_row);
+					System.out.println("putting " + p + "into log");
 					result.put(p, e);
+				}
 			}
 		}
 		return result;

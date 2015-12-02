@@ -231,7 +231,6 @@ public class GUIMain extends Application {
 	 */
 	void refreshGUI() {
 		try {
-			System.out.println("refresh GUI");
 			WorldState state = myClient.getStateOfWorld(
 					clientWorld.current_version_number, from_col, from_row,
 					to_col, to_row);
@@ -571,7 +570,9 @@ public class GUIMain extends Application {
 	 * Print information to the simulation panel
 	 */
 	private void printToSimulationPanel(String info) {
-		worldInfoLabel.setText(info);
+		worldInfoLabel.setText(info + "You are looking at:\n" +
+				"Column " + from_col + " - " + to_col + "\n" +
+				"Row      " + from_row + " - " + to_row + "\n");
 	}
 
 	/**
@@ -861,7 +862,7 @@ public class GUIMain extends Application {
 			myClient.createCritter(critterFile, 
 					clientWorld.getListOfEmptyPosition(number), number);
 		} catch (Exception expt) {
-			Alerts.alertSpecifyNumOfCritter();
+			Alerts.alertChooseCritterFile();
 		}
 	}
 

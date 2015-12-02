@@ -59,7 +59,7 @@ public class Servlet extends HttpServlet {
 
 	private Gson gson = new Gson();
 	
-	private final static boolean isDebugging = true;
+	private final static boolean isDebugging = false;
 
 	/**
 	 * Handle DElETE request
