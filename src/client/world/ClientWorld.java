@@ -37,7 +37,8 @@ public class ClientWorld {
 
 	public Hashtable<ClientPosition, ClientElement> board = new Hashtable<>();
 
-	private HashMap<ClientPosition, HexToUpdate> hexToUpdate = new HashMap<>();
+	private Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
+			new Hashtable<>();
 
 	/**
 	 * Create a client side world with a {@code WorldState} object
@@ -170,9 +171,9 @@ public class ClientWorld {
 	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
-	public HashMap<ClientPosition, HexToUpdate> getHexToUpdate() {
-		HashMap<ClientPosition, HexToUpdate> tmp = hexToUpdate;
-		hexToUpdate = new HashMap<>();
+	public Hashtable<ClientPosition, HexToUpdate> getHexToUpdate() {
+		Hashtable<ClientPosition, HexToUpdate> tmp = hexToUpdate;
+		hexToUpdate = new Hashtable<>();
 		return tmp;
 	}
 

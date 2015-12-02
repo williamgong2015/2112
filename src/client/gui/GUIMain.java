@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Optional;
 
 import api.JsonClasses.WorldState;
@@ -119,7 +119,7 @@ public class GUIMain extends Application {
 	private Label consoleInfoLabel;
 	public ClientWorld clientWorld;
 	private GraphicsContext gc;
-	private HashMap<Integer, Color> speciesColor = new HashMap<>();
+	private Hashtable<Integer, Color> speciesColor = new Hashtable<>();
 
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
@@ -221,7 +221,7 @@ public class GUIMain extends Application {
 			to_row = clientWorld.row;
 			drawWorldLayout();
 			clientWorld.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+			Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
 					clientWorld.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
@@ -245,7 +245,7 @@ public class GUIMain extends Application {
 				return;
 			}
 			clientWorld.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+			Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
 					clientWorld.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
@@ -482,7 +482,7 @@ public class GUIMain extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
 				clientWorld.getHexToUpdate();
 		executeHexUpdate(hexToUpdate.values());
 	}

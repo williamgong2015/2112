@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -47,6 +48,10 @@ public class Servlet extends HttpServlet {
 	private static final String WRITER_LV = "write";
 	private static final String READER_LV = "read";
 	private static final int MAX_CAPACITY = 2 ^ 30;
+	
+	// read writer lock for server thread safety
+	private ReentrantReadWriteLock rwLock = 
+			new ReentrantReadWriteLock();
 
 	// the base url of the servlet are goint received
 	private static final String BASE_URL = 

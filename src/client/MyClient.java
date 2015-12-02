@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -254,25 +255,31 @@ public class MyClient {
 	 * @throws IOException
 	 */  
 	public int getStateOfWorld(int update_since, int from_col, 
-			int from_row, int to_col, int to_row, WorldState state) throws IOException{
+			int from_row, int to_col, int to_row, WorldState state) 
+					throws IOException{
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since + "&from_row=" + from_row + "&to_row=" + to_row 
 						 + "&from_col=" + from_col + "&to_col=" + to_col
 						 +"&session_id=" + session_id;
-		if (isDebugging)
-			System.out.println("Client get state of world url: " + tmpURL);
-		URL l = new URL(tmpURL);
-		HttpURLConnection connection = (HttpURLConnection) l.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Content-Type", "application/json");
-		BufferedReader r = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()));
-		if (isDebugging)
-			dumpResponse(r);
-		WorldState s = UnpackJson.unpackWorldState(r);
-		state.copy(s);
-		return connection.getResponseCode();
+		return getStateOfWorldHelper(tmpURL, state);
+	}
+	
+
+	/**
+	 * Get the update of the world since {@code update_sice} from server
+	 * and store it at the Client side without {@code update_since}
+	 * If {@code update_sice} is less than 0, return the entire state of the 
+	 * world. 
+	 * @param from_col, from_row, to_col, to_row: specify the range of world
+	 * @throws IOException
+	 */  
+	public int getStateOfWorld(int from_col, int from_row, int to_col, 
+			int to_row, WorldState state) 
+					throws IOException{
+		String tmpURL = url + "CritterWorld/" + "world?from_row=" + from_row + 
+				"&to_row=" + to_row  + "&from_col=" + from_col + "&to_col=" 
+				+ to_col +"&session_id=" + session_id;
+		return getStateOfWorldHelper(tmpURL, state);
 	}
 	
 	/**
@@ -285,6 +292,30 @@ public class MyClient {
 			throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since +"&session_id=" + session_id;
+		return getStateOfWorldHelper(tmpURL, state);
+	}
+	
+	/**
+	 * Get the state of whole world with out {@code update_since}
+	 * @return
+	 * @throws IOException
+	 */
+	public int getStateOfWorld(WorldState state) 
+			throws IOException {
+		String tmpURL = url + "CritterWorld/" + "world?session_id=" 
+			+ session_id;
+		return getStateOfWorldHelper(tmpURL, state);
+	}
+	
+	/**
+	 * Helper method for getStateOfWorld with and without {@code update_since}
+	 * @param tmpURL
+	 * @param state
+	 * @return
+	 * @throws IOException
+	 */
+	private int getStateOfWorldHelper(String tmpURL, WorldState state) 
+			throws IOException {
 		if (isDebugging)
 			System.out.println("Client get state of world url: " + tmpURL);
 		URL l = new URL(tmpURL);
