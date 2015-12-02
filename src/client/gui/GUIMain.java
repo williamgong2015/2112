@@ -182,8 +182,8 @@ public class GUIMain extends Application {
 			primaryStage.close();
 			return;
 		}
-		int respondCode = myClient.logIn(result.getKey(), result.getValue());
-		while (respondCode == 401) {
+		int statusCode = myClient.logIn(result.getKey(), result.getValue());
+		while (statusCode == 401) {
 			Alerts.alert401Error("Your password or level is incorrect. \n"
 					+ "Level should be one of the 'admin', 'write', 'read'\n"
 					+ "If you forgot password, call 6073799054." );
@@ -192,7 +192,7 @@ public class GUIMain extends Application {
 				primaryStage.close();
 				return;
 			}
-			respondCode = myClient.logIn(result.getKey(), result.getValue());
+			statusCode = myClient.logIn(result.getKey(), result.getValue());
 		}
 		Alerts.alert200Success("Congratulation, you has successfully"
 				+ "login to Critter World, you session id is " +
@@ -210,7 +210,11 @@ public class GUIMain extends Application {
 		try {
 			// get the whole world since version 0
 			WorldState state = new WorldState();
-			int response = myClient.getStateOfWorld(VERSION_ZERO, state);
+			int statusCode = myClient.getStateOfWorld(VERSION_ZERO, state);
+			if (statusCode == 406) {
+				Alerts.alert406Error("Can't get the world");
+				return;
+			}
 			clientWorld = new ClientWorld(state);
 			// for now, will use to_col and to_row to get part of the world
 			to_col = clientWorld.col;
@@ -233,9 +237,13 @@ public class GUIMain extends Application {
 	void refreshGUI() {
 		try {
 			WorldState state = new WorldState();
-			int response = myClient.getStateOfWorld(
+			int statusCode = myClient.getStateOfWorld(
 					clientWorld.current_version_number, from_col, from_row,
 					to_col, to_row, state);
+			if (statusCode == 406) {
+				Alerts.alert406Error("Can't get the world");
+				return;
+			}
 			clientWorld.updateWithWorldState(state);
 			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
 					clientWorld.getHexToUpdate();
@@ -262,7 +270,9 @@ public class GUIMain extends Application {
 		new_menuitems.get(DEFAULT_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
 			try {
-				myClient.newWorld("New Default World");
+				int statusCode = myClient.newWorld("New Default World");
+				if (statusCode == 401)
+					Alerts.alert401Error("You have to be an administrator");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -443,7 +453,11 @@ public class GUIMain extends Application {
 	private void displayAllCritterInfo() {
 		try {
 			ArrayList<ClientElement> critters = new ArrayList<>();
-			int response = myClient.lisAllCritters(critters);
+			int statusCode = myClient.lisAllCritters(critters);
+			if (statusCode == 406) {
+				Alerts.alert406Error("Can't get the world");
+				return;
+			}
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i < critters.size(); ++i) 
 				s.append("Critter " + critters.get(i).id + 
@@ -459,7 +473,12 @@ public class GUIMain extends Application {
 	 */
 	private void stopSimulating() {
 		try {
-			myClient.runWorldAtSpeed(0);
+			int statusCode = myClient.runWorldAtSpeed(0);
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -475,7 +494,12 @@ public class GUIMain extends Application {
 	 */
 	private void changeSimulationSpeed(int speed) {
 		try {
-			myClient.runWorldAtSpeed(speed);
+			int statusCode = myClient.runWorldAtSpeed(speed);
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -531,7 +555,12 @@ public class GUIMain extends Application {
 	 */
 	private void worldStepAhead(int n) {
 		try {
-			myClient.advanceWorldByStep(n);
+			int statusCode = myClient.advanceWorldByStep(n);
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -759,7 +788,13 @@ public class GUIMain extends Application {
 		try {
 			ClientPosition loc = selectedHex.get(0).getLoc();
 			unselectSelectedHex(selectedHex.get(0));
-			myClient.createFoodOrRock(loc, amount, JsonClasses.FOOD);
+			int statusCode = myClient.createFoodOrRock(loc, amount, 
+					JsonClasses.FOOD);
+			if (statusCode == 401) 
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world has not been initialized");
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
@@ -817,7 +852,13 @@ public class GUIMain extends Application {
 		try {
 			ClientPosition loc = selectedHex.get(0).getLoc();
 			unselectSelectedHex(selectedHex.get(0));
-			myClient.createFoodOrRock(loc, 0, JsonClasses.ROCK);
+			int statusCode = myClient.createFoodOrRock(loc, 
+					0, JsonClasses.ROCK);
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer "
+						+ "or an administator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
@@ -845,7 +886,13 @@ public class GUIMain extends Application {
 			return;
 		}
 		try {
-			myClient.removeCritter(clientWorld.board.get(current.loc).id);
+			int statusCode = myClient.removeCritter(
+					clientWorld.board.get(current.loc).id);
+			if (statusCode == 401) 
+				Alerts.alert401Error("You are not the owner of the critter "
+						+ "or an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world has not been initialized");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -861,8 +908,13 @@ public class GUIMain extends Application {
 			return;
 		}
 		try {
-			myClient.createCritter(critterFile, 
+			int statusCode = myClient.createCritter(critterFile, 
 					clientWorld.getListOfEmptyPosition(number), number);
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception expt) {
 			Alerts.alertChooseCritterFile();
 		}
@@ -885,7 +937,13 @@ public class GUIMain extends Application {
 				ClientPosition loc = current.getLoc();
 				tmp.add(loc);
 			}
-			myClient.createCritter(critterFile, tmp, tmp.size());
+			int statusCode = myClient.createCritter(
+					critterFile, tmp, tmp.size());
+			if (statusCode == 401)
+				Alerts.alert401Error("You have to be a writer or "
+						+ "an administrator");
+			else if (statusCode == 406)
+				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception err) {
 			err.printStackTrace();
 			Alerts.alertCritterFileIllegal();

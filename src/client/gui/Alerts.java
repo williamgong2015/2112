@@ -125,26 +125,6 @@ public class Alerts {
 	}
 
 	/**
-	 * Display 401 error message to the user
-	 */
-	public static void alert401Error(String content) {
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setHeaderText("Unauthorized Error 401");
-		alert.setContentText(content);
-		alert.showAndWait();
-	}
-
-	/**
-	 * Display 200 success message to the user
-	 */
-	public static void alert200Success(String content) {
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setHeaderText("Success 200");
-		alert.setContentText(content);
-		alert.showAndWait();
-	}
-
-	/**
 	 * Show alert to notify user that only one hex can be selected to insert
 	 * food and rock
 	 * 
@@ -182,6 +162,56 @@ public class Alerts {
 		alert.setHeaderText("Input Out of Bound ");
 		String s = "Should be " + lowerBound + " - " + upperBound;
 		alert.setContentText(s);
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 401 error message to the user
+	 */
+	public static void alert401Error(String content) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("401 - Unauthorized Error");
+		alert.setContentText(content);
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 406 error message to the user
+	 */
+	public static void alert406Error(String content) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("406 - Not Acceptable ");
+		alert.setContentText(content);
+		alert.showAndWait();
+	}
+
+	/**
+	 * Display 200 OK message to the user
+	 */
+	public static void alert200Success(String content) {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("200 - OK");
+		alert.setContentText(content);
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 201 Created message to the user
+	 */
+	public static void alert201Success(String content) {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("201 - Created");
+		alert.setContentText(content);
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Display 204 No Content message to the user
+	 */
+	public static void alert204Success(String content) {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setHeaderText("204 - No Content");
+		alert.setContentText(content);
 		alert.showAndWait();
 	}
 }
