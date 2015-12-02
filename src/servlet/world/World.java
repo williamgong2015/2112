@@ -618,8 +618,13 @@ public class World {
 			for(Map.Entry<Position, Element> m : set) {
 				Element e = m.getValue();
 				Position p = m.getKey();
-				if (p.getColumn() >= from_col && p.getColumn() <= to_col &&
-					p.getRow() >= from_row && p.getRow() <= to_row) {
+				int x = PositionInterpreter.getX(p.getColumn(), p.getRow());
+				int y = PositionInterpreter.getY(p.getColumn(), p.getRow());
+				int from_x = PositionInterpreter.getX(from_col, from_row);
+				int from_y = PositionInterpreter.getY(from_col, from_row);
+				int to_x = PositionInterpreter.getX(to_col, to_row);
+				int to_y = PositionInterpreter.getY(to_col, to_row);
+				if (x <= to_x && x >= from_x && y <= to_y && y >= from_y) {
 					System.out.println("Col " + from_col + " - " + to_col);
 					System.out.println("Row " + from_row + " - " + to_row);
 					System.out.println("putting " + p + "into log");
