@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import api.PackJson;
 import api.PositionInterpreter;
@@ -92,7 +93,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		list =  UnpackJson.unpackListOfCritters(r);
+		ArrayList<ClientElement> li =  UnpackJson.unpackListOfCritters(r);
+		list.addAll(li);
 		return connection.getResponseCode(); 
 	}
 	
@@ -268,7 +270,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		state = UnpackJson.unpackWorldState(r);
+		WorldState s = UnpackJson.unpackWorldState(r);
+		state.copy(s);
 		return connection.getResponseCode();
 	}
 	
@@ -293,7 +296,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		state = UnpackJson.unpackWorldState(r);
+		WorldState s = UnpackJson.unpackWorldState(r);
+		state.copy(s);
 		return connection.getResponseCode();
 	}
 	

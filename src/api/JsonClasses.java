@@ -213,6 +213,19 @@ public class JsonClasses {
 		public int col;
 		public Integer[] dead_critters;
 		public State[] state;
+		
+		public void copy(WorldState s) {
+			current_version_number = s.current_version_number;
+			current_timestep = s.current_timestep;
+			update_since = s.update_since;
+			rate = s.rate;
+			name = s.name;
+			population = s.population;
+			row = s.row;
+			col = s.col;
+			dead_critters = s.dead_critters;
+			state = s.state;
+		}
 	}
 	
 	/**
