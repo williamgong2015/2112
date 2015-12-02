@@ -149,4 +149,17 @@ public class ClientPosition {
 	public String toString() {
 		return "(" + x + "," + y + ")";
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ClientPosition))
+			return false;
+		ClientPosition tmp = (ClientPosition) obj;
+		return tmp.x == this.x && tmp.y == this.y;
+	}
+	
+	@Override
+	public int hashCode() {
+		return 2187 * this.x + this.y;
+	}
 }

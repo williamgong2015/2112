@@ -114,5 +114,42 @@ public class ClientElement {
 	public ClientElement() {
 		type = SOMETHING;
 	}
+	
+	/**
+	 * Print the information of this element to the console based on the type 
+	 * of this ClientElement
+	 */
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("Type: " + type + "\t");
+		s.append("Position: (" + col + "," + row + ")\n");
+		switch(type) {
+		case JsonClasses.CRITTER:
+			s.append("Name: " + species_id + "\n");
+			s.append("ID: " + id + "\n");
+			s.append("Memory: [");
+			for (int i = 0; i < mem.length-1; ++i) 
+				s.append(mem[i] + ",");
+			s.append(mem[mem.length-1] + "]\n");
+			s.append("Program: \n");
+			
+			if (program != null) {
+				String[] tokens = program.split("\n");
+				for (int i = 0; i < tokens.length; ++i)
+					s.append("  " + (i+1) + ". " + tokens[i] + "\n");
+				if (recently_executed_rule != -1)
+					s.append("recently_executed_rule: \n  " + 
+							(recently_executed_rule+1) + ". " +
+							tokens[recently_executed_rule]);
+			}
+			
+			break;
+		case JsonClasses.FOOD:
+			s.append("Amount: " + value);
+			break;
+		}
+		return s.toString();
+	}
 
 }

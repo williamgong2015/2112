@@ -3,6 +3,8 @@ package client.world;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -70,8 +72,52 @@ public class ClientWorld {
 	}
 	
 	/**
-	 * Update this {@code ClientWorld} object with the information in w
-	 * store the elements need to be drawn on the GUI in 
+	 * Return a map contains all the {@code hexToUpdate} necessary to draw the 
+	 * current {@code clientWorld}
+	 * @return
+	 */
+	public HashMap<ClientPosition, HexToUpdate> 
+		getHexToUpdateBasedOnCurrentClientWorld() {
+		
+		HashMap<ClientPosition, HexToUpdate> result = new HashMap<>();
+		Set<Map.Entry<ClientPosition, ClientElement>> pairs = board.entrySet();
+		
+		for (Map.Entry<ClientPosition, ClientElement> pair : pairs) {
+			ClientPosition pos = pair.getKey();
+			ClientElement s = pair.getValue();
+			switch (s.type) {
+			case JsonClasses.CRITTER:
+				result.put(pos,  new HexToUpdate(HEXType.CRITTER, pos, 
+						s.direction, s.mem[IDX.SIZE], 
+						s.mem[IDX.POSTURE]));
+				break;
+			case JsonClasses.FOOD:
+				result.put(pos,  new HexToUpdate(HEXType.FOOD, pos, 
+						0, 0, 0));
+				break;
+			case JsonClasses.ROCK:
+				result.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
+						0, 0, 0));
+				break;
+			case JsonClasses.NOTHING:
+				result.put(pos,  new HexToUpdate(HEXType.EMPTY, pos, 
+						0, 0, 0));
+				break;
+			default: 
+				System.out.println("can't resolve type get from world states: "
+						+ s.type);
+				break;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Update this {@code ClientWorld} object with the information in {@code w}, 
+	 * which contains all the states need to update since the last 
+	 * {@code version_number}.
+	 * 
+	 * Store the things need to updates into {@code} hexToUpdate
 	 * @param w
 	 */
 	public void updateWithWorldState(WorldState w) {
@@ -86,27 +132,28 @@ public class ClientWorld {
 		for (int i = 0; i < w.dead_critters.length; ++i)
 			dead_critters.add(w.dead_critters[i]);
 		
+		
 		for (State s : w.state) {
 			ClientPosition pos = 
 					new ClientPosition(s.col, s.row, w.row, w.col, GUIHex.HEX_SIZE);
 			switch (s.getType()) {
-			case "critter":
+			case JsonClasses.CRITTER:
 				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.CRITTER, pos, 
 						s.direction, s.mem[IDX.SIZE], 
 						s.mem[IDX.POSTURE]));
 				break;
-			case "food":
+			case JsonClasses.FOOD:
 				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.FOOD, pos, 
 						0, 0, 0));
 				break;
-			case "rock":
+			case JsonClasses.ROCK:
 				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
 						0, 0, 0));
 				break;
-			case "nothing":
+			case JsonClasses.NOTHING:
 				board.put(pos, new ClientElement(s));
 				hexToUpdate.put(pos,  new HexToUpdate(HEXType.EMPTY, pos, 
 						0, 0, 0));

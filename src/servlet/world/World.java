@@ -73,16 +73,13 @@ public class World {
 	
 	// stepup a timeline to trigger the world to step another step 
 	public Timeline timeline = new Timeline();
-	private int intialStepsPerSecond = 1;
+	private final static int MINIMUM_SPEED_IS_ONE = 1;
 	
 	// - if the speed <= 30, each cycle lapse the world, draw the world, 
 	//   so counterWorldLapse = counterWorldDraw
 	// - if the speed > 30, each cycle lapse the world but 
 	//   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
 	//   and have counterWorldDraw++ after drawing the world
-	private volatile int speed;
-	private volatile int counterWorldLapse;
-	private volatile int counterWorldDraw;
 
 	
 	/**
@@ -115,6 +112,7 @@ public class World {
 		name = n;
 		turns = 0;
 		logs.add(new Log());
+		setupTimeline();
 	}
 
 	/**
@@ -139,6 +137,7 @@ public class World {
 		name = "Default World";
 		// create a new log when the world is created
 		logs.add(new Log());
+		setupTimeline();
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
 				i++) {
@@ -174,6 +173,7 @@ public class World {
 			world.logs = new ArrayList<>();
 			// create a new log when the world is created
 			world.logs.add(new Log());
+			world.setupTimeline();
 			while((s = br.readLine()) != null) {
 				if(s.startsWith("//"))
 					continue;
@@ -242,7 +242,9 @@ public class World {
 		// recounts cycle count every time it plays again
 		tmp.setAutoReverse(false);  
 		tmp.getKeyFrames().add(
-				getWorldSimulationKeyFrame(intialStepsPerSecond));
+				new KeyFrame(Duration.millis(1000/MINIMUM_SPEED_IS_ONE), 
+						event -> lapse()));
+		rate = MINIMUM_SPEED_IS_ONE;
 		return tmp;
 	}
 	
@@ -252,55 +254,20 @@ public class World {
 	 * @param rate
 	 */
 	public void changeSimulationSpeed(int rate) {
-		boolean wasRunning = false;
-		if (timeline.statusProperty().get() == Status.RUNNING)
-			wasRunning = true;
-		timeline.stop();
-		timeline.getKeyFrames().setAll(
-				getWorldSimulationKeyFrame(rate)
-				);
-		if (wasRunning)
-			timeline.play();
 		this.rate = rate;
-	}
-	
-	/**
-	 * Get the KeyFrame for the timeline which controls the world running speed
-	 * @param stepsPerSecond
-	 * @return
-	 */
-	private KeyFrame getWorldSimulationKeyFrame(int stepsPerSecond) {
-		speed = stepsPerSecond;
-		counterWorldLapse = 0;
-		counterWorldDraw = 0;
-		KeyValue tmp = null;
-		return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
-				"world lapse",
-				new EventHandler<ActionEvent>() {
-			@Override 
-			public void handle(ActionEvent e) {
-				worldRunAhead();
-			}
-		}, tmp);
-	}
-	
-	/**
-	 * Have the underlying world proceed for one turn and update the GUI
-	 * with a maximum speed limitation of 30
-	 */
-	private void worldRunAhead() {
-		// no need to bother with the counter if speed <= 30
-		// because always lapse and draw the world at the same time
-		if (speed <= 30) {
-			lapse();
+		if (rate <= 0) {
+			timeline.stop();
 			return;
 		}
-		// detect overflow, lose a little precision of interval here
-		if (counterWorldLapse == Integer.MAX_VALUE) {
-			counterWorldLapse = 0;
-			counterWorldDraw = 0;
-		}
-		lapse();
+//		boolean wasRunning = false;
+//		if (timeline.statusProperty().get() == Status.RUNNING)
+//			wasRunning = true;
+//		timeline.stop();
+		timeline.getKeyFrames().setAll(
+				new KeyFrame(Duration.millis(1000/rate), 
+						event -> lapse())
+		);
+		timeline.play();
 	}
 	
 	public int getSimulationRate() {

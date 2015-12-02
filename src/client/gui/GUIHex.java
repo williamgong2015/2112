@@ -73,34 +73,38 @@ public class GUIHex {
 		if (x < 0 || y < 0)
 			return new int[] {-1, -1};
 		// roughly compute column and row index
+		int worldX = PositionInterpreter.getX(worldCol, worldRow);
+		int worldY = PositionInterpreter.getY(worldCol, worldRow);
 		int roughX = (int) (x*2/3/HEX_SIZE);
-		int roughY =  PositionInterpreter.getY(worldRow, worldCol) 
-				- (int) (y*2/SQRT_THREE/HEX_SIZE);
-		int roughCol = PositionInterpreter.getC(roughX, roughY);
-		int roughRow = PositionInterpreter.getR(roughX, roughY);
+		int roughY =  worldY - (int) (y*2/SQRT_THREE/HEX_SIZE);
+//		int roughCol = PositionInterpreter.getC(roughX, roughY);
+//		int roughRow = PositionInterpreter.getR(roughX, roughY);
 		// the {roughCol, roughRow} NewHex and all six NewHex if exists
 		// surrounding it could be the NewHex we are looking for
 		ArrayList<ClientPosition> toCheck = new ArrayList<>();
-		toCheck.add(new ClientPosition(roughCol, roughRow, 
-				worldRow, worldCol, HEX_SIZE));
-		if (roughCol > 0 && roughRow < worldRow-1) // has top left hex
-			toCheck.add(new ClientPosition(roughCol-1, roughRow+1,
-					worldRow, worldCol, HEX_SIZE));
-		if (roughCol > 0 && roughRow > 0) // has bottom left hex
-			toCheck.add(new ClientPosition(roughCol-1, roughRow-1,
-					worldRow, worldCol, HEX_SIZE));
-		if (roughRow > 1) // has bottom hex
-			toCheck.add(new ClientPosition(roughCol, roughRow-1, 
-					worldRow, worldCol, HEX_SIZE));
-		if (roughCol < worldCol-1 && roughRow > 0) // has bottom right
-			toCheck.add(new ClientPosition(roughCol+1, roughRow-1,
-					worldRow, worldCol, HEX_SIZE));
-		if (roughCol < worldCol-1 && roughRow < worldRow-1) // top right
-			toCheck.add(new ClientPosition(roughCol+1, roughRow+1,
-					worldRow, worldCol, HEX_SIZE));
-		if (roughRow < worldRow-1)
-			toCheck.add(new ClientPosition(roughCol, roughRow-1,
-					worldRow, worldCol, HEX_SIZE));
+		toCheck.add(new ClientPosition(roughX, roughY, 
+				worldY, HEX_SIZE));
+		if (roughX > 0 && roughY < worldY-1) // has top left hex
+			toCheck.add(new ClientPosition(roughX-1, roughY+1,
+					worldY, HEX_SIZE));
+		if (roughX > 0 && roughY > 0) // has bottom left hex
+			toCheck.add(new ClientPosition(roughX-1, roughY-1,
+					worldY, HEX_SIZE));
+		if (roughY > 1) // has bottom hex
+			toCheck.add(new ClientPosition(roughX, roughY-1, 
+					worldY, HEX_SIZE));
+		if (roughX < worldX-1 && roughY > 0) // has bottom right
+			toCheck.add(new ClientPosition(roughX+1, roughY-1,
+					worldY, HEX_SIZE));
+		if (roughX < worldX-1 && roughY < worldY-1) // top right
+			toCheck.add(new ClientPosition(roughX+1, roughY+1,
+					worldY, HEX_SIZE));
+		if (roughY < worldY-1)
+			toCheck.add(new ClientPosition(roughX, roughY-1,
+					worldY, HEX_SIZE));
+		for (ClientPosition p : toCheck) {
+			System.out.println("Checking: (" + p.xPos + "," + p.yPos + ")");
+		}
 		return findClosestPoint(toCheck, x, y);
 	}
 
@@ -124,6 +128,9 @@ public class GUIHex {
 				closestPoint[1] = hexLoc.y;
 			}
 		}
+		System.out.println("closest point index: (" + closestPoint[0] + 
+				"," + closestPoint[1] + ")");
+		System.out.println("closest distance: " + closestDistance);
 		return closestPoint;
 	}
 	

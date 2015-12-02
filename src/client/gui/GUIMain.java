@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
-import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
 import api.PositionInterpreter;
 import api.JsonClasses;
@@ -18,15 +17,11 @@ import client.world.ClientPosition;
 import client.world.ClientWorld;
 import client.world.HexToUpdate;
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.Animation.Status;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -101,6 +96,8 @@ public class GUIMain extends Application {
 	private final static int HELP_MENU_IDX = 5;
 	private final static int HOW_USE_IDX = 0;
 	private final static int ABOUT_IDX = 1;
+	
+	private final static int VERSION_ZERO = 0;
 
 	private File critterFile = null;  // path to critter file
 	private GUIHex current = null; // current selected hex
@@ -109,7 +106,7 @@ public class GUIMain extends Application {
 	private Label worldInfoLabel;
 	private Label otherInfoLabel; 
 	private Label consoleInfoLabel;
-	public ClientWorld world;
+	public ClientWorld clientWorld;
 	private GraphicsContext gc;
 	private HashMap<Integer, Color> speciesColor = new HashMap<>();
 
@@ -127,7 +124,7 @@ public class GUIMain extends Application {
 	private int to_col;
 	private int to_row;
 
-	public Timeline timeline = new Timeline();
+	private Timeline refreshTimeline;
 	
 
 	@Override
@@ -156,9 +153,14 @@ public class GUIMain extends Application {
 		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
 		myClient = new MyClient(url);
 		
-		timeline.getKeyFrames().setAll(
-				getGUIRefreshKeyFrame(REFRESH_SPEED)
-				);
+		refreshTimeline = new Timeline();
+        refreshTimeline.setCycleCount(Integer.MAX_VALUE);
+        // recounts cycle count every time it plays again
+        refreshTimeline.setAutoReverse(false);  
+		refreshTimeline.getKeyFrames().setAll(
+				new KeyFrame(Duration.millis(1000/REFRESH_SPEED), 
+						event -> refreshGUI())
+		);
 		
 		// initialize menu bar
 		initializeMenuBar(primaryStage);
@@ -187,31 +189,16 @@ public class GUIMain extends Application {
 	 */
 	void initializeWorld() {
 		try {
-			myClient.newWorld("initialworld");
-			WorldState state = 
-					myClient.getStateOfWorld(0);
-			world = new ClientWorld(state);
-			to_col = world.col;
-			to_row = world.row;
+			// get the whole world since version 0
+			WorldState state = myClient.getStateOfWorld(VERSION_ZERO);
+			clientWorld = new ClientWorld(state);
+			// for now, will use to_col and to_row to get part of the world
+			to_col = clientWorld.col;
+			to_row = clientWorld.row;
 			drawWorldLayout();
-			world.updateWithWorldState(state);
+			clientWorld.updateWithWorldState(state);
 			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	void refreshGUI() {
-		try {
-			WorldState state = myClient.getStateOfWorld(
-					world.current_version_number, from_col, from_row,
-					to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
+					clientWorld.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -219,20 +206,23 @@ public class GUIMain extends Application {
 	}
 	
 	/**
-	 * Get the KeyFrame for the timeline which controls the world running speed
-	 * @param stepsPerSecond
-	 * @return
+	 * Update the Information of the world stored in {@code clientWorld}
+	 * 
+	 * Update the GUI with {@code hexToUpdate}
 	 */
-	private KeyFrame getGUIRefreshKeyFrame(int stepsPerSecond) {
-		KeyValue tmp = null;
-		return new KeyFrame(Duration.seconds(1 / stepsPerSecond), 
-				"GUI Refresh",
-				new EventHandler<ActionEvent>() {
-			@Override 
-			public void handle(ActionEvent e) {
-				refreshGUI();
-			}
-		}, tmp);
+	void refreshGUI() {
+		try {
+			System.out.println("refresh GUI");
+			WorldState state = myClient.getStateOfWorld(
+					clientWorld.current_version_number, from_col, from_row,
+					to_col, to_row);
+			clientWorld.updateWithWorldState(state);
+			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
+					clientWorld.getHexToUpdate();
+			executeHexUpdate(hexToUpdate.values());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 
@@ -259,14 +249,13 @@ public class GUIMain extends Application {
 			initializeWorld();
 		});
 		
-		
-		
+
 		ObservableList<MenuItem> view_menuitems = 
 				menus.get(VIEW_MENU_IDX).getItems();
 		
 		view_menuitems.get(WHOLE_WORLD_IDX).setOnAction(e -> { 
-			to_col = world.col;
-			to_row = world.row;
+			to_col = clientWorld.col;
+			to_row = clientWorld.row;
 		});
 		
 		view_menuitems.get(SUBSECTION_WORLD_IDX).setOnAction(e -> { 
@@ -283,10 +272,12 @@ public class GUIMain extends Application {
 		view_menuitems.get(KEEPUPDATE_WORLD_IDX).setOnAction(e -> { 
 			CheckMenuItem tmp = (CheckMenuItem) 
 					view_menuitems.get(KEEPUPDATE_WORLD_IDX);
-			if (tmp.isSelected())
-				timeline.play();
+			if (tmp.isSelected()) {
+				System.out.println("timeline should play");
+				refreshTimeline.play();
+			}
 			else
-				timeline.stop();
+				refreshTimeline.stop();
 		});
 		
 
@@ -369,7 +360,6 @@ public class GUIMain extends Application {
 			Alerts.alertDisplayAbout(); 
 		});
 
-
 	}
 
 	public static void main(String[] args) {
@@ -381,7 +371,7 @@ public class GUIMain extends Application {
 	 * information panel
 	 */
 	private void displayDeadCritterInfo() {
-		ArrayList<Integer> critters = world.dead_critters;
+		ArrayList<Integer> critters = clientWorld.dead_critters;
 		StringBuilder s = new StringBuilder();
 		s.append("the dead critters id are: \n");
 		for (Integer critter : critters) 
@@ -415,7 +405,7 @@ public class GUIMain extends Application {
 			e.printStackTrace();
 		}
 		HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-				world.getHexToUpdate();
+				clientWorld.getHexToUpdate();
 		executeHexUpdate(hexToUpdate.values());
 	}
 
@@ -434,28 +424,37 @@ public class GUIMain extends Application {
 
 
 	/**
-	 * Draw all the hex into the canvas
+	 * Draw the world and all the hex into the canvas
+	 * the size of the world is bounded by {@code from_col}, {@code from_row}. 
+	 * {@code to_col}, {@code to_row} and {@code clientWorld.col} 
+	 * {@code clientWorld.row}
+	 * 
+	 * No element will be drawn with this method. 
 	 */
 	private void drawWorldLayout() {
-		int worldRow = world.row;
-		int worldCol = world.col;
+		int worldY = PositionInterpreter.getY(clientWorld.col, clientWorld.row);
+		int worldX = PositionInterpreter.getX(clientWorld.col, clientWorld.row);
+		int from_x = PositionInterpreter.getX(from_col, from_row);
+		int from_y = PositionInterpreter.getY(from_col, from_row);
+		int to_x = PositionInterpreter.getX(to_col, to_row);
+		int to_y = PositionInterpreter.getY(to_col, to_row);
 		worldPane.getChildren().clear();
 		final Canvas canvas = 
-				new Canvas(worldCol*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
-						(worldRow+1)*GUIHex.HEX_SIZE*GUIHex.SQRT_THREE/2);
+				new Canvas(worldX*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
+						(worldY+1)*GUIHex.HEX_SIZE*GUIHex.SQRT_THREE/2);
 		gc = canvas.getGraphicsContext2D();
 
 		gc.setFill(Color.WHITE);
-		gc.fillRect(0, 0, worldCol*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
-				(worldRow+1)*GUIHex.HEX_SIZE*GUIHex.SQRT_THREE/2);
+		gc.fillRect(0, 0, worldX*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
+				(worldY+1)*GUIHex.HEX_SIZE*GUIHex.SQRT_THREE/2);
 
 		gc.setStroke(DEFAULT_STROCK_COLOR);
 		GUIHex poly;
-		for (int i = 0; i < worldRow; ++i) {
-			for (int j = 0; j < worldCol; ++j) {
+		for (int i = Math.max(from_y, 0); i < Math.min(to_y, worldY); ++i) {
+			for (int j = Math.max(from_x, 0); j < Math.min(to_x, worldX); ++j) {
 				if (i % 2 != j % 2)
 					continue;
-				poly = new GUIHex(j, i, worldRow);
+				poly = new GUIHex(j, i, worldY);
 				gc.setFill(Color.WHITE);
 				gc.strokePolyline(poly.xPoints, poly.yPoints, 
 						GUIHex.POINTSNUMBER+1);
@@ -504,8 +503,8 @@ public class GUIMain extends Application {
 				break;
 			}
 		}
-		printToSimulationPanel(world.getWorldInfo());
-		printToConsolePanel("The world has been updated.");
+		printToSimulationPanel(clientWorld.getWorldInfo());
+		appendToConsolePanel("The world has been updated.");
 	}
 	
 	/**
@@ -525,8 +524,8 @@ public class GUIMain extends Application {
 	/**
 	 * Print response of request to the console panel
 	 */
-	private void printToConsolePanel(String info) {
-		consoleInfoLabel.setText(info);
+	private void appendToConsolePanel(String info) {
+		consoleInfoLabel.setText(consoleInfoLabel.getText() + "\n" + info);
 	}
 
 	/**
@@ -538,7 +537,7 @@ public class GUIMain extends Application {
 	 */
 	private void drawEmptyAt(GraphicsContext gc, ClientPosition loc) {
 		GUIHex tmp = new GUIHex(loc.x, loc.y, 
-				PositionInterpreter.getY(world.col, world.row));
+				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(Color.WHITE);
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -556,7 +555,7 @@ public class GUIMain extends Application {
 	 */
 	private void drawRockAt(GraphicsContext gc, ClientPosition loc) {
 		GUIHex tmp = new GUIHex(loc.x, loc.y, 
-				PositionInterpreter.getY(world.col, world.row));
+				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(new ImagePattern(Resource.rockImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -575,7 +574,7 @@ public class GUIMain extends Application {
 	private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
 		System.out.println("draw food");
 		GUIHex tmp = new GUIHex(loc.x, loc.y,
-				PositionInterpreter.getY(world.col, world.row));
+				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(new ImagePattern(Resource.foodImg));
 		gc.fillPolygon(tmp.xPoints, tmp.yPoints, 
 				GUIHex.POINTSNUMBER+1);
@@ -595,7 +594,7 @@ public class GUIMain extends Application {
 	private void drawCritterAt(GraphicsContext gc, ClientPosition loc, 
 			int dir, int size, int species) {
 		GUIHex tmp = new GUIHex(loc.x, loc.y,
-				PositionInterpreter.getY(world.col, world.row));
+				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		double radio = getRadio(size);
 
 		// body
@@ -692,13 +691,6 @@ public class GUIMain extends Application {
 		try {
 			ClientPosition loc = current.getLoc();
 			myClient.createFoodOrRock(loc, amount, JsonClasses.FOOD);
-			WorldState state = 
-					myClient.getStateOfWorld(world.current_version_number, 
-							from_col, from_row, to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
@@ -717,13 +709,6 @@ public class GUIMain extends Application {
 		try {
 			ClientPosition loc = current.getLoc();
 			myClient.createFoodOrRock(loc, 0, JsonClasses.ROCK);
-			WorldState state = 
-					myClient.getStateOfWorld(world.current_version_number, 
-							from_col, from_row, to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
@@ -737,20 +722,13 @@ public class GUIMain extends Application {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}
-		if (world.board.get(current.loc) == null ||
-				world.board.get(current.loc).type != JsonClasses.CRITTER) {
+		if (clientWorld.board.get(current.loc) == null ||
+				clientWorld.board.get(current.loc).type != JsonClasses.CRITTER) {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}
 		try {
-			myClient.removeCritter(world.board.get(current.loc).id);
-			WorldState state = 
-					myClient.getStateOfWorld(world.current_version_number, 
-							from_col, from_row, to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
+			myClient.removeCritter(clientWorld.board.get(current.loc).id);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -767,14 +745,7 @@ public class GUIMain extends Application {
 		}
 		try {
 			myClient.createCritter(critterFile, 
-					world.getListOfEmptyPosition(number), number);
-			WorldState state = 
-					myClient.getStateOfWorld(world.current_version_number, 
-							from_col, from_row, to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
+					clientWorld.getListOfEmptyPosition(number), number);
 		} catch (Exception expt) {
 			Alerts.alertSpecifyNumOfCritter();
 		}
@@ -794,13 +765,6 @@ public class GUIMain extends Application {
 			ArrayList<ClientPosition> tmp = new ArrayList<>();
 			tmp.add(loc);
 			myClient.createCritter(critterFile, tmp, 1);
-			WorldState state = 
-					myClient.getStateOfWorld(world.current_version_number, 
-							from_col, from_row, to_col, to_row);
-			world.updateWithWorldState(state);
-			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
-					world.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
 		} catch (Exception err) {
 			err.printStackTrace();
 			Alerts.alertCritterFileIllegal();
@@ -825,15 +789,18 @@ public class GUIMain extends Application {
 		public void handle(MouseEvent event) {
 			double x = event.getX();
 			double y = event.getY();
+			System.out.println("you clicked (" + x + "," + y + ")");
 			int[] nearestHexIndex = 
-					GUIHex.classifyPoint(x, y, world.row, world.col);
+					GUIHex.classifyPoint(x, y, clientWorld.row, clientWorld.col);
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
-			GUIHex tmp = new GUIHex(nearestHexIndex[0],
-					nearestHexIndex[1], world.row);
+			GUIHex tmp = new GUIHex(nearestHexIndex[0], nearestHexIndex[1], 
+					PositionInterpreter.getY(clientWorld.col, clientWorld.row));
+			System.out.println("closest point: (" + tmp.loc.xPos + 
+					"," + tmp.loc.yPos + ")");
 			// un-select click
-			if (tmp == current) {
+			if (current != null && tmp != null && tmp.loc.equals(current.loc)) {
 				current = null;
 				gc.setStroke(DEFAULT_STROCK_COLOR);
 				gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
@@ -853,9 +820,11 @@ public class GUIMain extends Application {
 			}
 			// check if there is a critter in the selected hex,
 			// if so, need to display the critter info
-			ClientElement elem = world.board.get(tmp.getLoc());
-			if (elem != null && elem.type == JsonClasses.CRITTER)
+			ClientElement elem = clientWorld.board.get(tmp.getLoc());
+			if (elem != null) {
+				System.out.println("should print");
 				otherInfoLabel.setText(elem.toString());
+			}
 			else
 				otherInfoLabel.setText("");
 		}
