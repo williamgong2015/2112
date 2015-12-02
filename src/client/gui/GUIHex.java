@@ -190,5 +190,16 @@ public class GUIHex {
 	public String toString() {
 		return "centroid at: " + centroid;
 	}
+	
+	/**
+	 * If two hex has the same location, they are consider to be equaled
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof GUIHex))
+			return false;
+		GUIHex tmp = (GUIHex) obj;
+		return this.loc.equals(tmp.loc);
+	}
 
 }

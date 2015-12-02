@@ -1,14 +1,17 @@
 package client.gui;
 
+import java.util.Optional;
+
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 /**
  * A bunch of alerts used in GUI to help user using this application.  
  *
  */
 public class Alerts {
-	
+
 	/**
 	 * Welcome the user and tell user some basic information
 	 */
@@ -19,8 +22,8 @@ public class Alerts {
 				+ "Click help button for more information.";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-	
+	}
+
 	/**
 	 * Ask user to create a new world
 	 */
@@ -31,57 +34,57 @@ public class Alerts {
 		alert.setContentText(s);
 		alert.showAndWait();
 	}
-	
+
 	/**
-     * Show an alert to notice user specify the number of critter to add
-     */
-    public static void alertSpecifyNumOfCritter() {
+	 * Show an alert to notice user specify the number of critter to add
+	 */
+	public static void alertSpecifyNumOfCritter() {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("Hasn't specify number of "
 				+ "critter to add");
 		String s ="Please enter a positive number";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-	
-    /**
-     * Show an alert to notice user choose a critter file
-     */
-    public static void alertChooseCritterFile() {
+	}
+
+	/**
+	 * Show an alert to notice user choose a critter file
+	 */
+	public static void alertChooseCritterFile() {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("Hasn't specify a critter file");
 		String s = "Please choose a critter file use "
 				+ "Load Critter button";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-    
-    /**
-     * Show an alert to notice user the critter file is illegal
-     */
-    public static void alertCritterFileIllegal() {
+	}
+
+	/**
+	 * Show an alert to notice user the critter file is illegal
+	 */
+	public static void alertCritterFileIllegal() {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("The critter file has illegal syntax");
 		String s ="Please load an legal critter file";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-    
-    /**
-     * Show an alert to notice user select a hex to insert critter
-     */
-    public static void alertSelectHexToInsert() {
+	}
+
+	/**
+	 * Show an alert to notice user select a hex to insert critter
+	 */
+	public static void alertSelectHexToInsert() {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("Hasn't select a legal hex to insert");
 		String s ="Please select an empty hex to insert";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-    
-    /**
-     * Display instruction of how to use this app after user click help button
-     */
-    public static void alertDisplayHelpInfo() {
+	}
+
+	/**
+	 * Display instruction of how to use this app after user click help button
+	 */
+	public static void alertDisplayHelpInfo() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setHeaderText("Welcome to the Critter World");
 		String s ="Click 'New World' Button to generate or load a new world.\n"
@@ -95,24 +98,24 @@ public class Alerts {
 				+ "Click 'Step' to proceeed one step of the simulation.\n";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
+	}
 
-    
-    /**
-     * Display description of the Critter World game 
-     */
-    public static void alertDisplayAbout() {
+
+	/**
+	 * Display description of the Critter World game 
+	 */
+	public static void alertDisplayAbout() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setHeaderText("About");
 		String s ="This is CS 2112 final project: Critter World! \n"
 				+ "built by Yining Gong, Yuxin Cao in Fall 2015.\n";
 		alert.setContentText(s);
 		alert.showAndWait();
-    }
-    
-    /**
-     * Ask the user to select a hex to delete 
-     */
+	}
+
+	/**
+	 * Ask the user to select a hex to delete 
+	 */
 	public static void alertSelectCritterToDelete() {
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setHeaderText("Hasn't select a critter to delete");
@@ -120,7 +123,7 @@ public class Alerts {
 		alert.setContentText(s);
 		alert.showAndWait();
 	}
-	
+
 	/**
 	 * Display 401 error message to the user
 	 */
@@ -130,7 +133,7 @@ public class Alerts {
 		alert.setContentText(content);
 		alert.showAndWait();
 	}
-	
+
 	/**
 	 * Display 200 success message to the user
 	 */
@@ -139,5 +142,24 @@ public class Alerts {
 		alert.setHeaderText("Success 200");
 		alert.setContentText(content);
 		alert.showAndWait();
+	}
+
+	/**
+	 * Show alert to notify user that only one hex can be selected to insert
+	 * food and rock
+	 * 
+	 * @return {@code true} if user click OK
+	 * 		   {@code false} if user click cancel
+	 */
+	public static boolean alertOnlyOneHexShallBeSelected() {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("Only one hex can be selected ");
+		String s ="Click OK to clean all the selected hex";
+		alert.setContentText(s);
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.OK) 
+			return true;
+		else 
+			return false;
 	}
 }

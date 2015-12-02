@@ -70,7 +70,7 @@ public class GUIMain extends Application {
 	private final static int NEW_MENU_IDX = 0;
 	private final static int DEFAULT_WORLD_IDX = 0;
 	private final static int CUSTOM_WORLD_IDX = 1;
-	
+
 	private final static int VIEW_MENU_IDX = 1;
 	private final static int WHOLE_WORLD_IDX = 0;
 	private final static int SUBSECTION_WORLD_IDX = 1;
@@ -96,11 +96,11 @@ public class GUIMain extends Application {
 	private final static int HELP_MENU_IDX = 5;
 	private final static int HOW_USE_IDX = 0;
 	private final static int ABOUT_IDX = 1;
-	
+
 	private final static int VERSION_ZERO = 0;
 
 	private File critterFile = null;  // path to critter file
-	private GUIHex current = null; // current selected hex
+	private ArrayList<GUIHex> selectedHex = new ArrayList<>(); // current selected hex
 	private Parent root;
 	private Pane worldPane; 
 	private Label worldInfoLabel;
@@ -116,16 +116,16 @@ public class GUIMain extends Application {
 	public static final double SQRT_THREE = Math.sqrt(3);
 
 	public int session_id = 0;
-	
+
 	private MyClient myClient;
-	
+
 	private int from_col;
 	private int from_row;
 	private int to_col;
 	private int to_row;
 
 	private Timeline refreshTimeline;
-	
+
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -140,7 +140,7 @@ public class GUIMain extends Application {
 		primaryStage.setScene(new Scene(root));
 		primaryStage.show();
 
-		
+
 		otherInfoLabel = 
 				(Label) root.lookup("#otherinfodetails_label");
 		worldInfoLabel = 
@@ -148,23 +148,23 @@ public class GUIMain extends Application {
 		consoleInfoLabel = 
 				(Label) root.lookup("#consolenfodetails_label");
 		worldPane = (Pane) root.lookup("#world_pane"); 
-		
+
 		// create a client connection to the server
 		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
 		myClient = new MyClient(url);
-		
+
 		refreshTimeline = new Timeline();
-        refreshTimeline.setCycleCount(Integer.MAX_VALUE);
-        // recounts cycle count every time it plays again
-        refreshTimeline.setAutoReverse(false);  
+		refreshTimeline.setCycleCount(Integer.MAX_VALUE);
+		// recounts cycle count every time it plays again
+		refreshTimeline.setAutoReverse(false);  
 		refreshTimeline.getKeyFrames().setAll(
 				new KeyFrame(Duration.millis(1000/REFRESH_SPEED), 
 						event -> refreshGUI())
-		);
-		
+				);
+
 		// initialize menu bar
 		initializeMenuBar(primaryStage);
-		
+
 		// ask the user to login
 		Pair<String, String> result = showLoginDialog(primaryStage);
 		int respondCode = myClient.logIn(result.getKey(), result.getValue());
@@ -181,7 +181,7 @@ public class GUIMain extends Application {
 
 		initializeWorld();
 	}
-	
+
 	/**
 	 * Request the server to create a new world and update the ClientWorld 
 	 * stored at the client side
@@ -204,7 +204,7 @@ public class GUIMain extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Update the Information of the world stored in {@code clientWorld}
 	 * 
@@ -224,7 +224,7 @@ public class GUIMain extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 
 	/**
 	 * Set onActionListener on items on menu bar
@@ -253,27 +253,27 @@ public class GUIMain extends Application {
 			stopSimulating();
 			initializeWorld();
 		});
-		
+
 
 		ObservableList<MenuItem> view_menuitems = 
 				menus.get(VIEW_MENU_IDX).getItems();
-		
+
 		view_menuitems.get(WHOLE_WORLD_IDX).setOnAction(e -> { 
 			to_col = clientWorld.col;
 			to_row = clientWorld.row;
 		});
-		
+
 		view_menuitems.get(SUBSECTION_WORLD_IDX).setOnAction(e -> { 
 			to_col = getAmountInput("Subsection World Dialog", 
 					"Please specify the number of column you want to view.");
 			to_row = getAmountInput("Subsection World Dialog", 
 					"Please specify the number of row you want to view.");
 		});
-		
+
 		view_menuitems.get(REFRESH_WORLD_IDX).setOnAction(e -> { 
 			refreshGUI();
 		});
-		
+
 		view_menuitems.get(KEEPUPDATE_WORLD_IDX).setOnAction(e -> { 
 			CheckMenuItem tmp = (CheckMenuItem) 
 					view_menuitems.get(KEEPUPDATE_WORLD_IDX);
@@ -284,7 +284,7 @@ public class GUIMain extends Application {
 			else
 				refreshTimeline.stop();
 		});
-		
+
 
 		ObservableList<MenuItem> modify_menuitems = 
 				menus.get(MODIFY_MENU_IDX).getItems();
@@ -301,7 +301,7 @@ public class GUIMain extends Application {
 			insertFood(amount);
 			refreshGUI();
 		});
-		
+
 		modify_menuitems.get(INSERT_ROCK_IDX).setOnAction(e -> { 
 			insertRock();
 			refreshGUI();
@@ -314,53 +314,53 @@ public class GUIMain extends Application {
 			addCritter(amount);
 			refreshGUI();
 		});
-		
+
 		modify_menuitems.get(DELETE_CRITTER_IDX).setOnAction(e -> { 
 			deleteCritter();
 			refreshGUI();
 		});
-		
+
 		ObservableList<MenuItem> simulate_menuitems = 
 				menus.get(SIMULATE_MENU_IDX).getItems();
-		
+
 		simulate_menuitems.get(SIMULATE_STEP_IDX).setOnAction(e -> { 
 			int amount = getAmountInput("World Step Dialog", 
 					"Please specify the number of step you want to process.");
 			worldStepAhead(amount);
 			refreshGUI();
 		});
-		
+
 		simulate_menuitems.get(SIMULATE_RUN_IDX).setOnAction(e -> { 
 			int speed = getAmountInput("Simutate Dialog", 
 					"Please specify how many steps per second you want the "
-					+ "world to run.");
+							+ "world to run.");
 			if (speed < 0)
 				speed = 0;
 			changeSimulationSpeed(speed);
 		});
-		
+
 		simulate_menuitems.get(SIMULATE_PAUSE_IDX).setOnAction(e -> { 
 			stopSimulating();
 		});
-		
+
 		ObservableList<MenuItem> more_menuitems = 
 				menus.get(MORE_MENU_IDX).getItems();
-		
+
 		more_menuitems.get(DEAD_CRITTERS_IDX).setOnAction(e -> { 
 			displayDeadCritterInfo();
 		});
-		
+
 		more_menuitems.get(ALL_CRITTERS_IDX).setOnAction(e -> { 
 			displayAllCritterInfo();
 		});
-		
+
 		ObservableList<MenuItem> help_menuitems = 
 				menus.get(HELP_MENU_IDX).getItems();
-		
+
 		help_menuitems.get(HOW_USE_IDX).setOnAction(e -> { 
 			Alerts.alertDisplayHelpInfo();
 		});
-		
+
 		help_menuitems.get(ABOUT_IDX).setOnAction(e -> { 
 			Alerts.alertDisplayAbout(); 
 		});
@@ -370,7 +370,7 @@ public class GUIMain extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-	
+
 	/**
 	 * Get dead critter info from the server and display it to the 
 	 * information panel
@@ -378,14 +378,14 @@ public class GUIMain extends Application {
 	private void displayDeadCritterInfo() {
 		ArrayList<Integer> critters = clientWorld.dead_critters;
 		StringBuilder s = new StringBuilder();
-		
+
 		s.append(critters.size() + "Critters Has Died: \n");
 		for (int i = 0; i < critters.size()-1; ++i)
 			s.append(critters.get(i) + ",");
 		s.append(critters.get(critters.size()-1));
 		printToInfomationPanel(s.toString());
 	}
-	
+
 	/**
 	 * Get all critter info from the server and display it to the 
 	 * information panel
@@ -402,7 +402,7 @@ public class GUIMain extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Stop the world from running
 	 */
@@ -472,7 +472,7 @@ public class GUIMain extends Application {
 		canvas.setOnMouseClicked(new ClickHexHandler());
 	}
 
-	
+
 	/**
 	 * Have the underlying world proceed for one turn and update the GUI
 	 */
@@ -489,7 +489,7 @@ public class GUIMain extends Application {
 	 *         clear the critter info (because it may has changed)
 	 */
 	synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
-		
+
 		for (HexToUpdate update : list) {
 
 			switch (update.type) {
@@ -514,21 +514,21 @@ public class GUIMain extends Application {
 		printToSimulationPanel(clientWorld.getWorldInfo());
 		appendToConsolePanel("The world has been updated.");
 	}
-	
+
 	/**
 	 * Print information to the simulation panel
 	 */
 	private void printToSimulationPanel(String info) {
 		worldInfoLabel.setText(info);
 	}
-	
+
 	/**
 	 * Print information to the information panel
 	 */
 	private void printToInfomationPanel(String info) {
 		otherInfoLabel.setText(info);
 	}
-	
+
 	/**
 	 * Print response of request to the console panel
 	 */
@@ -692,30 +692,76 @@ public class GUIMain extends Application {
 			System.out.println("amount = 0");
 			return;
 		}
-		if (current == null) {
+		if (selectedHex.size() == 0) {
 			Alerts.alertSelectHexToInsert();
 			return;
 		}
+		else if (selectedHex.size() > 1) {
+			if (Alerts.alertOnlyOneHexShallBeSelected())
+				cleanAllSelected();
+			return;
+		}
 		try {
-			ClientPosition loc = current.getLoc();
+			ClientPosition loc = selectedHex.get(0).getLoc();
+			unselectSelectedHex(selectedHex.get(0));
 			myClient.createFoodOrRock(loc, amount, JsonClasses.FOOD);
 		} catch (Exception err) {
 			err.printStackTrace();
 		} 
 	}
+
+	/**
+	 * Clean all selected Hex
+	 */
+	private void cleanAllSelected() {
+		while(!selectedHex.isEmpty()) {
+			System.out.println("cleaning " + selectedHex.get(0));
+			unselectSelectedHex(selectedHex.get(0));
+		}
+	}
+
+	/**
+	 * Remove {@code hex} from ArrayList {@code selectedHex} and draw it with 
+	 * default strock to mark it has been unselected
+	 * @param hex
+	 */
+	private void unselectSelectedHex(GUIHex hex) {
+		gc.setStroke(DEFAULT_STROCK_COLOR);
+		gc.strokePolyline(hex.xPoints, hex.yPoints, 
+				GUIHex.POINTSNUMBER+1);		
+		selectedHex.remove(hex);
+	}
 	
+	/**
+	 * Add {@code hex} to ArrayList {@code selectedHex} and drwaw it 
+	 * with selected strock to mark it has been seleceted
+	 * @param hex
+	 */
+	private void selectSelectedHex(GUIHex hex) {
+		gc.setStroke(SELECTED_STROCK_COLOR);
+		gc.strokePolyline(hex.xPoints, hex.yPoints, 
+				GUIHex.POINTSNUMBER+1);		
+		selectedHex.add(hex);
+	}
+
 	/**
 	 * Insert a rock at the selected position and 
 	 * refresh GUI right after the insertion
 	 * @param amount
 	 */
 	private void insertRock() {
-		if (current == null) {
+		if (selectedHex.size() == 0) {
 			Alerts.alertSelectHexToInsert();
 			return;
 		}
+		else if (selectedHex.size() > 1) {
+			if (Alerts.alertOnlyOneHexShallBeSelected())
+				cleanAllSelected();
+			return;
+		}
 		try {
-			ClientPosition loc = current.getLoc();
+			ClientPosition loc = selectedHex.get(0).getLoc();
+			unselectSelectedHex(selectedHex.get(0));
 			myClient.createFoodOrRock(loc, 0, JsonClasses.ROCK);
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -726,13 +772,20 @@ public class GUIMain extends Application {
 	 * Delete a selected critter and refresh GUI right after the deletion
 	 */
 	private void deleteCritter() {
-		if (current == null) {
-			Alerts.alertSelectCritterToDelete();
+		if (selectedHex.size() == 0) {
+			Alerts.alertSelectHexToInsert();
 			return;
 		}
+		else if (selectedHex.size() > 1) {
+			if (Alerts.alertOnlyOneHexShallBeSelected())
+				cleanAllSelected();
+			return;
+		}
+		GUIHex current = selectedHex.get(0);
+		unselectSelectedHex(selectedHex.get(0));
 		if (clientWorld.board.get(current.loc) == null ||
 				!clientWorld.board.get(current.loc).type.
-						equals(JsonClasses.CRITTER)) {
+				equals(JsonClasses.CRITTER)) {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}
@@ -742,7 +795,7 @@ public class GUIMain extends Application {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Add {@code number} number of critter at selected position
 	 * @param critterNumStr
@@ -761,19 +814,23 @@ public class GUIMain extends Application {
 	}
 
 	private void insertCritter() {
-		if (current == null) {
-			Alerts.alertSelectHexToInsert();
-			return;
-		}
 		if (critterFile == null) {
 			Alerts.alertChooseCritterFile();
 			return;
 		}
+		if (selectedHex.size() == 0) {
+			Alerts.alertSelectHexToInsert();
+			return;
+		}
 		try {
-			ClientPosition loc = current.getLoc();
 			ArrayList<ClientPosition> tmp = new ArrayList<>();
-			tmp.add(loc);
-			myClient.createCritter(critterFile, tmp, 1);
+			while (!selectedHex.isEmpty()) {
+				GUIHex current = selectedHex.get(0);
+				unselectSelectedHex(selectedHex.get(0));
+				ClientPosition loc = current.getLoc();
+				tmp.add(loc);
+			}
+			myClient.createCritter(critterFile, tmp, tmp.size());
 		} catch (Exception err) {
 			err.printStackTrace();
 			Alerts.alertCritterFileIllegal();
@@ -804,32 +861,21 @@ public class GUIMain extends Application {
 			if (nearestHexIndex[0] == -1 ||
 					nearestHexIndex[1] == -1)
 				return;
-			GUIHex tmp = new GUIHex(nearestHexIndex[0], nearestHexIndex[1], 
+			GUIHex newSelected = new GUIHex(nearestHexIndex[0], nearestHexIndex[1], 
 					PositionInterpreter.getY(clientWorld.col, clientWorld.row));
-			System.out.println("closest point: (" + tmp.loc.xPos + 
-					"," + tmp.loc.yPos + ")");
+			System.out.println("closest point: (" + newSelected.loc.xPos + 
+					"," + newSelected.loc.yPos + ")");
 			// un-select click
-			if (current != null && tmp != null && tmp.loc.equals(current.loc)) {
-				current = null;
-				gc.setStroke(DEFAULT_STROCK_COLOR);
-				gc.strokePolyline(tmp.xPoints, tmp.yPoints, 
-						GUIHex.POINTSNUMBER+1);
+			if (selectedHex.contains(newSelected)) {
+				unselectSelectedHex(newSelected);
 			}
 			// select click
 			else {
-				if (current != null) {
-					gc.setStroke(DEFAULT_STROCK_COLOR);
-					gc.strokePolyline(current.xPoints, current.yPoints, 
-							GUIHex.POINTSNUMBER+1);
-				}
-				current = tmp;
-				gc.setStroke(SELECTED_STROCK_COLOR);
-				gc.strokePolyline(current.xPoints, current.yPoints, 
-						GUIHex.POINTSNUMBER+1);
+				selectSelectedHex(newSelected);
 			}
 			// check if there is a critter in the selected hex,
 			// if so, need to display the critter info
-			ClientElement elem = clientWorld.board.get(tmp.getLoc());
+			ClientElement elem = clientWorld.board.get(newSelected.getLoc());
 			if (elem != null) {
 				System.out.println("should print");
 				otherInfoLabel.setText(elem.toString());
@@ -882,7 +928,7 @@ public class GUIMain extends Application {
 			if (dialogButton == submitButtonType) {
 				return Integer.parseInt(amount.getText());
 			}
-			return null;
+			return 0;
 		});
 
 		Optional<Integer> result = dialog.showAndWait();
@@ -891,8 +937,10 @@ public class GUIMain extends Application {
 			System.out.println("amount=" + amountNumber);
 		});
 
-		return result.get();
-		
+		if (result.get() == null)
+			return 0;
+		else 
+			return result.get();
 	}
 
 
