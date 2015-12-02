@@ -149,6 +149,8 @@ public class ClientElement {
 			s.append("Amount: " + value);
 			break;
 		}
+		s.append("\n");
+		s.append("\n");
 		return s.toString();
 	}
 

@@ -373,9 +373,11 @@ public class GUIMain extends Application {
 	private void displayDeadCritterInfo() {
 		ArrayList<Integer> critters = clientWorld.dead_critters;
 		StringBuilder s = new StringBuilder();
-		s.append("the dead critters id are: \n");
-		for (Integer critter : critters) 
-			s.append(critter + "/n");
+		
+		s.append(critters.size() + "Critters Has Died: \n");
+		for (int i = 0; i < critters.size()-1; ++i)
+			s.append(critters.get(i) + ",");
+		s.append(critters.get(critters.size()-1));
 		printToInfomationPanel(s.toString());
 	}
 	
@@ -387,8 +389,9 @@ public class GUIMain extends Application {
 		try {
 			ArrayList<ClientElement> critters = myClient.lisAllCritters();
 			StringBuilder s = new StringBuilder();
-			for (ClientElement critter : critters) 
-				s.append(critter + "/n");
+			for (int i = 0; i < critters.size(); ++i) 
+				s.append("Critter " + critters.get(i).id + 
+						" Information: \n" + critters.get(i));
 			printToInfomationPanel(s.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -723,7 +726,8 @@ public class GUIMain extends Application {
 			return;
 		}
 		if (clientWorld.board.get(current.loc) == null ||
-				clientWorld.board.get(current.loc).type != JsonClasses.CRITTER) {
+				!clientWorld.board.get(current.loc).type.
+						equals(JsonClasses.CRITTER)) {
 			Alerts.alertSelectCritterToDelete();
 			return;
 		}

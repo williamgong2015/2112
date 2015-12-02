@@ -21,6 +21,7 @@ import api.PackJson;
 import api.UnpackJson;
 import api.JsonClasses.*;
 import game.exceptions.SyntaxError;
+import javafx.animation.Animation;
 import servlet.element.Critter;
 import servlet.element.Food;
 import servlet.element.Rock;
@@ -399,6 +400,7 @@ public class Servlet extends HttpServlet {
 			response.setStatus(406);
 			w.flush();
 			w.close();
+			return;
 		}
 		// scan through the array list that store critters to find the 
 		// critter to delete
@@ -504,11 +506,14 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		if (world == null || world.getSimulationRate() != 0) {
+		if (world == null || (world.timeline.statusProperty().get() 
+				== Animation.Status.RUNNING
+				&& world.getSimulationRate() != 0)) {
 			w.println("Not Acceptable");
 			response.setStatus(406);
 			w.flush();
 			w.close();
+			return;
 		}
 		int count = gson.fromJson(r, AdvanceWorldCount.class).count;
 		for (int i = 0; i < count; ++i) 
