@@ -296,7 +296,6 @@ public class World {
 		// updated for 999 PASS (for the second one, take a wait action)
 		int i = 0;
 		while (i < order.size()) {
-			logs.add(new Log()); // create a new log for this critter
 			Critter c = order.get(i++);
 			InterpreterImpl interpret = new InterpreterImpl(this,c);
 			Executor executor = new Executor(this, c);
@@ -328,7 +327,7 @@ public class World {
 		// to be inserted
 		for (Critter critter : toDelete) {
 			order.remove(critter);
-			logs.get(version_number).deadCritterID.add(critter.ID);
+			logs.get(logs.size()-1).deadCritterID.add(critter.ID);
 		}
 	}
 
