@@ -241,6 +241,11 @@ public class GUIMain extends Application {
 
 		new_menuitems.get(DEFAULT_WORLD_IDX).setOnAction(e -> {
 			stopSimulating();
+			try {
+				myClient.newWorld("New Default World");
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 			initializeWorld();
 		});
 

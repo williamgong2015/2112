@@ -468,10 +468,6 @@ public class Servlet extends HttpServlet {
 			return;
 		}
 		world.changeSimulationSpeed(rate);
-		if (rate <= 0)
-			world.timeline.stop();
-		else
-			world.timeline.play();
 		response.setStatus(200);
 		w.flush();
 		w.close();
@@ -506,9 +502,7 @@ public class Servlet extends HttpServlet {
 			w.close();
 			return;
 		}
-		if (world == null || (world.timeline.statusProperty().get() 
-				== Animation.Status.RUNNING
-				&& world.getSimulationRate() != 0)) {
+		if (world == null) {
 			w.println("Not Acceptable");
 			response.setStatus(406);
 			w.flush();

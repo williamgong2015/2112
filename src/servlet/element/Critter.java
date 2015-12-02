@@ -126,7 +126,9 @@ public class Critter extends Element {
 		name = c.species_id;
 		setDir(c.direction);
 		this.setPosition(new Position(c.col, c.row));
-		this.mem = c.mem;
+		this.mem = new int[c.mem.length];
+		for (int i = 0; i < c.mem.length; ++i)
+			this.mem[i] = c.mem[i];
 		if(c.program == null) {
 			this.pro = null;
 		} else {
@@ -139,7 +141,9 @@ public class Critter extends Element {
 	public Critter(CreateCritter c, int id, int session_id) 
 			throws SyntaxError {
 		super(Element.CRITTER);
-		this.mem = c.mem;
+		this.mem = new int[c.mem.length];
+		for (int i = 0; i < c.mem.length; ++i)
+			this.mem[i] = c.mem[i];
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);
 		pro = ParserImpl.parseProgram(t);
@@ -151,7 +155,9 @@ public class Critter extends Element {
 	public Critter(CreateRandomPositionCritter c, String name, int id,
 			int session_id) throws SyntaxError {
 		super(Element.CRITTER);
-		mem = c.mem;
+		this.mem = new int[c.mem.length];
+		for (int i = 0; i < c.mem.length; ++i)
+			this.mem[i] = c.mem[i];
 		StringReader s = new StringReader(c.program);
 		Tokenizer t = new Tokenizer(s);
 		pro = ParserImpl.parseProgram(t);

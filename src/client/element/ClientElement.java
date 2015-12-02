@@ -98,7 +98,9 @@ public class ClientElement {
 			id = c.id;
 			species_id = c.species_id;
 			direction = c.direction;
-			mem = c.mem;
+			this.mem = new int[c.mem.length];
+			for (int i = 0; i < c.mem.length; ++i)
+				this.mem[i] = c.mem[i];
 			program = c.program;
 			if(c.recently_executed_rule != null)
 				recently_executed_rule = c.recently_executed_rule;

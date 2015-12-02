@@ -322,7 +322,7 @@ public class MyClient {
 		connection.setRequestMethod("POST");
 		connection.setRequestProperty("Content-Type", "OK" );
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
-		String tmp = PackJson.packAdvWorldCount(n);
+		String tmp = PackJson.packAdvanceWorldRate(n);
 		System.out.println("Client request body: " + tmp);
 		w.println(tmp);
 		w.flush();

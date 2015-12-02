@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
@@ -50,6 +52,8 @@ import test.testsA5.critterTest;
  *    two elements can have the same position property)
  */
 public class World {
+	
+	Timer timer = null;
 
 	// how many turns has passed in the world
 	public int turns;
@@ -72,7 +76,6 @@ public class World {
 	public ArrayList<Log> logs = new ArrayList<>();
 	
 	// stepup a timeline to trigger the world to step another step 
-	public Timeline timeline = new Timeline();
 	private final static int MINIMUM_SPEED_IS_ONE = 1;
 	
 	// - if the speed <= 30, each cycle lapse the world, draw the world, 
@@ -256,18 +259,25 @@ public class World {
 	public void changeSimulationSpeed(int rate) {
 		this.rate = rate;
 		if (rate <= 0) {
-			timeline.stop();
+			if (timer != null)
+				timer.cancel();
+			timer = null;
 			return;
 		}
-//		boolean wasRunning = false;
-//		if (timeline.statusProperty().get() == Status.RUNNING)
-//			wasRunning = true;
-//		timeline.stop();
-		timeline.getKeyFrames().setAll(
-				new KeyFrame(Duration.millis(1000/rate), 
-						event -> lapse())
-		);
-		timeline.play();
+		System.out.println("Change rate");
+		if (timer == null)
+			timer = new Timer();
+		timer.scheduleAtFixedRate(
+			    new TimerTask()
+			    {
+			        public void run()
+			        {
+			        	lapse();
+			            System.out.println(1000/rate + " seconds passed");
+			        }
+			    },
+			    0,      // run first occurrence immediately
+			    1000/rate);  // run every three seconds
 	}
 	
 	public int getSimulationRate() {
@@ -288,6 +298,7 @@ public class World {
 	 * 
 	 */
 	public void lapse() {
+		System.out.println("lapse");
 		turns++;
 		version_number++;
 		logs.add(new Log());
