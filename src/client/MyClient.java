@@ -76,7 +76,7 @@ public class MyClient {
 	}
 
 	//TODO: not sure what to do about the result it returns
-	public ArrayList<ClientElement> lisAllCritters() throws IOException {
+	public int lisAllCritters(ArrayList<ClientElement> list) throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
 		System.out.println("Client list all critters url: " + tmpURL);
@@ -89,7 +89,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		return UnpackJson.unpackListOfCritters(r);
+		list =  UnpackJson.unpackListOfCritters(r);
+		return connection.getResponseCode(); 
 	}
 	
 	/**
@@ -138,7 +139,7 @@ public class MyClient {
 	 * @throws IOException
 	 * @throws SyntaxError
 	 */
-	public ClientElement retrieveCritter(int id) throws IOException, SyntaxError{
+	public int retrieveCritter(int id, ClientElement element) throws IOException, SyntaxError{
 		String tmpURL = url + "CritterWorld/critter/" + id + "?session_id=" + 
 				session_id;
 		System.out.println("Client retrieve critter url: " + tmpURL);
@@ -151,7 +152,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		return UnpackJson.unpackCritter(r);
+		element = UnpackJson.unpackCritter(r);
+		return connection.getResponseCode();
 	}
 
 	/**
@@ -238,8 +240,8 @@ public class MyClient {
 	 * @param from_col, from_row, to_col, to_row: specify the range of world
 	 * @throws IOException
 	 */  
-	public WorldState getStateOfWorld(int update_since, int from_col, 
-			int from_row, int to_col, int to_row) throws IOException{
+	public int getStateOfWorld(int update_since, int from_col, 
+			int from_row, int to_col, int to_row, WorldState state) throws IOException{
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since + "&from_row=" + from_row + "&to_row=" + to_row 
 						 + "&from_col=" + from_col + "&to_col=" + to_col
@@ -254,8 +256,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		WorldState state = UnpackJson.unpackWorldState(r);
-		return state;
+		state = UnpackJson.unpackWorldState(r);
+		return connection.getResponseCode();
 	}
 	
 	/**
@@ -264,7 +266,7 @@ public class MyClient {
 	 * @return
 	 * @throws IOException
 	 */
-	public WorldState getStateOfWorld(int update_since) 
+	public int getStateOfWorld(int update_since, WorldState state) 
 			throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since +"&session_id=" + session_id;
@@ -278,8 +280,8 @@ public class MyClient {
 				connection.getInputStream()));
 		if (isDebugging)
 			dumpResponse(r);
-		WorldState state = UnpackJson.unpackWorldState(r);
-		return state;
+		state = UnpackJson.unpackWorldState(r);
+		return connection.getResponseCode();
 	}
 	
 	/**
