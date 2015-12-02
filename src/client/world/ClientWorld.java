@@ -34,11 +34,11 @@ public class ClientWorld {
 	public int col;
 	// an array of dead critters' id
 	public ArrayList<Integer> dead_critters = new ArrayList<>();  
-	
+
 	public Hashtable<ClientPosition, ClientElement> board = new Hashtable<>();
-	
+
 	private HashMap<ClientPosition, HexToUpdate> hexToUpdate = new HashMap<>();
-	
+
 	/**
 	 * Create a client side world with a {@code WorldState} object
 	 * @param w
@@ -53,7 +53,7 @@ public class ClientWorld {
 		row = w.row;
 		col = w.col;
 	}
-	
+
 	/**
 	 * Copy Constructor
 	 */
@@ -70,18 +70,18 @@ public class ClientWorld {
 		board = w.board;
 		hexToUpdate = w.hexToUpdate;
 	}
-	
+
 	/**
 	 * Return a map contains all the {@code hexToUpdate} necessary to draw the 
 	 * current {@code clientWorld}
 	 * @return
 	 */
 	public HashMap<ClientPosition, HexToUpdate> 
-		getHexToUpdateBasedOnCurrentClientWorld() {
-		
+	getHexToUpdateBasedOnCurrentClientWorld() {
+
 		HashMap<ClientPosition, HexToUpdate> result = new HashMap<>();
 		Set<Map.Entry<ClientPosition, ClientElement>> pairs = board.entrySet();
-		
+
 		for (Map.Entry<ClientPosition, ClientElement> pair : pairs) {
 			ClientPosition pos = pair.getKey();
 			ClientElement s = pair.getValue();
@@ -111,7 +111,7 @@ public class ClientWorld {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Update this {@code ClientWorld} object with the information in {@code w}, 
 	 * which contains all the states need to update since the last 
@@ -129,43 +129,44 @@ public class ClientWorld {
 		population = w.population;   
 		row = w.row;
 		col = w.col;
-		for (int i = 0; i < w.dead_critters.length; ++i)
-			dead_critters.add(w.dead_critters[i]);
-		
-		
-		for (State s : w.state) {
-			ClientPosition pos = 
-					new ClientPosition(s.col, s.row, w.row, w.col, GUIHex.HEX_SIZE);
-			switch (s.getType()) {
-			case JsonClasses.CRITTER:
-				board.put(pos, new ClientElement(s));
-				hexToUpdate.put(pos,  new HexToUpdate(HEXType.CRITTER, pos, 
-						s.direction, s.mem[IDX.SIZE], 
-						s.mem[IDX.POSTURE]));
-				break;
-			case JsonClasses.FOOD:
-				board.put(pos, new ClientElement(s));
-				hexToUpdate.put(pos,  new HexToUpdate(HEXType.FOOD, pos, 
-						0, 0, 0));
-				break;
-			case JsonClasses.ROCK:
-				board.put(pos, new ClientElement(s));
-				hexToUpdate.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
-						0, 0, 0));
-				break;
-			case JsonClasses.NOTHING:
-				board.put(pos, new ClientElement(s));
-				hexToUpdate.put(pos,  new HexToUpdate(HEXType.EMPTY, pos, 
-						0, 0, 0));
-				break;
-			default: 
-				System.out.println("can't resolve type get from world states: "
-						+ s.getType());
-				break;
+		if (w.dead_critters != null) 
+			for (int i = 0; i < w.dead_critters.length; ++i)
+				dead_critters.add(w.dead_critters[i]);
+
+		if (w.state != null)
+			for (State s : w.state) {
+				ClientPosition pos = 
+						new ClientPosition(s.col, s.row, w.row, w.col, GUIHex.HEX_SIZE);
+				switch (s.getType()) {
+				case JsonClasses.CRITTER:
+					board.put(pos, new ClientElement(s));
+					hexToUpdate.put(pos,  new HexToUpdate(HEXType.CRITTER, pos, 
+							s.direction, s.mem[IDX.SIZE], 
+							s.mem[IDX.POSTURE]));
+					break;
+				case JsonClasses.FOOD:
+					board.put(pos, new ClientElement(s));
+					hexToUpdate.put(pos,  new HexToUpdate(HEXType.FOOD, pos, 
+							0, 0, 0));
+					break;
+				case JsonClasses.ROCK:
+					board.put(pos, new ClientElement(s));
+					hexToUpdate.put(pos,  new HexToUpdate(HEXType.ROCK, pos, 
+							0, 0, 0));
+					break;
+				case JsonClasses.NOTHING:
+					board.put(pos, new ClientElement(s));
+					hexToUpdate.put(pos,  new HexToUpdate(HEXType.EMPTY, pos, 
+							0, 0, 0));
+					break;
+				default: 
+					System.out.println("can't resolve type get from world states: "
+							+ s.getType());
+					break;
+				}
 			}
-		}
 	}
-	
+
 	/**
 	 * @return all the update to hex should be enforced after this turn
 	 */
@@ -174,7 +175,7 @@ public class ClientWorld {
 		hexToUpdate = new HashMap<>();
 		return tmp;
 	}
-	
+
 	/**
 	 * @return a string of information to display at simulation panel
 	 */
@@ -187,10 +188,10 @@ public class ClientWorld {
 		s.append("Speed:        " + tmp.rate + "\n");
 		s.append("Current Time Step: " + tmp.current_timestep + "\n");
 		s.append("Current Version:   " + tmp.current_version_number + "\n");
-		
+
 		return s.toString();
 	}
-	
+
 	/**
 	 * Randomly get {@code number} of empty position in the world 
 	 * @param number - the number of empty position need to get

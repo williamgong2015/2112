@@ -493,12 +493,6 @@ public class GUIMain extends Application {
 	private void drawWorldLayout() {
 		int worldY = PositionInterpreter.getY(clientWorld.col, clientWorld.row);
 		int worldX = PositionInterpreter.getX(clientWorld.col, clientWorld.row);
-		int from_x = PositionInterpreter.getX(from_col, from_row);
-		int from_y = PositionInterpreter.getY(from_col, from_row);
-		int to_x = PositionInterpreter.getX(to_col, to_row);
-		int to_y = PositionInterpreter.getY(to_col, to_row);
-		System.out.println("from_x " + from_x + ", to_x " + to_x);
-		System.out.println("from_y " + from_y + ", to_y " + to_y);
 		System.out.println("worldX " + worldX + ", worldY " + worldY);
 		worldPane.getChildren().clear();
 		final Canvas canvas = 
@@ -512,10 +506,15 @@ public class GUIMain extends Application {
 
 		gc.setStroke(DEFAULT_STROCK_COLOR);
 		GUIHex poly;
-		for (int i = Math.max(from_y, 0); i < Math.min(to_y, worldY); ++i) {
-			for (int j = Math.max(from_x, 0); j < Math.min(to_x, worldX); ++j) {
+		for (int i = 0; i < worldY; ++i) {
+			for (int j = 0; j < worldX; ++j) {
 				if (i % 2 != j % 2)
 					continue;
+				int col = PositionInterpreter.getC(j, i);
+				int row = PositionInterpreter.getR(j, i);
+				if (col > to_col || col < from_col || 
+						row > to_row || row < from_row)
+					return;
 				poly = new GUIHex(j, i, worldY);
 				gc.setFill(Color.WHITE);
 				gc.strokePolyline(poly.xPoints, poly.yPoints, 
@@ -950,12 +949,14 @@ public class GUIMain extends Application {
 	 * @return
 	 */
 	private boolean withinCurrentDrawnGUIWorld(GUIHex newSelected) {
-		int from_x = PositionInterpreter.getX(from_col, from_row);
-		int from_y = PositionInterpreter.getY(from_col, from_row);
-		int to_x = PositionInterpreter.getX(to_col, to_row);
-		int to_y = PositionInterpreter.getY(to_col, to_row);
-		if (newSelected.loc.x < from_x || newSelected.loc.x > to_x || 
-				newSelected.loc.y < from_y || newSelected.loc.y > to_y)
+		int col = PositionInterpreter.getC(newSelected.loc.x, 
+				newSelected.loc.y);
+		int row = PositionInterpreter.getR(newSelected.loc.x, 
+				newSelected.loc.y);
+		
+		// out of range
+		if (col > to_col || col < from_col || 
+				row > to_row || row < from_row)
 			return false;
 		else
 			return true;
