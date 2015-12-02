@@ -38,7 +38,8 @@ public class serverTester {
 		a.add(new ClientPosition(5,4,0,0,0));
 		client.createCritter(new File("Critter1.txt"), a, 0);
 		client.removeCritter(5);
-		WorldState t = client.getStateOfWorld(0);
+		WorldState t = new WorldState();
+		client.getStateOfWorld(0, t); 
 		for(State x : t.state) 
 			System.out.println(x);
 	}
