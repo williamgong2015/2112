@@ -98,6 +98,17 @@ public class GUIMain extends Application {
 	private final static int ABOUT_IDX = 1;
 
 	private final static int VERSION_ZERO = 0;
+	private final static int ZERO = 0;
+	
+	private final static int MIN_INSERT_FOOD_AMOUNT = 1;
+	private final static int MAX_INSERT_FOOD_AMOUNT = 500;
+	private final static int MIN_INSERT_CRITTER_AMOUNT = 1;
+	private final static int MAX_INSERT_CRITTER_AMOUNT = 10000;
+	private final static int MIN_WORLD_STEP_AMOUNT = 1;
+	private final static int MAX_WORLD_STEP_AMOUNT = 10000;
+	private final static int MIN_WORLD_RUN_SPEED = 1;
+	private final static int MAX_WORLD_RUN_SPEED = 1000;
+	
 
 	private File critterFile = null;  // path to critter file
 	private ArrayList<GUIHex> selectedHex = new ArrayList<>(); // current selected hex
@@ -167,12 +178,20 @@ public class GUIMain extends Application {
 
 		// ask the user to login
 		Pair<String, String> result = showLoginDialog(primaryStage);
+		if (result == null) {
+			primaryStage.close();
+			return;
+		}
 		int respondCode = myClient.logIn(result.getKey(), result.getValue());
 		while (respondCode == 401) {
 			Alerts.alert401Error("Your password or level is incorrect. \n"
 					+ "Level should be one of the 'admin', 'write', 'read'\n"
 					+ "If you forgot password, call 6073799054." );
 			result = showLoginDialog(primaryStage);
+			if (result == null) {
+				primaryStage.close();
+				return;
+			}
 			respondCode = myClient.logIn(result.getKey(), result.getValue());
 		}
 		Alerts.alert200Success("Congratulation, you has successfully"
@@ -259,15 +278,16 @@ public class GUIMain extends Application {
 				menus.get(VIEW_MENU_IDX).getItems();
 
 		view_menuitems.get(WHOLE_WORLD_IDX).setOnAction(e -> { 
+			from_col = 0;
+			from_row = 0;
 			to_col = clientWorld.col;
 			to_row = clientWorld.row;
+			drawWorldLayout();
 		});
 
 		view_menuitems.get(SUBSECTION_WORLD_IDX).setOnAction(e -> { 
-			to_col = getAmountInput("Subsection World Dialog", 
-					"Please specify the number of column you want to view.");
-			to_row = getAmountInput("Subsection World Dialog", 
-					"Please specify the number of row you want to view.");
+			changeSubsectionOfGUIWorld();
+			drawWorldLayout();
 		});
 
 		view_menuitems.get(REFRESH_WORLD_IDX).setOnAction(e -> { 
@@ -297,7 +317,8 @@ public class GUIMain extends Application {
 
 		modify_menuitems.get(INSERT_FOOD_IDX).setOnAction(e -> { 
 			int amount = getAmountInput("Insert Food Dialog", 
-					"Please specify the amount of food you want to insert.");
+					"Please specify the amount of food you want to insert.", 
+					MIN_INSERT_FOOD_AMOUNT, MAX_INSERT_FOOD_AMOUNT);
 			insertFood(amount);
 			refreshGUI();
 		});
@@ -310,7 +331,8 @@ public class GUIMain extends Application {
 		modify_menuitems.get(RANDOM_CRITTER_IDX).setOnAction(e -> { 
 			critterFile = loadFile(primaryStage);
 			int amount = getAmountInput("Add Critter Dialog", 
-					"Please specify the number of critters you want to add.");
+					"Please specify the number of critters you want to add.", 
+					MIN_INSERT_CRITTER_AMOUNT, MAX_INSERT_CRITTER_AMOUNT);
 			addCritter(amount);
 			refreshGUI();
 		});
@@ -325,7 +347,8 @@ public class GUIMain extends Application {
 
 		simulate_menuitems.get(SIMULATE_STEP_IDX).setOnAction(e -> { 
 			int amount = getAmountInput("World Step Dialog", 
-					"Please specify the number of step you want to process.");
+					"Please specify the number of step you want to process.", 
+					MIN_WORLD_STEP_AMOUNT, MAX_WORLD_STEP_AMOUNT);
 			worldStepAhead(amount);
 			refreshGUI();
 		});
@@ -333,9 +356,8 @@ public class GUIMain extends Application {
 		simulate_menuitems.get(SIMULATE_RUN_IDX).setOnAction(e -> { 
 			int speed = getAmountInput("Simutate Dialog", 
 					"Please specify how many steps per second you want the "
-							+ "world to run.");
-			if (speed < 0)
-				speed = 0;
+							+ "world to run.", 
+							MIN_WORLD_RUN_SPEED, MAX_WORLD_RUN_SPEED);
 			changeSimulationSpeed(speed);
 		});
 
@@ -365,6 +387,33 @@ public class GUIMain extends Application {
 			Alerts.alertDisplayAbout(); 
 		});
 
+	}
+
+	/**
+	 * Change the subsection of GUI world to inspect
+	 */
+	private void changeSubsectionOfGUIWorld() {
+		int from_col_tmp = getAmountInput("Subsection World Dialog", 
+				"Please specify starting column index.", ZERO, 
+				clientWorld.col);
+		int to_col_tmp = getAmountInput("Subsection World Dialog", 
+				"Please specify ending column index. ", from_col_tmp,
+				clientWorld.col);
+		int from_row_tmp = getAmountInput("Subsection World Dialog", 
+				"Please specify starting row you want to view.", ZERO,
+				clientWorld.row);
+		int to_row_tmp = getAmountInput("Subsection World Dialog", 
+				"Please specify ending row you want to view.", from_row_tmp,
+				clientWorld.row);
+		
+		// in case user cancel the input
+		if (from_col_tmp == 0 || from_row_tmp == 0 
+				|| to_col_tmp == 0 || to_row_tmp == 0)
+			return;
+		from_col = from_col_tmp;
+		from_row = from_row_tmp;
+		to_col = to_col_tmp;
+		to_row = to_row_tmp;		
 	}
 
 	public static void main(String[] args) {
@@ -446,6 +495,9 @@ public class GUIMain extends Application {
 		int from_y = PositionInterpreter.getY(from_col, from_row);
 		int to_x = PositionInterpreter.getX(to_col, to_row);
 		int to_y = PositionInterpreter.getY(to_col, to_row);
+		System.out.println("from_x " + from_x + ", to_x " + to_x);
+		System.out.println("from_y " + from_y + ", to_y " + to_y);
+		System.out.println("worldX " + worldX + ", worldY " + worldY);
 		worldPane.getChildren().clear();
 		final Canvas canvas = 
 				new Canvas(worldX*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
@@ -863,6 +915,9 @@ public class GUIMain extends Application {
 				return;
 			GUIHex newSelected = new GUIHex(nearestHexIndex[0], nearestHexIndex[1], 
 					PositionInterpreter.getY(clientWorld.col, clientWorld.row));
+			// if the selected hex is not within the current visible world
+			if (!withinCurrentDrawnGUIWorld(newSelected))
+				return;
 			System.out.println("closest point: (" + newSelected.loc.xPos + 
 					"," + newSelected.loc.yPos + ")");
 			// un-select click
@@ -884,12 +939,37 @@ public class GUIMain extends Application {
 				otherInfoLabel.setText("");
 		}
 	}
+	
+	/**
+	 * Check whether the selected hex is within the current Drawn GUI world
+	 * @param newSelected
+	 * @return
+	 */
+	private boolean withinCurrentDrawnGUIWorld(GUIHex newSelected) {
+		int from_x = PositionInterpreter.getX(from_col, from_row);
+		int from_y = PositionInterpreter.getY(from_col, from_row);
+		int to_x = PositionInterpreter.getX(to_col, to_row);
+		int to_y = PositionInterpreter.getY(to_col, to_row);
+		if (newSelected.loc.x < from_x || newSelected.loc.x > to_x || 
+				newSelected.loc.y < from_y || newSelected.loc.y > to_y)
+			return false;
+		else
+			return true;
+	}
 
-	private int getAmountInput(String title, String headerText) {
+	/**
+	 * Pop an input dialog to ask user enter an number
+	 * @param title
+	 * @param headerText
+	 * @return
+	 */
+	private int getAmountInput(String title, String headerText, int lowerBound,
+			int upperBound) {
 		// Create the custom dialog.
 		Dialog<Integer> dialog = new Dialog<>();
 		dialog.setTitle(title);
-		dialog.setHeaderText(headerText);
+		dialog.setHeaderText(headerText + " \n Within range " + lowerBound 
+				+ " - " + upperBound);
 
 		// Set the button types.
 		ButtonType submitButtonType = 
@@ -904,9 +984,9 @@ public class GUIMain extends Application {
 		grid.setPadding(new Insets(20, 150, 10, 10));
 
 		TextField amount = new TextField();
-		amount.setPromptText("1 - 500");
+		amount.setPromptText(lowerBound + " - " + upperBound);
 
-		grid.add(new Label("Input:"), 0, 0);
+		grid.add(new Label("Your Input:"), 0, 0);
 		grid.add(amount, 1, 0);
 
 		// Enable/Disable login button depending on whether a amount was entered.
@@ -926,7 +1006,19 @@ public class GUIMain extends Application {
 		// Convert the result to a username-password-pair when the login button is clicked.
 		dialog.setResultConverter(dialogButton -> {
 			if (dialogButton == submitButtonType) {
-				return Integer.parseInt(amount.getText());
+				try {
+					int tmp = Integer.parseInt(amount.getText());
+					if (tmp > upperBound || tmp < lowerBound) {
+						Alerts.alertNumberOutOfBound(lowerBound, upperBound);
+						return 0;
+					}
+					return tmp;
+				} catch (Exception e) {
+					e.printStackTrace();
+					Alerts.alertInputAnInteger();
+					return 0;
+				}
+				
 			}
 			return 0;
 		});
@@ -998,10 +1090,15 @@ public class GUIMain extends Application {
 		Optional<Pair<String, String>> result = dialog.showAndWait();
 
 		result.ifPresent(usernamePassword -> {
-			System.out.println("Username=" + usernamePassword.getKey() + ", Password=" + usernamePassword.getValue());
+			System.out.println("Username=" + usernamePassword.getKey() + 
+					", Password=" + usernamePassword.getValue());
 		});
-
-		return result.get();
+		
+		// if result is present has been handled above
+		if (!result.isPresent())
+			return null;
+		else
+			return result.get();
 
 	}
 

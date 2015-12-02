@@ -162,4 +162,26 @@ public class Alerts {
 		else 
 			return false;
 	}
+	
+	/**
+	 * Show an alert to ask user to input an integer
+	 */
+	public static void alertInputAnInteger() {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("Illegal Number Format ");
+		String s ="Please specify an integer";
+		alert.setContentText(s);
+		alert.showAndWait();
+	}
+
+	/**
+	 * Show an alert to tell user the input number has been out of bound
+	 */
+	public static void alertNumberOutOfBound(int lowerBound, int upperBound) {
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setHeaderText("Input Out of Bound ");
+		String s = "Should be " + lowerBound + " - " + upperBound;
+		alert.setContentText(s);
+		alert.showAndWait();
+	}
 }
