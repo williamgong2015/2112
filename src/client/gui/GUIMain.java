@@ -209,7 +209,8 @@ public class GUIMain extends Application {
 	void initializeWorld() {
 		try {
 			// get the whole world since version 0
-			WorldState state = myClient.getStateOfWorld(VERSION_ZERO);
+			WorldState state = new WorldState();
+			int response = myClient.getStateOfWorld(VERSION_ZERO, state);
 			clientWorld = new ClientWorld(state);
 			// for now, will use to_col and to_row to get part of the world
 			to_col = clientWorld.col;
@@ -231,9 +232,10 @@ public class GUIMain extends Application {
 	 */
 	void refreshGUI() {
 		try {
-			WorldState state = myClient.getStateOfWorld(
+			WorldState state = new WorldState();
+			int response = myClient.getStateOfWorld(
 					clientWorld.current_version_number, from_col, from_row,
-					to_col, to_row);
+					to_col, to_row, state);
 			clientWorld.updateWithWorldState(state);
 			HashMap<ClientPosition, HexToUpdate> hexToUpdate = 
 					clientWorld.getHexToUpdate();
@@ -440,7 +442,8 @@ public class GUIMain extends Application {
 	 */
 	private void displayAllCritterInfo() {
 		try {
-			ArrayList<ClientElement> critters = myClient.lisAllCritters();
+			ArrayList<ClientElement> critters = new ArrayList<>();
+			int response = myClient.lisAllCritters(critters);
 			StringBuilder s = new StringBuilder();
 			for (int i = 0; i < critters.size(); ++i) 
 				s.append("Critter " + critters.get(i).id + 
