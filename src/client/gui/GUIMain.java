@@ -112,10 +112,12 @@ public class GUIMain extends Application {
 	private final static int MAX_WORLD_RUN_SPEED = 1000;
 	
 	
-	private final static int RED_SEED = 71;
-	private final static int GREEN_SEED = 21;
-	private final static int BLUE_SEED = 191;
+	private final static int RED_SEED = 100;
+	private final static int GREEN_SEED = 200;
+	private final static int BLUE_SEED = 300;
+	private final static int RGB_OFFSET = 90;
 	private final static int RGB_RANGE = 256;
+	
 	
 
 	private File critterFile = null;  // path to critter file
@@ -742,9 +744,13 @@ public class GUIMain extends Application {
 		if (speciesColor.containsKey(species))
 			return speciesColor.get(species);
 		// specify a random color for the species
-		int r = species * RED_SEED % RGB_RANGE;
-		int g = species * GREEN_SEED % RGB_RANGE;
-		int b = species * BLUE_SEED % RGB_RANGE;
+		// things like 321, 231, 312, 312, ...
+		int r = Math.abs((species * RGB_OFFSET + (-1)^species * RED_SEED) 
+				% RGB_RANGE);
+		int g = Math.abs((species * RGB_OFFSET + (-1)^species * GREEN_SEED) 
+				% RGB_RANGE);
+		int b = Math.abs((species * RGB_OFFSET + (-1)^species * BLUE_SEED) 
+				% RGB_RANGE);
 		Color tmp = Color.rgb(r, g, b);
 		speciesColor.put(species, tmp);
 		return tmp;
