@@ -245,6 +245,7 @@ public class GUIMain extends Application {
 					clientWorld.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
+//			Alerts.alert401Error("You are not an administrator");
 			e.printStackTrace();
 		}
 	}
@@ -323,7 +324,7 @@ public class GUIMain extends Application {
 				if (statusCode == 401)
 					Alerts.alert401Error("You have to be an administrator");
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				Alerts.alert401Error("You are not an administrator");
 			}
 			initializeWorld();
 		});
@@ -862,7 +863,8 @@ public class GUIMain extends Application {
 			else if (statusCode == 406)
 				Alerts.alert406Error("The world has not been initialized");
 		} catch (Exception err) {
-			err.printStackTrace();
+			Alerts.alert401Error("You have to be a writer or "
+					+ "an administrator");
 		} 
 	}
 
@@ -926,7 +928,8 @@ public class GUIMain extends Application {
 			else if (statusCode == 406)
 				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception err) {
-			err.printStackTrace();
+			Alerts.alert401Error("You have to be a writer "
+					+ "or an administator");
 		} 
 	}
 
@@ -960,7 +963,8 @@ public class GUIMain extends Application {
 			else if (statusCode == 406)
 				Alerts.alert406Error("The world has not been initialized");
 		} catch (IOException e) {
-			e.printStackTrace();
+			Alerts.alert401Error("You are not the owner of the critter "
+					+ "or an administrator");
 		}
 	}
 
@@ -982,7 +986,8 @@ public class GUIMain extends Application {
 			else if (statusCode == 406)
 				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception expt) {
-			Alerts.alertChooseCritterFile();
+			Alerts.alert401Error("You have to be a writer or "
+					+ "an administrator");
 		}
 	}
 
@@ -1012,7 +1017,8 @@ public class GUIMain extends Application {
 				Alerts.alert406Error("The world hasn't been created");
 		} catch (Exception err) {
 			err.printStackTrace();
-			Alerts.alertCritterFileIllegal();
+			Alerts.alert401Error("You have to be a writer or "
+					+ "an administrator");
 		} 
 	}
 

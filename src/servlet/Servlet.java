@@ -651,7 +651,7 @@ public class Servlet extends HttpServlet {
 		if (!sessionIdTable.get(session_id).equals(ADMIN_LV)) {
 			w.println("session id: " + session_id);
 			w.println("Unauthorized");
-			response.setStatus(201);
+			response.setStatus(401);
 			w.flush();
 			w.close();
 			return;
