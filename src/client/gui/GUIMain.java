@@ -47,7 +47,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
@@ -223,6 +222,32 @@ public class GUIMain extends Application {
 
 		initializeWorld();
 	}
+	
+	/**
+	 * Redraw the whole world when the user change subsection of the world
+	 */
+	void reInitializeWorld() {
+		// get the whole world since version 0
+		WorldState state = new WorldState();
+		int statusCode;
+		try {
+			statusCode = myClient.getStateOfWorld(VERSION_ZERO, from_col, 
+				 from_row, to_col, to_row, state);
+			if (statusCode == 406) {
+				Alerts.alert406Error("Can't get the world");
+				return;
+			}
+			clientWorld = new ClientWorld(state);
+			// for now, will use to_col and to_row to get part of the world
+			drawWorldLayout();
+			clientWorld.updateWithWorldState(state);
+			Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
+					clientWorld.getHexToUpdate();
+			executeHexUpdate(hexToUpdate.values());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Request the server to create a new world and update the ClientWorld 
@@ -312,12 +337,12 @@ public class GUIMain extends Application {
 			from_row = 0;
 			to_col = clientWorld.col;
 			to_row = clientWorld.row;
-			drawWorldLayout();
+			reInitializeWorld();
 		});
 
 		view_menuitems.get(SUBSECTION_WORLD_IDX).setOnAction(e -> { 
 			changeSubsectionOfGUIWorld();
-			drawWorldLayout();
+			reInitializeWorld();
 		});
 
 		view_menuitems.get(REFRESH_WORLD_IDX).setOnAction(e -> { 
@@ -1160,16 +1185,6 @@ public class GUIMain extends Application {
 
 		grid.add(new Label("Your Input:"), 0, 0);
 		grid.add(amount, 1, 0);
-
-		// Enable/Disable login button depending on whether a amount was entered.
-		Node submitButton = 
-				dialog.getDialogPane().lookupButton(submitButtonType);
-		submitButton.setDisable(true);
-
-		// Do some validation (using the Java 8 lambda syntax).
-		amount.textProperty().addListener((observable, oldValue, newValue) -> {
-			submitButton.setDisable(newValue.trim().isEmpty());
-		});
 
 		dialog.getDialogPane().setContent(grid);
 

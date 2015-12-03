@@ -87,17 +87,12 @@ public class Alerts {
 	public static void alertDisplayHelpInfo() {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setHeaderText("Welcome to the Critter World");
-		String s ="Click 'New World' Button to generate or load a new world.\n"
-				+ "Click 'Load Critter' Button to load a critter file.\n"
-				+ "Specify an amount. Then click 'Add' to add some critters.\n"
-				+ "Click hexes, then click 'insert critter' to insert critter "
-				+ "at that specific hexes.\n"
-				+ "Click one hex with critter to inspect its information, "
-				+ "Clcik one hex with critter then click delete critter to "
-				+ "delete" 
-				+ "Click 'Step' to proceeed one step of the simulation.\n"
-				+ "Click 'Run' to start simulation. \n"
-				+ "Click 'Pause' to stop the simulation.\n";
+		String s ="'New': Generate a new world.\n"
+				+ "'View': Change the range of world to insepect or refresh./n"
+				+ "Choose hexes, then use 'Modify' to insert or delete./n "
+				+ "'Simulate': Control the world simulation.\n"
+				+ "'More': More information about the world simulation.\n"
+				+ "'Help': For help information.\n";
 				
 		alert.setContentText(s);
 		alert.showAndWait();
