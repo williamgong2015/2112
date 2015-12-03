@@ -11,7 +11,6 @@ public class refTest {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -38,7 +37,6 @@ public class refTest {
 	}
 	
 	synchronized static void check() {
-		HashSet<Integer> s = removed;
 		if(r.size() != 0)
 			System.out.println("False");
 	}

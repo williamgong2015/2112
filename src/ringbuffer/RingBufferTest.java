@@ -2,9 +2,6 @@ package ringbuffer;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
-
-import game.utils.RandomGen;
 
 public class RingBufferTest {
 	static RingBuffer<Integer> r = new RingBuffer<>( 1001);
@@ -193,7 +190,7 @@ public class RingBufferTest {
 			} catch(Exception ex) {
 				System.out.println("add failed");
 				System.out.println(rb.offer(4));
-				Iterator i = rb.iterator();
+				Iterator<Integer> i = rb.iterator();
 				i.remove();
 				System.out.println(rb.peek());
 				rb.remove();

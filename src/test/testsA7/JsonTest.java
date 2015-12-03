@@ -1,20 +1,9 @@
 package test.testsA7;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import api.JsonClasses.State;
 
 
 public class JsonTest {

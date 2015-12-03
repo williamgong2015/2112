@@ -1,16 +1,9 @@
 package test.testsA7;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import api.PackJson;
-import client.world.ClientElement;
-import client.world.ClientPosition;
 import game.exceptions.SyntaxError;
-import servlet.element.Critter;
-import servlet.world.Position;
-import api.JsonClasses.State;;
 
 public class testJsonClasses {
 	public static void main(String[] args) throws IOException, SyntaxError {

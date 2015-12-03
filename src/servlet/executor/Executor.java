@@ -15,7 +15,6 @@ import servlet.connection.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.element.Food;
-import servlet.element.Nothing;
 import servlet.interpreter.Outcome;
 import servlet.parser.ParserImpl;
 import servlet.parser.Tokenizer;

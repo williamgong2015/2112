@@ -25,13 +25,11 @@ public class packJsonTests {
 		System.out.println(PackJson.packPassword("abcd", "abcd"));
 		ArrayList<Critter> al = new ArrayList<>();
 		for(int i = 0; i < 3; i++) {
-			Critter c2 = new Critter(new File("critter1.txt"),0,i);
 			al.add(c);
 		}
 		System.out.println(PackJson.packListOfCritters(al, 2,false));
 		System.out.println(PackJson.packListOfCritters(al, 2,true));
 		World w = new World(10,10,"test");
-		Critter c3 = new Critter(new File("critter1.txt"),0,0);
 		w.setElemAtPosition(c, new Position(4,5));
 		Critter d = new Critter(new File("critter1.txt"),0,0);
 		w.setElemAtPosition(d, new Position(4,4));

@@ -1,14 +1,11 @@
 package test.testsA7;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import api.PositionInterpreter;
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
 import client.connection.MyClient;
-import client.world.ClientElement;
 import client.world.ClientPosition;
 
 public class serverTester {
