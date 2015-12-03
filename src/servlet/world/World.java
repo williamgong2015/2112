@@ -329,7 +329,8 @@ public class World {
 			}
 
 			// remove the critter need to be delete and insert the critter need 
-			// to be inserted
+			// to be inserted (they had been marked dead in the world beforehand 
+			// but not deleted from the arraylist)
 			for (Critter critter : toDelete) {
 				order.remove(critter);
 				logs.get(logs.size()-1).deadCritterID.add(critter.ID);

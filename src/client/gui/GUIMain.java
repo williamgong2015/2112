@@ -129,7 +129,7 @@ public class GUIMain extends Application {
 
 	private static final Color DEFAULT_STROCK_COLOR = Color.BLACK;
 	private static final Color SELECTED_STROCK_COLOR = Color.RED;
-	private static final int REFRESH_SPEED = 30;  // 30 times per second
+	private static final int REFRESH_SPEED = 20;  // 30 times per second
 	public static final double SQRT_THREE = Math.sqrt(3);
 
 	public int session_id = 0;
@@ -256,7 +256,7 @@ public class GUIMain extends Application {
 		try {
 			// get the whole world since version 0
 			WorldState state = new WorldState();
-			int statusCode = myClient.getStateOfWorld(VERSION_ZERO, state);
+			int statusCode = myClient.getStateOfWorld(state);
 			if (statusCode == 406) {
 				Alerts.alert406Error("Can't get the world");
 				return;

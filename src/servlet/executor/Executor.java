@@ -15,6 +15,7 @@ import servlet.connection.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.element.Food;
+import servlet.element.Nothing;
 import servlet.interpreter.Outcome;
 import servlet.parser.ParserImpl;
 import servlet.parser.Tokenizer;
@@ -194,9 +195,12 @@ public class Executor {
 			int foodEnergy = ((Food) e).getAmount();
 			int currentEnergy = c.getMem(IDX.ENERGY);
 			int maxEnergy = c.maxEnergy();
+			// TODO
 			if (foodEnergy + currentEnergy > maxEnergy) {
 				c.setMem(IDX.ENERGY, maxEnergy);
 				((Food) e).setAmount(foodEnergy + currentEnergy - maxEnergy);
+				Log logTmp = w.logs.get(w.logs.size()-1);
+				logTmp.updates.put(e.getPosition(), e);
 			}
 			else {
 				c.setMem(IDX.ENERGY, foodEnergy + currentEnergy);
