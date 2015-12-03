@@ -17,7 +17,6 @@
                 <Menu id="new_menu" mnemonicParsing="false" text="New">
                   <items>
                     <MenuItem fx:id="defaultworld_menuitem" mnemonicParsing="false" text="Default World" />
-                        <MenuItem mnemonicParsing="false" text="Open..." />
                   </items>
                 </Menu>
                   <Menu mnemonicParsing="false" text="View">

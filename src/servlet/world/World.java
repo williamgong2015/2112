@@ -724,7 +724,9 @@ public class World {
 				Position p = m.getKey();
 				// for cleaning up the hex
 				if (e == null) {
-					s.state[index++] = new State(p);
+					State nothing = new State(p);
+					nothing.setNothing();
+					s.state[index++] = nothing;
 					continue;
 				}
 				switch(e.getType()) {

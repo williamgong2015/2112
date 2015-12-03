@@ -8,10 +8,13 @@ import com.google.gson.Gson;
 
 import api.JsonClasses.*;
 import client.element.ClientElement;
+import client.gui.GUIHex;
 import client.world.ClientPosition;
 import game.exceptions.SyntaxError;
+import javafx.scene.paint.Color;
 import servlet.element.Critter;
 import servlet.element.Element;
+import servlet.element.Nothing;
 import servlet.world.Position;
 import servlet.world.World;
 
@@ -127,17 +130,50 @@ public class PackJson {
 	
 	/**
 	 * Created by server: the information of the world
+	 * @param getWholeWorld - if all the hex should be returned
 	 */
 	public static String packStateOfWorld(World w, int session_id, 
 			boolean isAdmin, int update_since, int from_col, 
-			int from_row, int to_col, int to_row) {
-		Hashtable<Position, Element> table = 
-				w.getUpdatesSinceMap(update_since, from_col, 
+			int from_row, int to_col, int to_row, boolean getWholeWorld) {
+		Hashtable<Position, Element> table; 
+		if (getWholeWorld) 
+			table = getWholeWorldInfo(w, from_col, from_row, to_col, to_row);
+		else
+			table = w.getUpdatesSinceMap(update_since, from_col, 
 						from_row, to_col, to_row);
 		ArrayList<Integer> tmp = w.getDeadCritterIDSince(update_since);
 		WorldState state = w.getWorldState(session_id, isAdmin, table, 
 				tmp);
 		return gson.toJson(state, WorldState.class);
+	}
+	
+	/**
+	 * Get all the world information including null to be interpreted as empty
+	 * @param w
+	 * @return
+	 */
+	private static Hashtable<Position, Element> getWholeWorldInfo(World w, 
+			int from_col, int from_row, int to_col, int to_row) {
+		Hashtable<Position, Element> result = new Hashtable<>();
+		int worldY = PositionInterpreter.getY(w.getColumn(), w.getRow());
+		int worldX = PositionInterpreter.getX(w.getColumn(), w.getRow());
+		int from_x = PositionInterpreter.getX(from_col, from_row);
+		int from_y = PositionInterpreter.getY(from_col, from_row);
+		int to_x = PositionInterpreter.getX(to_col, to_row);
+		int to_y = PositionInterpreter.getY(to_col, to_row);
+		for (int i = Math.max(from_y, 0); i <= Math.min(to_y, worldY); ++i) {
+			for (int j = Math.max(from_x, 0); j <= Math.min(to_x, worldX); ++j) {
+				if (i % 2 != j % 2)
+					continue;
+				Position pos = new Position(PositionInterpreter.getC(j, i), 
+						PositionInterpreter.getR(j, i));
+				if (w.hexes.get(pos) == null)
+					result.put(pos, new Nothing());
+				else 
+					result.put(pos, w.hexes.get(pos));
+			}
+		}
+		return result;
 	}
 	
 	/**

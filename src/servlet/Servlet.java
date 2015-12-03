@@ -46,6 +46,8 @@ public class Servlet extends HttpServlet {
 	private static final String WRITER_LV = "write";
 	private static final String READER_LV = "read";
 	private static final int MAX_CAPACITY = 2 ^ 30;
+	
+	private volatile int worldVersion = 0;
 
  
 	// the base url of the servlet are goint received
@@ -60,6 +62,10 @@ public class Servlet extends HttpServlet {
 	private Gson gson = new Gson();
 
 	private final static boolean isDebugging = false;
+	
+	// world version of the client session_id got
+	private volatile Hashtable<Integer, Integer> sessionIdWorldVersion = 
+			new Hashtable<>();
 
 	/**
 	 * Handle DElETE request
@@ -85,6 +91,14 @@ public class Servlet extends HttpServlet {
 				break;
 			}
 		}
+		
+		// client is not holding the newest version of the world
+		// then the request is illegal
+		if (sessionIdWorldVersion.get(session_id) != worldVersion) {
+			response.setStatus(410);
+			System.out.println("World not new version");
+			return;
+		} 
 
 		try {
 			if (requestURI.startsWith("/CritterWorld/critter")) {
@@ -152,6 +166,27 @@ public class Servlet extends HttpServlet {
 				break;
 			}
 		}
+		// initial get when the server start
+		if (session_id == 0)
+			return;
+		
+		boolean getWholeWorld = false;
+		// client is not holding the newest version of the world
+		// and is not requesting an update of the world, then the request
+		// is illegal
+		if (sessionIdWorldVersion.get(session_id) != worldVersion &&
+				!requestURI.startsWith("/CritterWorld/world")) {
+			System.out.println("World not new version");
+			response.setStatus(410);
+			return;
+		} 
+		else if (sessionIdWorldVersion.get(session_id) != worldVersion) {
+			// client would be sent every hex information in this turn, 
+			// and it would get the same world as the server
+			getWholeWorld = true;
+			sessionIdWorldVersion.put(session_id, worldVersion);
+		}
+			
 
 		try {
 			// get a critter
@@ -175,7 +210,7 @@ public class Servlet extends HttpServlet {
 					System.out.println("Get the World");
 				handleGetWorldSection(request, response, session_id, 
 						update_since, from_col, from_row, 
-						to_col, to_row);
+						to_col, to_row, getWholeWorld);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -210,6 +245,15 @@ public class Servlet extends HttpServlet {
 				break;
 			}
 		}
+		
+		// if not login and client is not holding the newest version of the 
+		// world, the request is illegal
+		if (!requestURI.startsWith("/CritterWorld/login") && 
+				sessionIdWorldVersion.get(session_id) != worldVersion) {
+			response.setStatus(410);
+			System.out.println("World not new version");
+			return;
+		} 
 
 
 		try {
@@ -239,6 +283,7 @@ public class Servlet extends HttpServlet {
 			else if (requestURI.startsWith("/CritterWorld/world")) {
 				if (isDebugging)
 					System.out.println("Create New World");
+				worldVersion++;
 				// a new world object will be created, the version number
 				// will get initialized to 1
 				handleCreateNewWorld(request, response, session_id);
@@ -274,6 +319,7 @@ public class Servlet extends HttpServlet {
 	 * @param from_row
 	 * @param to_col
 	 * @param to_row
+	 * @param getWholeWorld - if all the hex information should be returned
 	 * Write:   world information
 	 *          "Not Acceptable" if the world hasn't been initialized
 	 * Respond: 200 if succeed
@@ -282,7 +328,8 @@ public class Servlet extends HttpServlet {
 	 */
 	private void handleGetWorldSection(HttpServletRequest request, 
 			HttpServletResponse response, int session_id, int update_since, 
-			int from_col, int from_row, int to_col, int to_row) 
+			int from_col, int from_row, int to_col, int to_row, 
+			boolean getWholeWorld) 
 					throws IOException {
 		response.addHeader("Content-Type", "application/json");
 		PrintWriter w = response.getWriter();
@@ -295,7 +342,8 @@ public class Servlet extends HttpServlet {
 		}
 		String result = PackJson.packStateOfWorld(world, session_id, 
 				sessionIdTable.get(session_id).equals(ADMIN_LV), 
-				update_since, from_col, from_row, to_col, to_row);
+				update_since, from_col, from_row, to_col, to_row, 
+				getWholeWorld);
 		if (isDebugging)
 			System.out.println("Server body: " + result);
 		w.println(result);
@@ -662,6 +710,9 @@ public class Servlet extends HttpServlet {
 				tmp = Math.abs(game.utils.RandomGen.randomNumber());
 			}
 			sessionIdTable.put(tmp, level);
+			// record the client is initialized with the current 
+			// version of the world
+			sessionIdWorldVersion.put(tmp, worldVersion);
 			w.println(PackJson.packSessionID(tmp));
 			response.setStatus(200);
 		}

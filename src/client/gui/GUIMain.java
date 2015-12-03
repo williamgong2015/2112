@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.Hashtable;
 import java.util.Optional;
 
@@ -71,7 +70,6 @@ public class GUIMain extends Application {
 	// menu bar items index
 	private final static int NEW_MENU_IDX = 0;
 	private final static int DEFAULT_WORLD_IDX = 0;
-	private final static int CUSTOM_WORLD_IDX = 1;
 
 	private final static int VIEW_MENU_IDX = 1;
 	private final static int WHOLE_WORLD_IDX = 0;
@@ -289,11 +287,6 @@ public class GUIMain extends Application {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			initializeWorld();
-		});
-
-		new_menuitems.get(CUSTOM_WORLD_IDX).setOnAction(e -> {
-			stopSimulating();
 			initializeWorld();
 		});
 
