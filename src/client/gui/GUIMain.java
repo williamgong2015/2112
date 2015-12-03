@@ -111,6 +111,12 @@ public class GUIMain extends Application {
 	private final static int MIN_WORLD_RUN_SPEED = 1;
 	private final static int MAX_WORLD_RUN_SPEED = 1000;
 	
+	
+	private final static int RED_SEED = 71;
+	private final static int GREEN_SEED = 21;
+	private final static int BLUE_SEED = 191;
+	private final static int RGB_RANGE = 256;
+	
 
 	private File critterFile = null;  // path to critter file
 	private ArrayList<GUIHex> selectedHex = new ArrayList<>(); // current selected hex
@@ -210,7 +216,7 @@ public class GUIMain extends Application {
 	 * stored at the client side
 	 * @param myClient
 	 */
-	synchronized void initializeWorld() {
+	 void initializeWorld() {
 		try {
 			// get the whole world since version 0
 			WorldState state = new WorldState();
@@ -238,7 +244,7 @@ public class GUIMain extends Application {
 	 * 
 	 * Update the GUI with {@code hexToUpdate}
 	 */
-	synchronized private void refreshGUI() {
+	 private void refreshGUI() {
 		try {
 			WorldState state = new WorldState();
 			int statusCode = myClient.getStateOfWorld(
@@ -736,9 +742,9 @@ public class GUIMain extends Application {
 		if (speciesColor.containsKey(species))
 			return speciesColor.get(species);
 		// specify a random color for the species
-		int r = game.utils.RandomGen.randomNumber(256);
-		int g = game.utils.RandomGen.randomNumber(256);
-		int b = game.utils.RandomGen.randomNumber(236);
+		int r = species * RED_SEED % RGB_RANGE;
+		int g = species * GREEN_SEED % RGB_RANGE;
+		int b = species * BLUE_SEED % RGB_RANGE;
 		Color tmp = Color.rgb(r, g, b);
 		speciesColor.put(species, tmp);
 		return tmp;
@@ -923,7 +929,7 @@ public class GUIMain extends Application {
 		}
 		try {
 			int statusCode = myClient.createCritter(critterFile, 
-					clientWorld.getListOfEmptyPosition(number), number);
+					null, number);
 			if (statusCode == 401)
 				Alerts.alert401Error("You have to be a writer or "
 						+ "an administrator");

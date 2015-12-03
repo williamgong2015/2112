@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,7 +21,6 @@ import api.PackJson;
 import api.UnpackJson;
 import api.JsonClasses.*;
 import game.exceptions.SyntaxError;
-import javafx.animation.Animation;
 import servlet.element.Critter;
 import servlet.element.Food;
 import servlet.element.Rock;
@@ -49,10 +47,7 @@ public class Servlet extends HttpServlet {
 	private static final String READER_LV = "read";
 	private static final int MAX_CAPACITY = 2 ^ 30;
 
-	// read writer lock for server thread safety
-	private ReentrantReadWriteLock rwLock = 
-			new ReentrantReadWriteLock();
-
+ 
 	// the base url of the servlet are goint received
 	private static final String BASE_URL = 
 			"/2112/servlet/servlet.Servlet";
@@ -73,46 +68,41 @@ public class Servlet extends HttpServlet {
 	protected void doDelete(HttpServletRequest request, 
 			HttpServletResponse response) throws IOException {
 
-		rwLock.writeLock().lock();
-		try{
 
-			if (isDebugging)
-				System.out.println("Doing DELETE ");
+		if (isDebugging)
+			System.out.println("Doing DELETE ");
 
-			// process URI and parameters in it
-			String requestURI = 
-					request.getRequestURI().substring(BASE_URL.length());
-			// default session_id (not admin, writer, reader)
-			int session_id = -1; 
-			Map<String, String[]> parameterNames = request.getParameterMap();
-			for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-				switch (entry.getKey()) {
-				case "session_id":
-					session_id = Integer.parseInt(entry.getValue()[0]);
-					break;
-				}
+		// process URI and parameters in it
+		String requestURI = 
+				request.getRequestURI().substring(BASE_URL.length());
+		// default session_id (not admin, writer, reader)
+		int session_id = -1; 
+		Map<String, String[]> parameterNames = request.getParameterMap();
+		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+			switch (entry.getKey()) {
+			case "session_id":
+				session_id = Integer.parseInt(entry.getValue()[0]);
+				break;
 			}
-
-			try {
-				if (requestURI.startsWith("/CritterWorld/critter")) {
-					if (isDebugging)
-						System.out.println("Deleting a Critter");
-					String subURI = "/CritterWorld/critter/";
-					String idStr = requestURI.substring(subURI.length());
-					int id = Integer.parseInt(idStr);
-
-					world.version_number++;
-					world.logs.add(new Log());
-					handleRemoveCritter(request, response, session_id, id);
-
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		} finally {
-			rwLock.writeLock().unlock();
 		}
+
+		try {
+			if (requestURI.startsWith("/CritterWorld/critter")) {
+				if (isDebugging)
+					System.out.println("Deleting a Critter");
+				String subURI = "/CritterWorld/critter/";
+				String idStr = requestURI.substring(subURI.length());
+				int id = Integer.parseInt(idStr);
+
+				world.version_number++;
+				world.logs.add(new Log());
+				handleRemoveCritter(request, response, session_id, id);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 
 	}
 
@@ -123,77 +113,72 @@ public class Servlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, 
 			HttpServletResponse response) throws IOException {
-		rwLock.readLock().lock();
+
+		if (isDebugging)
+			System.out.println("Doing GET ");
+
+		// process URI and parameters in it
+		String requestURI = 
+				request.getRequestURI().substring(BASE_URL.length());
+
+
+		// default value of parameters
+		int session_id = 0; 
+		int update_since = 0;
+		int from_col = 0;
+		int from_row = 0;
+		int to_col = world.getColumn();
+		int to_row = world.getRow();
+		Map<String, String[]> parameterNames = request.getParameterMap();
+		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+			switch (entry.getKey()) {
+			case "session_id":
+				session_id = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "update_since":
+				update_since = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "from_col":
+				from_col = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "from_row":
+				from_row = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "to_col":
+				to_col = Integer.parseInt(entry.getValue()[0]);
+				break;
+			case "to_row":
+				to_row = Integer.parseInt(entry.getValue()[0]);
+				break;
+			}
+		}
+
 		try {
-
-			if (isDebugging)
-				System.out.println("Doing GET ");
-
-			// process URI and parameters in it
-			String requestURI = 
-					request.getRequestURI().substring(BASE_URL.length());
-
-
-			// default value of parameters
-			int session_id = 0; 
-			int update_since = 0;
-			int from_col = 0;
-			int from_row = 0;
-			int to_col = world.getColumn();
-			int to_row = world.getRow();
-			Map<String, String[]> parameterNames = request.getParameterMap();
-			for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-				switch (entry.getKey()) {
-				case "session_id":
-					session_id = Integer.parseInt(entry.getValue()[0]);
-					break;
-				case "update_since":
-					update_since = Integer.parseInt(entry.getValue()[0]);
-					break;
-				case "from_col":
-					from_col = Integer.parseInt(entry.getValue()[0]);
-					break;
-				case "from_row":
-					from_row = Integer.parseInt(entry.getValue()[0]);
-					break;
-				case "to_col":
-					to_col = Integer.parseInt(entry.getValue()[0]);
-					break;
-				case "to_row":
-					to_row = Integer.parseInt(entry.getValue()[0]);
-					break;
-				}
+			// get a critter
+			if (requestURI.startsWith("/CritterWorld/critter/")) {
+				if (isDebugging)
+					System.out.println("Retrieve a Critter");
+				String subURI = "/CritterWorld/critter/";
+				String idStr = requestURI.substring(subURI.length());
+				int id = Integer.parseInt(idStr);
+				handleRetrieveCritter(request, response, session_id, id);
+			} 
+			// get list of all critters
+			else if (requestURI.startsWith("/CritterWorld/critters")) {
+				if (isDebugging)
+					System.out.println("Retrieve a List of Critter");
+				handleRetrieveCritterList(request, response, session_id);
 			}
-
-			try {
-				// get a critter
-				if (requestURI.startsWith("/CritterWorld/critter/")) {
-					if (isDebugging)
-						System.out.println("Retrieve a Critter");
-					String subURI = "/CritterWorld/critter/";
-					String idStr = requestURI.substring(subURI.length());
-					int id = Integer.parseInt(idStr);
-					handleRetrieveCritter(request, response, session_id, id);
-				} 
-				// get list of all critters
-				else if (requestURI.startsWith("/CritterWorld/critters")) {
-					if (isDebugging)
-						System.out.println("Retrieve a List of Critter");
-					handleRetrieveCritterList(request, response, session_id);
-				}
-				// get the world
-				else if (requestURI.startsWith("/CritterWorld/world")) {
-					if (isDebugging)
-						System.out.println("Get the World");
-					handleGetWorldSection(request, response, session_id, 
-							update_since, from_col, from_row, 
-							to_col, to_row);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			// get the world
+			else if (requestURI.startsWith("/CritterWorld/world")) {
+				if (isDebugging)
+					System.out.println("Get the World");
+				handleGetWorldSection(request, response, session_id, 
+						update_since, from_col, from_row, 
+						to_col, to_row);
 			}
-		} finally {
-			rwLock.readLock().unlock();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -207,79 +192,73 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		rwLock.writeLock().lock();
+
+		if (isDebugging)
+			System.out.println("Doing POST ");
+
+
+		// process URI and parameters in it
+		String requestURI = 
+				request.getRequestURI().substring(BASE_URL.length());
+		// default session_id (not admin, writer, reader)
+		int session_id = -1; 
+		Map<String, String[]> parameterNames = request.getParameterMap();
+		for (Entry<String, String[]> entry : parameterNames.entrySet()) {
+			switch (entry.getKey()) {
+			case "session_id":
+				session_id = Integer.parseInt(entry.getValue()[0]);
+				break;
+			}
+		}
+
 
 		try {
-
-			if (isDebugging)
-				System.out.println("Doing POST ");
-
-
-			// process URI and parameters in it
-			String requestURI = 
-					request.getRequestURI().substring(BASE_URL.length());
-			// default session_id (not admin, writer, reader)
-			int session_id = -1; 
-			Map<String, String[]> parameterNames = request.getParameterMap();
-			for (Entry<String, String[]> entry : parameterNames.entrySet()) {
-				switch (entry.getKey()) {
-				case "session_id":
-					session_id = Integer.parseInt(entry.getValue()[0]);
-					break;
-				}
+			if (requestURI.startsWith("/CritterWorld/login")) {
+				//				if (isDebugging)
+				//					w.println("Log In");
+				handleGetSessionID(request, response);
+			} 
+			// insert a critter
+			else if (requestURI.startsWith("/CritterWorld/critter")) {
+				if (isDebugging)
+					System.out.println("Create Critter");
+				world.version_number++;
+				world.logs.add(new Log());
+				handleCreateCritter(request, response, session_id);
 			}
-
-
-			try {
-				if (requestURI.startsWith("/CritterWorld/login")) {
-					//				if (isDebugging)
-					//					w.println("Log In");
-					handleGetSessionID(request, response);
-				} 
-				// insert a critter
-				else if (requestURI.startsWith("/CritterWorld/critter")) {
-					if (isDebugging)
-						System.out.println("Create Critter");
-					world.version_number++;
-					world.logs.add(new Log());
-					handleCreateCritter(request, response, session_id);
-				}
-				// insert a food or rock
-				else if (requestURI.startsWith("/CritterWorld/"
-						+ "world/create_entity")) {
-					if (isDebugging)				
-						System.out.println("Create Food Or Rock");
-					world.version_number++;
-					world.logs.add(new Log());
-					handleCreateEntity(request, response, session_id);
-				}
-				// create a new world
-				else if (requestURI.startsWith("/CritterWorld/world")) {
-					if (isDebugging)
-						System.out.println("Create New World");
-					// a new world object will be created, the version number
-					// will get initialized to 1
-					handleCreateNewWorld(request, response, session_id);
-				}
-				// world step ahead for n
-				else if (requestURI.startsWith("/CritterWorld/step")) {
-					if (isDebugging)
-						System.out.println("Advance World by Step");
-					handleAdvWorldByStep(request, response, session_id);
-				}
-				// let the world run at spped n
-				else if (requestURI.startsWith("/CritterWorld/run")) {
-					if (isDebugging)
-						System.out.println("World Start Running");
-					handleRunWorld(request, response, session_id);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
+			// insert a food or rock
+			else if (requestURI.startsWith("/CritterWorld/"
+					+ "world/create_entity")) {
+				if (isDebugging)				
+					System.out.println("Create Food Or Rock");
+				world.version_number++;
+				world.logs.add(new Log());
+				handleCreateEntity(request, response, session_id);
 			}
-
-		} finally {
-			rwLock.writeLock().unlock();
+			// create a new world
+			else if (requestURI.startsWith("/CritterWorld/world")) {
+				if (isDebugging)
+					System.out.println("Create New World");
+				// a new world object will be created, the version number
+				// will get initialized to 1
+				handleCreateNewWorld(request, response, session_id);
+			}
+			// world step ahead for n
+			else if (requestURI.startsWith("/CritterWorld/step")) {
+				if (isDebugging)
+					System.out.println("Advance World by Step");
+				handleAdvWorldByStep(request, response, session_id);
+			}
+			// let the world run at spped n
+			else if (requestURI.startsWith("/CritterWorld/run")) {
+				if (isDebugging)
+					System.out.println("World Start Running");
+				handleRunWorld(request, response, session_id);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 
 	}
 

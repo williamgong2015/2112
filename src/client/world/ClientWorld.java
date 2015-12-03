@@ -213,6 +213,7 @@ public class ClientWorld {
 				i++;
 			}
 		}
+		System.out.println("Got " + result.size() + " positions");
 		return result;
 	}
 }
