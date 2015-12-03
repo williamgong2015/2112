@@ -425,7 +425,8 @@ public class RingBuffer<E> implements Collection<E>, Queue<E>, BlockingQueue<E>{
 	public boolean equals(Object o) {
 		if(!(o instanceof RingBuffer))
 			return false;
-		RingBuffer r = (RingBuffer)o;
+		@SuppressWarnings("unchecked")
+		RingBuffer<E> r = (RingBuffer<E>)o;
 		r.lock.rdLock.lock();
 		lock.rdLock.lock();
 		try {

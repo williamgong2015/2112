@@ -6,8 +6,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gson.Gson;
-
 import api.JsonClasses;
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;

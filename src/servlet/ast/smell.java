@@ -4,9 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import game.constant.Constant;
-import game.exceptions.SyntaxError;
 import servlet.element.Critter;
-import servlet.parser.Tokenizer;
 import servlet.world.Position;
 import servlet.world.World;
 
@@ -67,11 +65,6 @@ public class smell extends Expr {
 	@Override
 	public StringBuilder prettyPrint(StringBuilder sb) {
 		return sb.append("smell");
-	}
-
-	@Override
-	public MutableNode parseMyType(Tokenizer t) {
-		return null;
 	}
 
 	@Override

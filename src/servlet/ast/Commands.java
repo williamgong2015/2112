@@ -2,9 +2,7 @@ package servlet.ast;
 
 import java.util.ArrayList;
 
-import game.exceptions.SyntaxError;
 import servlet.element.Critter;
-import servlet.parser.Tokenizer;
 import servlet.world.World;
 
 /**
@@ -114,16 +112,7 @@ public class Commands extends Command implements Placeholder {
 			return up.size();
 		return up.indexOf((Command) child);
 	}
-	
-	@Override
-	public MutableNode parseMyType(Tokenizer t) {
-		try {
-			return servlet.parser.ParserImpl.parseCommand(t);
-		} catch (SyntaxError e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+
 
 	@Override
 	public String eval(Critter c,World w) {

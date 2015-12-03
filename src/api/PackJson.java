@@ -8,10 +8,8 @@ import com.google.gson.Gson;
 
 import api.JsonClasses.*;
 import client.element.ClientElement;
-import client.gui.GUIHex;
 import client.world.ClientPosition;
 import game.exceptions.SyntaxError;
-import javafx.scene.paint.Color;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.element.Nothing;

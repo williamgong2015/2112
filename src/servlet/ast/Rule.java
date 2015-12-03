@@ -1,8 +1,6 @@
 package servlet.ast;
 
-import game.exceptions.SyntaxError;
 import servlet.element.Critter;
-import servlet.parser.Tokenizer;
 import servlet.world.World;
 
 /**
@@ -52,15 +50,6 @@ public class Rule extends MutableNode {
 		con = newCon;
 	}
 	
-	@Override
-	public MutableNode parseMyType(Tokenizer t) {
-		try {
-			return servlet.parser.ParserImpl.parseRule(t);
-		} catch (SyntaxError e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 	public Condition getCondition() {
 		return con;

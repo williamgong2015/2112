@@ -1,10 +1,7 @@
 package servlet.ast;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import servlet.parser.Tokenizer;
 
 /**
  * Abstract class of Mutation

@@ -3,11 +3,9 @@ package servlet.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
 import servlet.parser.Parser;
 import servlet.parser.ParserFactory;
-import servlet.parser.Tokenizer;
 
 import java.io.StringReader;
 
@@ -15,7 +13,7 @@ import java.io.StringReader;
  * A data structure representing a critter program.
  *
  */
-public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
+public class ProgramImpl implements Program, Mutable, Placeholder {
 
 	private ArrayList<Rule> root;
 	private ArrayList<Integer> orderOfMutation;
@@ -145,14 +143,5 @@ public class ProgramImpl implements Program, Mutable, Placeholder, Parsable {
 		return root.indexOf((Rule) child);
 	}
 
-	@Override
-	public ProgramImpl parseMyType(Tokenizer t) {
-		try {
-			return servlet.parser.ParserImpl.parseProgram(t);
-		} catch (SyntaxError e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 
 }

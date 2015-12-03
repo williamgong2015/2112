@@ -8,7 +8,7 @@ import servlet.world.World;
  * of all other nodes
  *
  */
-public abstract class MutableNode implements Node ,Mutable, Parsable {
+public abstract class MutableNode implements Node ,Mutable {
 	
 	private Node parent;
 	
