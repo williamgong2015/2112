@@ -63,6 +63,10 @@ public abstract class AbstractMutation implements Mutation{
 		return false;
 	}
 	
+	public boolean mutate(Smell n) {
+		return false;
+	}
+	
 	public abstract String getClassName();
 	
 	public String toString() {

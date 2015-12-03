@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import game.constant.Constant;
+import game.exceptions.SyntaxError;
 import servlet.element.Critter;
 import servlet.parser.Tokenizer;
 import servlet.world.Position;
 import servlet.world.World;
 
-public class smell extends Expr{
+public class Smell extends Expr{
 
 	class DetailedPosition{
 		Position pos;
@@ -61,8 +62,12 @@ public class smell extends Expr{
 
 	@Override
 	public MutableNode parseMyType(Tokenizer t) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return servlet.parser.ParserImpl.parseSensor(t);
+		} catch (SyntaxError e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
@@ -76,13 +81,12 @@ public class smell extends Expr{
 
 	@Override
 	public boolean beMutated(AbstractMutation m) {
-		// TODO Auto-generated method stub
-		return false;
+		return m.mutate(this);
 	}
 
 	@Override
 	public Expr copy() {
-		return new smell();
+		return new Smell();
 	}
 
 	public DetailedPosition BFS(World world, DetailedPosition start) {

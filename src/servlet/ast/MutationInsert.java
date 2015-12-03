@@ -70,9 +70,9 @@ public class MutationInsert extends AbstractMutation {
 			// TODO Dirty Fix: not supporting transform to -factor
 			Node parent = ((MutableNode) n).getParent();
 			if ((parent instanceof UnaryExpr &&
-					((UnaryExpr) parent).getType() == T.neg) ||
+					((UnaryExpr) parent).getType().equals(T.neg)) ||
 					n.toString().charAt(0) == '-')
-				if (newType == T.neg)
+				if (newType.equals(T.neg))
 					return false;
 			u.setType(newType);
 			u.setParent(n.getParent());

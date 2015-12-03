@@ -26,7 +26,7 @@ public class MutationTransform extends AbstractMutation {
 		Object type = n.getType();
 		int oldType = -1;
 		for (int i = 0; i < size; ++i) {
-			if (allType[i] == type) 
+			if (allType[i].equals(type)) 
 				oldType = i;
 		}
 		if (oldType == -1) {
@@ -37,7 +37,7 @@ public class MutationTransform extends AbstractMutation {
 		// TODO Dirty Fix: not supporting transform to -factor
 		Node parent = ((MutableNode) n).getParent();
 		if ((parent instanceof UnaryExpr &&
-				((UnaryExpr) parent).getType() == T.neg) ||
+				((UnaryExpr) parent).getType().equals(T.neg)) ||
 				(n instanceof UnaryExpr &&
 				((UnaryExpr) n).getChild().toString().charAt(0) == '-'))
 			if (allType[newType].equals(T.neg)) 
@@ -82,7 +82,7 @@ public class MutationTransform extends AbstractMutation {
 			newVal = oldVal - Integer.MAX_VALUE / d;
 		Node parent = n.getParent();
 		if (parent instanceof UnaryExpr &&
-				((UnaryExpr) parent).getType() == T.neg && newVal < 0)
+				((UnaryExpr) parent).getType().equals(T.neg) && newVal < 0)
 				newVal = -newVal;
 		n.setVal(newVal);
 		return true;

@@ -132,7 +132,7 @@ public class MutationReplace extends AbstractMutation {
 		// TODO Dirty Fix: not supporting transform to -factor
 		Node parent = ((MutableNode) n).getParent();
 		if ((parent instanceof UnaryExpr &&
-				((UnaryExpr) parent).getType() == T.neg) ||
+				((UnaryExpr) parent).getType().equals(T.neg)) ||
 				(n instanceof UnaryExpr &&
 				((UnaryExpr) n).getChild().toString().charAt(0) == '-'))
 			if (newChild.toString().charAt(0) == '-')
