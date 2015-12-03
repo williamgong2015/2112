@@ -77,8 +77,6 @@ public class GUIHex {
 		int worldY = PositionInterpreter.getY(worldCol, worldRow);
 		int roughX = (int) (x*2/3/HEX_SIZE);
 		int roughY =  worldY - (int) (y*2/SQRT_THREE/HEX_SIZE);
-//		int roughCol = PositionInterpreter.getC(roughX, roughY);
-//		int roughRow = PositionInterpreter.getR(roughX, roughY);
 		// the {roughCol, roughRow} NewHex and all six NewHex if exists
 		// surrounding it could be the NewHex we are looking for
 		ArrayList<ClientPosition> toCheck = new ArrayList<>();
@@ -102,9 +100,6 @@ public class GUIHex {
 		if (roughY < worldY-1)
 			toCheck.add(new ClientPosition(roughX, roughY-1,
 					worldY, HEX_SIZE));
-//		for (ClientPosition p : toCheck) {
-//			System.out.println("Checking: (" + p.xPos + "," + p.yPos + ")");
-//		}
 		return findClosestPoint(toCheck, x, y);
 	}
 

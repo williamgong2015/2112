@@ -583,7 +583,6 @@ public class GUIMain extends Application {
 		int from_y = PositionInterpreter.getY(from_col, from_row);
 		int to_x = PositionInterpreter.getX(to_col, to_row);
 		int to_y = PositionInterpreter.getY(to_col, to_row);
-		System.out.println("worldX " + worldX + ", worldY " + worldY);
 		worldPane.getChildren().clear();
 		final Canvas canvas = 
 				new Canvas(worldX*GUIHex.HEX_SIZE*3/2 + 0.5*GUIHex.HEX_SIZE,
@@ -752,10 +751,6 @@ public class GUIMain extends Application {
 		ClientPoint[] eyes = getEyesPos(dir, tmp, radio);
 		gc.setFill(Color.BLACK);
 		if (eyes == null || eyes[0] == null || eyes[1] == null) {
-			System.out.println("eyes is null");
-			System.out.println("dir: " + dir + ", radio: " + radio + 
-					"Hex cen: " + tmp.centroid + ", Hex c,r: " + 
-					tmp.getLoc().x + "," + tmp.getLoc().y);
 			return;
 		}
 		gc.fillOval(eyes[0].x - 1.5*radio - 0.5, eyes[0].y - 1.5*radio - 0.5, 
@@ -830,7 +825,6 @@ public class GUIMain extends Application {
 	 */
 	private void insertFood(int amount) {
 		if (amount == 0) {
-			System.out.println("amount = 0");
 			return;
 		}
 		if (selectedHex.size() == 0) {
@@ -863,7 +857,6 @@ public class GUIMain extends Application {
 	 */
 	private void cleanAllSelected() {
 		while(!selectedHex.isEmpty()) {
-			System.out.println("cleaning " + selectedHex.get(0));
 			unselectSelectedHex(selectedHex.get(0));
 		}
 	}
@@ -1028,7 +1021,6 @@ public class GUIMain extends Application {
 		public void handle(MouseEvent event) {
 			double x = event.getX();
 			double y = event.getY();
-			System.out.println("you clicked (" + x + "," + y + ")");
 			int[] nearestHexIndex = 
 					GUIHex.classifyPoint(x, y, clientWorld.row, clientWorld.col);
 			if (nearestHexIndex[0] == -1 ||
@@ -1039,8 +1031,6 @@ public class GUIMain extends Application {
 			// if the selected hex is not within the current visible world
 			if (!withinCurrentDrawnGUIWorld(newSelected))
 				return;
-			System.out.println("closest point: (" + newSelected.loc.xPos + 
-					"," + newSelected.loc.yPos + ")");
 			// un-select click
 			if (selectedHex.contains(newSelected)) {
 				unselectSelectedHex(newSelected);
@@ -1053,7 +1043,6 @@ public class GUIMain extends Application {
 			// if so, need to display the critter info
 			ClientElement elem = clientWorld.board.get(newSelected.getLoc());
 			if (elem != null) {
-				System.out.println("should print");
 				otherInfoLabel.setText(elem.toString());
 			}
 			else
@@ -1267,7 +1256,7 @@ public class GUIMain extends Application {
 
 		dialog.getDialogPane().setContent(grid);
 
-		//		// Request focus on the username field by default.
+		//		Request focus on the username field by default.
 		//		Platform.runLater(() -> username.requestFocus());
 
 		// Convert the result to a username-password-pair when the login button is clicked.

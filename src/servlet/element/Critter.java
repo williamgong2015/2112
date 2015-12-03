@@ -409,7 +409,6 @@ public class Critter extends Element {
 	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder ();
-		//		sb.append("at position: " + getPosition()); // check if position update
 		sb.append("SPECIES:" + name + "\n");
 		sb.append("MEMSIZE:" + mem[IDX.MEMLEN] + "\n");
 		sb.append("DEFENSE:" + mem[IDX.DEFENSE] + "\n");

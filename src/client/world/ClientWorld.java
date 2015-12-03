@@ -102,8 +102,6 @@ public class ClientWorld {
 						0, 0, 0));
 				break;
 			default: 
-				System.out.println("can't resolve type get from world states: "
-						+ s.type);
 				break;
 			}
 		}
@@ -158,8 +156,6 @@ public class ClientWorld {
 							0, 0, 0));
 					break;
 				default: 
-					System.out.println("can't resolve type get from world states: "
-							+ s.getType());
 					break;
 				}
 			}
@@ -210,7 +206,6 @@ public class ClientWorld {
 				i++;
 			}
 		}
-		System.out.println("Got " + result.size() + " positions");
 		return result;
 	}
 }
