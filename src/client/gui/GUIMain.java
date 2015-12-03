@@ -123,7 +123,6 @@ public class GUIMain extends Application {
 	private Pane worldPane; 
 	private Label worldInfoLabel;
 	private Label otherInfoLabel; 
-	private Label consoleInfoLabel;
 	public ClientWorld clientWorld;
 	private GraphicsContext gc;
 	private Hashtable<Integer, Color> speciesColor = new Hashtable<>();
@@ -171,8 +170,6 @@ public class GUIMain extends Application {
 				(Label) root.lookup("#otherinfodetails_label");
 		worldInfoLabel = 
 				(Label) root.lookup("#worldinfodetails_label");
-		consoleInfoLabel = 
-				(Label) root.lookup("#consolenfodetails_label");
 		worldPane = (Pane) root.lookup("#world_pane"); 
 
 		// create a client connection to the server
@@ -658,7 +655,6 @@ public class GUIMain extends Application {
 			}
 		}
 		printToSimulationPanel(clientWorld.getWorldInfo());
-		appendToConsolePanel("The world has been updated.");
 	}
 
 	/**
@@ -677,12 +673,6 @@ public class GUIMain extends Application {
 		otherInfoLabel.setText(info);
 	}
 
-	/**
-	 * Print response of request to the console panel
-	 */
-	private void appendToConsolePanel(String info) {
-		consoleInfoLabel.setText(consoleInfoLabel.getText() + "\n" + info);
-	}
 
 	/**
 	 * Draw a blank slot into the given HexLocation {@code loc} at the given

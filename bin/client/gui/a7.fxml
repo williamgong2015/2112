@@ -84,7 +84,7 @@
                   </VBox>
                   <VBox prefHeight="200.0" prefWidth="100.0">
                      <children>
-                        <ScrollPane fx:id="critterinfoframe_scrollpane1" prefHeight="188.0" prefWidth="180.0">
+                        <ScrollPane fx:id="critterinfoframe_scrollpane1" prefHeight="387.0" prefWidth="180.0">
                            <content>
                               <AnchorPane fx:id="critterinfoframe_anchorpane1" prefHeight="166.0" prefWidth="158.0">
                                  <children>
@@ -98,9 +98,9 @@
                               </AnchorPane>
                            </content>
                         </ScrollPane>
-                        <ScrollPane fx:id="critterinfoframe_scrollpane11" prefHeight="350.0" prefWidth="180.0">
+                        <ScrollPane fx:id="critterinfoframe_scrollpane11" maxHeight="1.7976931348623157E308" prefHeight="500.0" prefWidth="180.0">
                            <content>
-                              <AnchorPane fx:id="critterinfoframe_anchorpane11" prefHeight="269.0" prefWidth="200.0">
+                              <AnchorPane fx:id="critterinfoframe_anchorpane11" maxHeight="1.7976931348623157E308" prefHeight="500.0" prefWidth="200.0">
                                  <children>
                                     <Label text="Other Information">
                                        <font>
