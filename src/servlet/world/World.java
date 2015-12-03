@@ -765,6 +765,8 @@ public class World {
 	public void addCritter(Critter c, Position pos) {
 		rwLock.writeLock().lock();
 		try {
+			if (this.getElemAtPosition(pos) != null)
+				return;
 			this.setElemAtPosition(c, pos);
 			addCritterToList(c);
 		} finally {

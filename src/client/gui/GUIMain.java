@@ -146,6 +146,12 @@ public class GUIMain extends Application {
 	private Timeline refreshTimeline;
 	
 	private ArrayDeque<WorldState> statesToUpdate = new ArrayDeque<>();
+	
+	private static String LOCAL_HOST_URL = 
+			"http://localhost:8080/2112/servlet/servlet.Servlet/";
+	
+	private static String PUBLIC_TEST_HOST_URL = 
+			"http://inara.cs.cornell.edu:54345/";
 
 
 	@Override
@@ -171,7 +177,14 @@ public class GUIMain extends Application {
 		worldPane = (Pane) root.lookup("#world_pane"); 
 
 		// create a client connection to the server
-		String url = "http://localhost:8080/2112/servlet/servlet.Servlet/";
+		String url;
+		String userInputUrl = getStringInput("Specify Server", 
+				"Input the Server URL you want to connect to. \n"
+				+ "For example: " + LOCAL_HOST_URL);
+		if (userInputUrl != null)
+			url = userInputUrl;
+		else
+			url = LOCAL_HOST_URL;
 		myClient = new MyClient(url);
 
 		refreshTimeline = new Timeline();
@@ -679,7 +692,6 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
-		System.out.println("draw food");
 		GUIHex tmp = new GUIHex(loc.x, loc.y,
 				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(new ImagePattern(Resource.foodImg));
@@ -973,8 +985,6 @@ public class GUIMain extends Application {
 	private File loadFile(Stage primaryStage) {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open A File");
-		fileChooser.getExtensionFilters().add(
-				new ExtensionFilter("Text Files", "*.txt"));
 		File selectedFile = fileChooser.showOpenDialog(primaryStage);
 		return selectedFile;
 	}
@@ -1055,7 +1065,7 @@ public class GUIMain extends Application {
 
 		// Set the button types.
 		ButtonType submitButtonType = 
-				new ButtonType("Insert", ButtonData.OK_DONE);
+				new ButtonType("OK", ButtonData.OK_DONE);
 		dialog.getDialogPane().getButtonTypes().addAll(
 				submitButtonType, ButtonType.CANCEL);
 
@@ -1067,7 +1077,8 @@ public class GUIMain extends Application {
 
 		TextField amount = new TextField();
 		amount.setPromptText(lowerBound + " - " + upperBound);
-
+		
+		
 		grid.add(new Label("Your Input:"), 0, 0);
 		grid.add(amount, 1, 0);
 
@@ -1110,13 +1121,93 @@ public class GUIMain extends Application {
 		result.ifPresent(amountNumber -> {
 			System.out.println("amount=" + amountNumber);
 		});
-
-		if (result.get() == null)
+		
+		if (!result.isPresent())
 			return 0;
-		else 
+		else
 			return result.get();
+
 	}
 
+	
+	/**
+	 * Pop an input dialog to ask user enter an string
+	 * @param title
+	 * @param headerText
+	 * @return
+	 */
+	private String getStringInput(String title, String headerText) {
+		// Create the custom dialog.
+		Dialog<String> dialog = new Dialog<>();
+		dialog.setTitle(title);
+		dialog.setHeaderText(headerText);
+
+		// Set the button types.
+		ButtonType submitButtonType = 
+				new ButtonType("OK", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(
+				submitButtonType, ButtonType.CANCEL);
+
+		// Create the username and password labels and fields.
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(20, 150, 10, 10));
+
+		TextField amount = new TextField();
+		amount.setPromptText(LOCAL_HOST_URL);
+		amount.setText(LOCAL_HOST_URL);
+
+		grid.add(new Label("Your Input:"), 0, 0);
+		grid.add(amount, 1, 0);
+
+		// Enable/Disable login button depending on whether a amount was entered.
+		Node submitButton = 
+				dialog.getDialogPane().lookupButton(submitButtonType);
+		submitButton.setDisable(true);
+
+		// Do some validation (using the Java 8 lambda syntax).
+		amount.textProperty().addListener((observable, oldValue, newValue) -> {
+			submitButton.setDisable(newValue.trim().isEmpty());
+		});
+
+		dialog.getDialogPane().setContent(grid);
+
+		Platform.runLater(() -> amount.requestFocus());
+
+		// Convert the result to a username-password-pair when the login button is clicked.
+		dialog.setResultConverter(dialogButton -> {
+			if (dialogButton == submitButtonType) {
+				try {
+					return amount.getText();
+				} catch (Exception e) {
+					e.printStackTrace();
+					return null;
+				}
+				
+			}
+			return null;
+		});
+
+		Optional<String> result = dialog.showAndWait();
+
+		result.ifPresent(amountNumber -> {
+			System.out.println("amount=" + amountNumber);
+		});
+		
+		if (!result.isPresent())
+			return null;
+		else {
+			if (result.get().equals("1"))
+				return null;
+			else if (result.get().equals("2"))
+				return PUBLIC_TEST_HOST_URL;
+			else 
+				return result.get();
+		}
+			
+
+	}
 
 	private Pair<String, String> showLoginDialog(Stage primaryStage) {
 		// Create the custom dialog.

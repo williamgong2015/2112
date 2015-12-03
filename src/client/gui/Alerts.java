@@ -90,12 +90,15 @@ public class Alerts {
 		String s ="Click 'New World' Button to generate or load a new world.\n"
 				+ "Click 'Load Critter' Button to load a critter file.\n"
 				+ "Specify an amount. Then click 'Add' to add some critters.\n"
-				+ "Click a hex. Then click 'Insert' to insert critter at "
-				+ "that specific hex.\n"
-				+ "Click 'Run' to start simulation, you may adjust the "
-				+ "simulation speed using the slider.\n"
-				+ "Click 'Stop' to stop the simulation.\n"
-				+ "Click 'Step' to proceeed one step of the simulation.\n";
+				+ "Click hexes, then click 'insert critter' to insert critter "
+				+ "at that specific hexes.\n"
+				+ "Click one hex with critter to inspect its information, "
+				+ "Clcik one hex with critter then click delete critter to "
+				+ "delete" 
+				+ "Click 'Step' to proceeed one step of the simulation.\n"
+				+ "Click 'Run' to start simulation. \n"
+				+ "Click 'Pause' to stop the simulation.\n";
+				
 		alert.setContentText(s);
 		alert.showAndWait();
 	}
