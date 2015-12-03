@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
@@ -73,7 +74,7 @@ public class World {
 	// order of critters in the world to take actions
 	public ArrayList<Critter> order = new ArrayList<>();
 
-	public ArrayList<Log> logs = new ArrayList<>();
+	public Vector<Log> logs = new Vector<>();
 	
 	// stepup a timeline to trigger the world to step another step 
 	private final static int MINIMUM_SPEED_IS_ONE = 1;
@@ -173,7 +174,7 @@ public class World {
 			int column = Integer.parseInt(temp[1]);
 			int row = Integer.parseInt(temp[2]);
 			world = new World(column,row,name);
-			world.logs = new ArrayList<>();
+			world.logs = new Vector<>();
 			// create a new log when the world is created
 			world.logs.add(new Log());
 			world.setupTimeline();
@@ -614,7 +615,7 @@ public class World {
 		Hashtable<Position, Element> result = new Hashtable<>();
 		for (int i = update_since; i < this.version_number; ++i) {
 			Set<Map.Entry<Position, Element>> set = 
-					logs.get(i).updates.entrySet();
+					logs.get(i).updates.entrySet(); 
 			for(Map.Entry<Position, Element> m : set) {
 				Element e = m.getValue();
 				Position p = m.getKey();

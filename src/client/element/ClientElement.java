@@ -132,9 +132,9 @@ public class ClientElement {
 			for (int i = 0; i < mem.length-1; ++i) 
 				s.append(mem[i] + ",");
 			s.append(mem[mem.length-1] + "]\n");
-			s.append("Program: \n");
 
 			if (program != null) {
+				s.append("Program: \n");
 				String[] tokens = program.split("\n");
 				for (int i = 0; i < tokens.length; ++i)
 					s.append("  " + (i+1) + ". " + tokens[i] + "\n");

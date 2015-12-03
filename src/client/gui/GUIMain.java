@@ -2,8 +2,10 @@ package client.gui;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Hashtable;
 import java.util.Optional;
 
@@ -136,6 +138,8 @@ public class GUIMain extends Application {
 	private int to_row;
 
 	private Timeline refreshTimeline;
+	
+	private ArrayDeque<WorldState> statesToUpdate = new ArrayDeque<>();
 
 
 	@Override
@@ -206,7 +210,7 @@ public class GUIMain extends Application {
 	 * stored at the client side
 	 * @param myClient
 	 */
-	void initializeWorld() {
+	synchronized void initializeWorld() {
 		try {
 			// get the whole world since version 0
 			WorldState state = new WorldState();
@@ -234,7 +238,7 @@ public class GUIMain extends Application {
 	 * 
 	 * Update the GUI with {@code hexToUpdate}
 	 */
-	void refreshGUI() {
+	synchronized private void refreshGUI() {
 		try {
 			WorldState state = new WorldState();
 			int statusCode = myClient.getStateOfWorld(
@@ -244,6 +248,7 @@ public class GUIMain extends Application {
 				Alerts.alert406Error("Can't get the world");
 				return;
 			}
+			statesToUpdate.add(state);
 			clientWorld.updateWithWorldState(state);
 			Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
 					clientWorld.getHexToUpdate();
@@ -482,9 +487,19 @@ public class GUIMain extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
-				clientWorld.getHexToUpdate();
-		executeHexUpdate(hexToUpdate.values());
+//		WorldState state = new WorldState();
+//		int statusCode = myClient.getStateOfWorld(
+//				clientWorld.current_version_number, from_col, from_row,
+//				to_col, to_row, state);
+//		if (statusCode == 406) {
+//			Alerts.alert406Error("Can't get the world");
+//			return;
+//		}
+//		statesToUpdate.add(state);
+//		clientWorld.updateWithWorldState(state);
+//		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
+//				clientWorld.getHexToUpdate();
+//		executeHexUpdate(hexToUpdate.values());
 	}
 
 	/**
@@ -569,7 +584,7 @@ public class GUIMain extends Application {
 	 * Effect: execute a list of Hex update and refresh world info and 
 	 *         clear the critter info (because it may has changed)
 	 */
-	synchronized private void executeHexUpdate(Collection<HexToUpdate> list) {
+	private void executeHexUpdate(Collection<HexToUpdate> list) {
 
 		for (HexToUpdate update : list) {
 
