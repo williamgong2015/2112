@@ -1,4 +1,4 @@
-package servlet;
+package servlet.connection;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -80,20 +80,6 @@
                               </AnchorPane>
                           </items>
                         </SplitPane>
-                        <ScrollPane fx:id="critterinfoframe_scrollpane12" prefHeight="166.0" prefWidth="180.0">
-                           <content>
-                              <AnchorPane fx:id="critterinfoframe_anchorpane12" prefHeight="200.0" prefWidth="200.0">
-                                 <children>
-                                    <Label text="Console">
-                                       <font>
-                                          <Font name="System Bold Italic" size="16.0" />
-                                       </font>
-                                    </Label>
-                                    <Label fx:id="consolenfodetails_label" layoutY="25.0" />
-                                 </children>
-                              </AnchorPane>
-                           </content>
-                        </ScrollPane>
                      </children>
                   </VBox>
                   <VBox prefHeight="200.0" prefWidth="100.0">

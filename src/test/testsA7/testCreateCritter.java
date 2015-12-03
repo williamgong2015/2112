@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import client.MyClient;
+import client.connection.MyClient;
 import game.exceptions.SyntaxError;
 import servlet.element.Critter;
 import test.testsA5.critterTest;

@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import client.MyClient;
+import client.connection.MyClient;
 
 /**
  * Test client and servlet on Login

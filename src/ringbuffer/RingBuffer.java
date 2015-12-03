@@ -1,4 +1,4 @@
-package game.utils;
+package ringbuffer;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;

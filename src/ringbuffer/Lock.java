@@ -1,4 +1,4 @@
-package game.utils;
+package ringbuffer;
 
 public interface Lock {
 	/** Acquire the lock unless it is already held by this thread. Blocks until

@@ -6,7 +6,7 @@ import java.util.Hashtable;
 import com.google.gson.Gson;
 
 import api.JsonClasses.*;
-import client.element.ClientElement;
+import client.world.ClientElement;
 import client.world.ClientPosition;
 import servlet.element.Critter;
 import servlet.element.Element;

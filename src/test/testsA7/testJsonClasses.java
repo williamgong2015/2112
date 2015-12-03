@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import api.PackJson;
-import client.element.ClientElement;
+import client.world.ClientElement;
 import client.world.ClientPosition;
 import game.exceptions.SyntaxError;
 import servlet.element.Critter;

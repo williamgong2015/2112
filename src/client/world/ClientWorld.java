@@ -9,7 +9,6 @@ import java.util.Set;
 import api.JsonClasses;
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
-import client.element.ClientElement;
 import client.gui.GUIHex;
 import client.world.HexToUpdate.HEXType;
 import game.constant.IDX;

@@ -20,7 +20,7 @@ import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
-import servlet.Log;
+import servlet.connection.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
 import servlet.element.Food;
