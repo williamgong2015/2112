@@ -1,8 +1,6 @@
 package api;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -11,7 +9,6 @@ import com.google.gson.reflect.TypeToken;
 
 import api.JsonClasses.*;
 import client.element.ClientElement;
-import game.exceptions.SyntaxError;
  
 
 /**
@@ -115,13 +112,6 @@ public class UnpackJson {
 	public static WorldState unpackWorldState(BufferedReader br) {
 		WorldState tmp = gson.fromJson(br, WorldState.class);
 		return tmp;
-	}
-	
-	public static void main(String[] args) throws FileNotFoundException, SyntaxError {
-		BufferedReader br = new BufferedReader(new FileReader("a7.txt"));
-		//ArrayList<State> tmp = unpackListOfCritters(br);
-		//Critter c = new Critter(tmp.get(0));
-		//System.out.println(c);
 	}
 
 	public static CreateNewWorld unpackCreateNewWorld(BufferedReader r) {
