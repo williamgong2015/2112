@@ -98,7 +98,7 @@ public class GUIMain extends Application {
 
 	private final static int VERSION_ZERO = 0;
 	private final static int ZERO = 0;
-	
+
 	private final static int MIN_INSERT_FOOD_AMOUNT = 1;
 	private final static int MAX_INSERT_FOOD_AMOUNT = 500;
 	private final static int MIN_INSERT_CRITTER_AMOUNT = 1;
@@ -107,15 +107,15 @@ public class GUIMain extends Application {
 	private final static int MAX_WORLD_STEP_AMOUNT = 10000;
 	private final static int MIN_WORLD_RUN_SPEED = 1;
 	private final static int MAX_WORLD_RUN_SPEED = 1000;
-	
-	
+
+
 	private final static int RED_SEED = 100;
 	private final static int GREEN_SEED = 200;
 	private final static int BLUE_SEED = 300;
 	private final static int RGB_OFFSET = 90;
 	private final static int RGB_RANGE = 256;
-	
-	
+
+
 
 	private volatile File critterFile = null;  // path to critter file
 	private ArrayList<GUIHex> selectedHex = new ArrayList<>(); // current selected hex
@@ -142,12 +142,12 @@ public class GUIMain extends Application {
 	private int to_row;
 
 	private Timeline refreshTimeline;
-	
+
 	private ArrayDeque<WorldState> statesToUpdate = new ArrayDeque<>();
-	
+
 	private static String LOCAL_HOST_URL = 
 			"http://localhost:8080/2112/servlet/servlet.Servlet/";
-	
+
 	private static String PUBLIC_TEST_HOST_URL = 
 			"http://inara.cs.cornell.edu:54345/";
 
@@ -176,7 +176,7 @@ public class GUIMain extends Application {
 		String url;
 		String userInputUrl = getStringInput("Specify Server", 
 				"Input the Server URL you want to connect to. \n"
-				+ "For example: " + LOCAL_HOST_URL);
+						+ "For example: " + LOCAL_HOST_URL);
 		if (userInputUrl != null)
 			url = userInputUrl;
 		else
@@ -219,17 +219,17 @@ public class GUIMain extends Application {
 
 		initializeWorld();
 	}
-	
+
 	/**
 	 * Redraw the whole world when the user change subsection of the world
 	 */
-	void reInitializeWorld() {
+	synchronized void reInitializeWorld() {
 		// get the whole world since version 0
 		WorldState state = new WorldState();
 		int statusCode;
 		try {
 			statusCode = myClient.getStateOfWorld(VERSION_ZERO, from_col, 
-				 from_row, to_col, to_row, state);
+					from_row, to_col, to_row, state);
 			if (statusCode == 406) {
 				Alerts.alert406Error("Can't get the world");
 				return;
@@ -242,7 +242,7 @@ public class GUIMain extends Application {
 					clientWorld.getHexToUpdate();
 			executeHexUpdate(hexToUpdate.values());
 		} catch (IOException e) {
-//			Alerts.alert401Error("You are not an administrator");
+			//			Alerts.alert401Error("You are not an administrator");
 			e.printStackTrace();
 		}
 	}
@@ -252,7 +252,7 @@ public class GUIMain extends Application {
 	 * stored at the client side
 	 * @param myClient
 	 */
-	 void initializeWorld() {
+	synchronized void initializeWorld() {
 		try {
 			// get the whole world since version 0
 			WorldState state = new WorldState();
@@ -280,7 +280,7 @@ public class GUIMain extends Application {
 	 * 
 	 * Update the GUI with {@code hexToUpdate}
 	 */
-	 private void refreshGUI() {
+	synchronized private void refreshGUI() {
 		try {
 			WorldState state = new WorldState();
 			int statusCode = myClient.getStateOfWorld(
@@ -363,19 +363,10 @@ public class GUIMain extends Application {
 				menus.get(MODIFY_MENU_IDX).getItems();
 
 		modify_menuitems.get(INSERT_CRITTER_IDX).setOnAction(e -> { 
-			new Thread() { // Create a new background process
-			    public void run() {
-			    	critterFile = loadFile(primaryStage);
-			    	insertCritter();
-			        Platform.runLater(new Runnable() { // Go back to UI/application thread
-			            public void run() {
-			                // Update UI to reflect changes to the model
-			    			refreshGUI();
-			            }
-			        });
-			    }
-			}.start(); // Starts the background thread!
-			
+			critterFile = loadFile(primaryStage);
+			insertCritter();
+			refreshGUI();
+
 		});
 
 		modify_menuitems.get(INSERT_FOOD_IDX).setOnAction(e -> { 
@@ -468,7 +459,7 @@ public class GUIMain extends Application {
 		int to_row_tmp = getAmountInput("Subsection World Dialog", 
 				"Please specify ending row you want to view.", from_row_tmp,
 				clientWorld.row);
-		
+
 		// in case user cancel the input
 		if (from_col_tmp == 0 || from_row_tmp == 0 
 				|| to_col_tmp == 0 || to_row_tmp == 0)
@@ -534,19 +525,19 @@ public class GUIMain extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		WorldState state = new WorldState();
-//		int statusCode = myClient.getStateOfWorld(
-//				clientWorld.current_version_number, from_col, from_row,
-//				to_col, to_row, state);
-//		if (statusCode == 406) {
-//			Alerts.alert406Error("Can't get the world");
-//			return;
-//		}
-//		statesToUpdate.add(state);
-//		clientWorld.updateWithWorldState(state);
-//		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
-//				clientWorld.getHexToUpdate();
-//		executeHexUpdate(hexToUpdate.values());
+		//		WorldState state = new WorldState();
+		//		int statusCode = myClient.getStateOfWorld(
+		//				clientWorld.current_version_number, from_col, from_row,
+		//				to_col, to_row, state);
+		//		if (statusCode == 406) {
+		//			Alerts.alert406Error("Can't get the world");
+		//			return;
+		//		}
+		//		statesToUpdate.add(state);
+		//		clientWorld.updateWithWorldState(state);
+		//		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
+		//				clientWorld.getHexToUpdate();
+		//		executeHexUpdate(hexToUpdate.values());
 	}
 
 	/**
@@ -872,7 +863,7 @@ public class GUIMain extends Application {
 				GUIHex.POINTSNUMBER+1);		
 		selectedHex.remove(hex);
 	}
-	
+
 	/**
 	 * Add {@code hex} to ArrayList {@code selectedHex} and drwaw it 
 	 * with selected strock to mark it has been seleceted
@@ -1049,7 +1040,7 @@ public class GUIMain extends Application {
 				otherInfoLabel.setText("");
 		}
 	}
-	
+
 	/**
 	 * Check whether the selected hex is within the current Drawn GUI world
 	 * @param newSelected
@@ -1060,7 +1051,7 @@ public class GUIMain extends Application {
 		int from_y = PositionInterpreter.getY(from_col, from_row);
 		int to_x = PositionInterpreter.getX(to_col, to_row);
 		int to_y = PositionInterpreter.getY(to_col, to_row);
-		
+
 		// out of range
 		if (newSelected.loc.x > to_x || newSelected.loc.x < from_x || 
 				newSelected.loc.y > to_y || newSelected.loc.y < from_y)
@@ -1097,8 +1088,8 @@ public class GUIMain extends Application {
 
 		TextField amount = new TextField();
 		amount.setPromptText(lowerBound + " - " + upperBound);
-		
-		
+
+
 		grid.add(new Label("Your Input:"), 0, 0);
 		grid.add(amount, 1, 0);
 
@@ -1131,7 +1122,7 @@ public class GUIMain extends Application {
 					Alerts.alertInputAnInteger();
 					return 0;
 				}
-				
+
 			}
 			return 0;
 		});
@@ -1141,7 +1132,7 @@ public class GUIMain extends Application {
 		result.ifPresent(amountNumber -> {
 			System.out.println("amount=" + amountNumber);
 		});
-		
+
 		if (!result.isPresent())
 			return 0;
 		else
@@ -1149,7 +1140,7 @@ public class GUIMain extends Application {
 
 	}
 
-	
+
 	/**
 	 * Pop an input dialog to ask user enter an string
 	 * @param title
@@ -1194,7 +1185,7 @@ public class GUIMain extends Application {
 					e.printStackTrace();
 					return null;
 				}
-				
+
 			}
 			return null;
 		});
@@ -1204,7 +1195,7 @@ public class GUIMain extends Application {
 		result.ifPresent(amountNumber -> {
 			System.out.println("amount=" + amountNumber);
 		});
-		
+
 		if (!result.isPresent())
 			return null;
 		else {
@@ -1215,7 +1206,7 @@ public class GUIMain extends Application {
 			else 
 				return result.get();
 		}
-			
+
 
 	}
 
@@ -1276,7 +1267,7 @@ public class GUIMain extends Application {
 			System.out.println("Username=" + usernamePassword.getKey() + 
 					", Password=" + usernamePassword.getValue());
 		});
-		
+
 		// if result is present has been handled above
 		if (!result.isPresent())
 			return null;
