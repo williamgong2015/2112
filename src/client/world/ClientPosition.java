@@ -107,7 +107,6 @@ public class ClientPosition {
 	private static int parseXYFromID(String ID, boolean parseRow) {
 		String[] token = ID.split(",");
 		if (token.length != 2) {
-			System.out.println("illegal id: " + ID);
 			return -1;
 		}
 		try {
@@ -119,7 +118,6 @@ public class ClientPosition {
 				return y;
 			return x;
 		} catch (Exception e) {
-			System.out.println("illegal id: " + ID);
 			return -1;
 		}
 	}

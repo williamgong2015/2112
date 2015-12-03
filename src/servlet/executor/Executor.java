@@ -516,8 +516,4 @@ public class Executor {
 		Element e = world.getElemAtPosition(pos);
 		return e; 
 	}
-	
-	
-	// TODO some more methods
-	//energy more than possible ,wait
 }
