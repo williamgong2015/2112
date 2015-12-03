@@ -1,8 +1,10 @@
-package game.utils;
+package ringbuffer;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+
+import game.utils.RandomGen;
 
 public class RingBufferTest {
 	static RingBuffer<Integer> r = new RingBuffer<>( 1001);

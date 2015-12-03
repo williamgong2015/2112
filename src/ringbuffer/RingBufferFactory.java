@@ -1,4 +1,4 @@
-package game.utils;
+package ringbuffer;
 
 import java.util.concurrent.BlockingQueue;
 

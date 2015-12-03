@@ -1,4 +1,4 @@
-package servlet;
+package servlet.connection;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

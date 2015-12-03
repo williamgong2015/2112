@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
-import client.element.ClientElement;
+import client.world.ClientElement;
 import client.world.ClientPosition;
 import servlet.element.Critter;
 import servlet.world.Position;

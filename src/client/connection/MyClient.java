@@ -1,4 +1,4 @@
-package client;
+package client.connection;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import api.PackJson;
 import api.PositionInterpreter;
 import api.UnpackJson;
-import client.element.ClientElement;
+import client.world.ClientElement;
 import client.world.ClientPosition;
 import api.JsonClasses.*;
 import game.exceptions.SyntaxError;

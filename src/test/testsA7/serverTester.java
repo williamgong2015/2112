@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import api.PositionInterpreter;
 import api.JsonClasses.State;
 import api.JsonClasses.WorldState;
-import client.MyClient;
-import client.element.ClientElement;
+import client.connection.MyClient;
+import client.world.ClientElement;
 import client.world.ClientPosition;
 
 public class serverTester {
