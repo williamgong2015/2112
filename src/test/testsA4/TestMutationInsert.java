@@ -29,7 +29,7 @@ public class TestMutationInsert {
 	 */
 	@Test
 	public void testInsertUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getInsert();
@@ -99,7 +99,7 @@ public class TestMutationInsert {
 	 * @throws SyntaxError 
 	 */
 	private void testInsertCondition(int index, String className) throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/twoConditions.txt");
+		FileReader f = new FileReader("src/test/testsA4/twoConditions.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		String oldNodeStr = t.nodeAt(index).toString().replaceAll("[{}]", "").trim();
@@ -121,17 +121,23 @@ public class TestMutationInsert {
 				.toString().replaceAll("[{}]", "").trim();
 		
 		String[] possibleConditions = 
-			{"{ ahead[1] != 1 or ahead[1] != 2 } and ahead[1] != 0 - 1", 
-					"{ ahead[1] != 1 or ahead[1] != 2 }", "ahead[1] != 1",
+			{"ahead[1] != 1 or ahead[1] != 2 and ahead[1] != 0 - 1", 
+					"ahead[1] != 1 or ahead[1] != 2", "ahead[1] != 1",
 					"ahead[1] != 2", "ahead[1] != 0 - 1", "ahead[1] > 0"
 			};
-		for (int i = 0; i < possibleConditions.length; ++i) 
+		for (int i = 0; i < possibleConditions.length; ++i) {
 			possibleConditions[i] = 
 					possibleConditions[i].replaceAll("[{}]", "").trim();
+			System.out.println("possibleConditions" + i + ": " + 
+					possibleConditions[i]);
+		}
 		assertTrue("the node being mutated doesn't become a "
 				+ "child of inserted node", 
 				newChild1Str.equals(oldNodeStr) || 
 				newChild2Str.equals(oldNodeStr));
+		System.out.println("NEWCHILD1: " + newChild1Str);
+		System.out.println("NEWCHILD2: " + newChild2Str);
+		
 		assertTrue("the new inserted child is not copy of one of the "
 				+ "same kind of node", 
 				game.utils.EqualityCheck.checkIsOneOf(possibleConditions, newChild1Str) && 
@@ -156,7 +162,7 @@ public class TestMutationInsert {
 	 * @throws SyntaxError 
 	 */
 	private void testInsertExpr(int index, String className) throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/oneExpr.txt");
+		FileReader f = new FileReader("src/test/testsA4/oneExpr.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 

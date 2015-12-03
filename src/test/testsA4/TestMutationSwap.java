@@ -28,7 +28,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapProgramImpl() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/twoRules.txt");
+		FileReader f = new FileReader("src/test/testsA4/twoRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -73,7 +73,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapCommands() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/twoCommands.txt");
+		FileReader f = new FileReader("src/test/testsA4/twoCommands.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -117,7 +117,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapUnsupport() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();
@@ -158,7 +158,7 @@ public class TestMutationSwap {
 	 */
 	@Test
 	public void testSwapBinaryOperation() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getSwap();

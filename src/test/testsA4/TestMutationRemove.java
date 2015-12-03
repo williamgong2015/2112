@@ -27,7 +27,7 @@ public class TestMutationRemove {
 	 */
 	@Test
 	public void testRemoveProgramImpl() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		String oldTree = t.toString();
@@ -54,7 +54,7 @@ public class TestMutationRemove {
 	 */
 	@Test
 	public void testRemoveRule() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		Rule r1 = (Rule) t.nodeAt(1);
@@ -81,7 +81,7 @@ public class TestMutationRemove {
 	 */
 	@Test
 	public void testRemoveCommand() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		Command c1 = (Command) t.nodeAt(11);
@@ -119,7 +119,7 @@ public class TestMutationRemove {
 	 */
 	@Test
 	public void testRemoveCondition() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		// mem[5] = 1, a relation
@@ -153,7 +153,7 @@ public class TestMutationRemove {
 	 */
 	@Test
 	public void testRemoveExpr() throws FileNotFoundException, SyntaxError {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		// 5, an Number, can't be removed

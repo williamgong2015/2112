@@ -30,8 +30,8 @@ public class MutationReplace extends AbstractMutation {
 		int[] otherIndexes = game.utils.RandomGen.arrOfRanNumExcept(size, oldIndex);
 		for (int i = 0; i < otherIndexes.length; ++i) {
 			// keep trying to find a rule different from {@code n}
-			MutableNode newChild = (MutableNode) 
-					getACopy((MutableNode) parent.getChild(otherIndexes[i]));
+			MutableNode newChild = ((MutableNode) 
+					parent.getChild(otherIndexes[i])).copy();
 			if (!newChild.toString().equals(n.toString())) {
 				newChild.setParent(parent);
 				parent.setChild(oldIndex, newChild);
@@ -55,7 +55,7 @@ public class MutationReplace extends AbstractMutation {
 		MutableNode fellow = (MutableNode) findMyFellow(n, cls);
 		if (fellow == null)
 			return false;
-		Command newChild = (Command) getACopy(fellow);
+		Command newChild = (Command) fellow.copy();
 		newChild.setParent(parent);
 		parent.setChild(oldIndex, newChild);
 		return true;
@@ -94,7 +94,7 @@ public class MutationReplace extends AbstractMutation {
 		MutableNode fellow = (MutableNode) findMyFellowAndSub(Condition.class, n, null);
 		if (fellow == null)
 			return false;
-		Condition newChild = (Condition) getACopy(fellow);
+		Condition newChild = (Condition) fellow.copy();
 		Node parent = n.getParent();
 		newChild.setParent(parent);
 		if (parent instanceof Rule) {
@@ -128,7 +128,7 @@ public class MutationReplace extends AbstractMutation {
 		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n, null);
 		if (fellow == null)
 			return false;
-		Expr newChild = (Expr) getACopy(fellow);
+		Expr newChild = fellow.copy();
 		// TODO Dirty Fix: not supporting transform to -factor
 		Node parent = ((MutableNode) n).getParent();
 		if ((parent instanceof UnaryExpr &&

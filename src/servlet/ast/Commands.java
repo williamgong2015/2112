@@ -142,6 +142,9 @@ public class Commands extends Command implements Placeholder {
 		for(Command c : up) {
 			newCopy.add(c.copy());
 		}
-		return new Commands(newCopy,act.copy());
+		if(act == null)
+			return new Commands(newCopy, null);
+		else
+			return new Commands(newCopy, act.copy());
 	}
 }

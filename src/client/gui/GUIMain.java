@@ -368,10 +368,10 @@ public class GUIMain extends Application {
 			new Thread() { // Create a new background process
 			    public void run() {
 			    	critterFile = loadFile(primaryStage);
+			    	insertCritter();
 			        Platform.runLater(new Runnable() { // Go back to UI/application thread
 			            public void run() {
 			                // Update UI to reflect changes to the model
-			            	insertCritter();
 			    			refreshGUI();
 			            }
 			        });

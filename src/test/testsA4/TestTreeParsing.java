@@ -23,7 +23,7 @@ public class TestTreeParsing {
 	 */
 	@Test
 	public void testParseTree() throws FileNotFoundException {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t1 = p.parse(f);
 		String parsedOutput = t1.toString();

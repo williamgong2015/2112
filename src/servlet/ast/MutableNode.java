@@ -26,4 +26,7 @@ public abstract class MutableNode implements Node ,Mutable, Parsable {
 	public Node getParent() {
 		return parent;
 	}
+	
+	
+	public abstract MutableNode copy();
 }

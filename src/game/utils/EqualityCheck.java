@@ -8,6 +8,10 @@ public class EqualityCheck {
 			if (possible[i].equals(tocheck))
 				return true;
 		}
+		for (int i = 0; i < possible.length; ++i) {
+			if (possible[i].equals(tocheck))
+				return true;
+		}
 		return false;
 	}
 }

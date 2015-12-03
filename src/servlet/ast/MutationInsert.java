@@ -24,7 +24,7 @@ public class MutationInsert extends AbstractMutation {
 		Condition fellow = (Condition) findMyFellowAndSub(Condition.class, n, null);
 		if (fellow == null)
 			return false;
-		Condition newChild = (Condition) getACopy(fellow);
+		Condition newChild = fellow.copy();
 		BinaryCondition b;
 		if (game.utils.RandomGen.randomNumber(2) == 0)
 			b = new BinaryCondition(n, BinaryCondition.Operator.OR, newChild);
@@ -61,7 +61,7 @@ public class MutationInsert extends AbstractMutation {
 		Expr fellow = (Expr) findMyFellowAndSub(Expr.class, n, null);
 		if (fellow == null)
 			return false;
-		Expr newChild = (Expr) getACopy(fellow);
+		Expr newChild = fellow.copy();
 		// insert an UnaryExpr
 		if (game.utils.RandomGen.randomNumber(2) == 0) {
 			UnaryExpr u = new UnaryExpr(n);

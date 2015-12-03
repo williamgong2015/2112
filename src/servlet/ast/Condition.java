@@ -18,5 +18,7 @@ public abstract class Condition extends MutableNode {
 		}
 		
 	}
+	
+	@Override
 	public abstract Condition copy();
 }

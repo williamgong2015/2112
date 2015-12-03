@@ -145,17 +145,4 @@ public abstract class AbstractMutation implements Mutation{
 		return null;
 	}
 	
-	public MutableNode getACopy(MutableNode n) {
-		StringReader s = new StringReader(n.toString());
-		Tokenizer t = new Tokenizer(s);
-		MutableNode newChild = (MutableNode) n.parseMyType(t);
-		return newChild;
-	}
-	
-	public ProgramImpl getACopy(ProgramImpl n) {
-		StringReader s = new StringReader(n.toString());
-		Tokenizer t = new Tokenizer(s);
-		ProgramImpl newChild = n.parseMyType(t);
-		return newChild;
-	}
 }

@@ -16,8 +16,8 @@ public class MutationDuplicate extends AbstractMutation {
 
 	public boolean mutate(ProgramImpl n) {
 		ArrayList<Rule> r = n.getChildren();
-		Rule newRule = (Rule) getACopy(r.get(game.utils.RandomGen.
-				randomNumber(r.size())));
+		Rule newRule =  r.get(game.utils.RandomGen.randomNumber(r.size())).
+				copy();
 		newRule.setParent(n);
 		r.add(newRule);
 		return true;
@@ -26,8 +26,8 @@ public class MutationDuplicate extends AbstractMutation {
 	public boolean mutate(Commands n) {
 		if(n.act == null) {
 			ArrayList<Command> c = n.getChildren();
-			Command newCommand = (Command) getACopy(c.get(game.utils.RandomGen.
-					randomNumber(c.size())));
+			Command newCommand = c.get(game.utils.RandomGen.
+					randomNumber(c.size())).copy();
 			newCommand.setParent(n);
 			c.add(newCommand);
 			return true;

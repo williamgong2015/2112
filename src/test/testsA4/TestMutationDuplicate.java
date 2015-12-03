@@ -29,7 +29,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateUnsupport() throws FileNotFoundException {
-		FileReader f = new FileReader("src/testsA4/mutationTest.txt");
+		FileReader f = new FileReader("src/test/testsA4/mutationTest.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();
@@ -72,7 +72,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateCommands() throws FileNotFoundException {
-		FileReader f = new FileReader("src/testsA4/twoCommands.txt");
+		FileReader f = new FileReader("src/test/testsA4/twoCommands.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();
@@ -98,7 +98,7 @@ public class TestMutationDuplicate {
 	 */
 	@Test
 	public void testDuplicateProgramImpl() throws FileNotFoundException {
-		FileReader f = new FileReader("src/testsA4/threeRules.txt");
+		FileReader f = new FileReader("src/test/testsA4/threeRules.txt");
 		ParserImpl p = new ParserImpl();
 		Program t = p.parse(f);
 		AbstractMutation m = (AbstractMutation) MutationFactory.getDuplicate();

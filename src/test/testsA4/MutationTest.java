@@ -17,7 +17,7 @@ public class MutationTest {
 
 	@Test
 	public void test() throws FileNotFoundException {
-		FileReader f = new FileReader(new File("src/testsA4/mutationTest.txt"));
+		FileReader f = new FileReader(new File("src/test/testsA4/mutationTest.txt"));
 		Parser p = ParserFactory.getParser();
 		Program pro = p.parse(f);
 		for(int i = 0;i < 1000;i++) {
