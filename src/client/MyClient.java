@@ -79,7 +79,12 @@ public class MyClient {
 		return session_id;
 	}
 
-	//TODO: not sure what to do about the result it returns
+	/**
+	 * 
+	 * @param list
+	 * @return the list contains all critters in the world
+	 * @throws IOException
+	 */
 	public int lisAllCritters(ArrayList<ClientElement> list) throws IOException {
 		String tmpURL = url + "CritterWorld/" + "critters?session_id=" + 
 				session_id;
