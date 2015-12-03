@@ -3,7 +3,6 @@ package servlet.world;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -11,6 +10,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import api.JsonClasses;
 import api.JsonClasses.CreateRandomPositionCritter;
@@ -20,13 +20,6 @@ import game.constant.Constant;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
 import game.utils.RandomGen;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.animation.Animation.Status;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.util.Duration;
 import servlet.Log;
 import servlet.element.Critter;
 import servlet.element.Element;
@@ -37,7 +30,6 @@ import servlet.executor.Executor;
 import servlet.executor.ResultList;
 import servlet.interpreter.InterpreterImpl;
 import servlet.interpreter.Outcome;
-import test.testsA5.critterTest;
 
 /**
  * The critter world
@@ -53,7 +45,7 @@ import test.testsA5.critterTest;
  *    two elements can have the same position property)
  */
 public class World {
-	
+
 	Timer timer = null;
 
 	// how many turns has passed in the world
@@ -75,17 +67,19 @@ public class World {
 	public ArrayList<Critter> order = new ArrayList<>();
 
 	public Vector<Log> logs = new Vector<>();
-	
-	// stepup a timeline to trigger the world to step another step 
-	private final static int MINIMUM_SPEED_IS_ONE = 1;
-	
+
+
 	// - if the speed <= 30, each cycle lapse the world, draw the world, 
 	//   so counterWorldLapse = counterWorldDraw
 	// - if the speed > 30, each cycle lapse the world but 
 	//   draw the world only when 30*counterWorldLapse/speed > counterWorldDraw
 	//   and have counterWorldDraw++ after drawing the world
 
-	
+	// read writer lock for server thread safety
+	private ReentrantReadWriteLock rwLock = 
+			new ReentrantReadWriteLock();
+
+
 	/**
 	 * Initialize a world
 	 * Check: {@code r} > 0, {@code c} > 0, 
@@ -116,7 +110,6 @@ public class World {
 		name = n;
 		turns = 0;
 		logs.add(new Log());
-		setupTimeline();
 	}
 
 	/**
@@ -141,7 +134,6 @@ public class World {
 		name = "Default World";
 		// create a new log when the world is created
 		logs.add(new Log());
-		setupTimeline();
 		// initialize some rocks into the world
 		for(int i = 0;i < Math.abs(RandomGen.randomNumber(row * column / 10)); 
 				i++) {
@@ -161,11 +153,13 @@ public class World {
 	/**
 	 * Create and return a world with a world file
 	 * @param session_id - id of user who load the world
+	 * @throws Exception 
 	 */
 	public static World loadWorld(File filename, int session_id) {
 		World world;
-		try{
-			FileReader r = new FileReader(filename);
+		FileReader r;
+		try {
+			r = new FileReader(filename);
 			BufferedReader br = new BufferedReader(r);
 			String s = br.readLine();
 			String name = s.substring(5);
@@ -177,7 +171,6 @@ public class World {
 			world.logs = new Vector<>();
 			// create a new log when the world is created
 			world.logs.add(new Log());
-			world.setupTimeline();
 			while((s = br.readLine()) != null) {
 				if(s.startsWith("//"))
 					continue;
@@ -220,10 +213,11 @@ public class World {
 			r.close();
 			return world;
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.err.println("No such file");
 			return null;
 		}
+
 
 	}
 
@@ -231,67 +225,67 @@ public class World {
 	 * @param filename
 	 * @param session_id - id of user who load the world
 	 * @return
+	 * @throws Exception 
 	 */
 	public static World loadWorld(String filename, int session_id) {
 		return loadWorld(new File(filename), session_id);
 	}
-	
-	/**
-	 * Return the timeline which controls the world simulation
-	 */
-	private Timeline setupTimeline() {
-		// set the iteration count to be as large as it can
-		Timeline tmp = new Timeline();
-		tmp.setCycleCount(Integer.MAX_VALUE);
-		// recounts cycle count every time it plays again
-		tmp.setAutoReverse(false);  
-		tmp.getKeyFrames().add(
-				new KeyFrame(Duration.millis(1000/MINIMUM_SPEED_IS_ONE), 
-						event -> lapse()));
-		rate = MINIMUM_SPEED_IS_ONE;
-		return tmp;
-	}
-	
+
+
 	/**
 	 * Change the simulation rate of the world and store it in 
 	 * {@code rate}
 	 * @param rate
 	 */
 	public void changeSimulationSpeed(int rate) {
-		this.rate = rate;
-		if (rate <= 0) {
-			if (timer != null)
-				timer.cancel();
-			timer = null;
-			return;
+		rwLock.writeLock().lock();
+		try {
+			this.rate = rate;
+			if (rate <= 0) {
+				if (timer != null)
+					timer.cancel();
+				timer = null;
+				return;
+			}
+			System.out.println("Change rate");
+			if (timer == null)
+				timer = new Timer();
+			timer.scheduleAtFixedRate(
+					new TimerTask()
+					{
+						public void run()
+						{
+							lapse();
+							System.out.println(1000/rate + " seconds passed");
+						}
+					},
+					0,      // run first occurrence immediately
+					1000/rate);  // run every three seconds
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		System.out.println("Change rate");
-		if (timer == null)
-			timer = new Timer();
-		timer.scheduleAtFixedRate(
-			    new TimerTask()
-			    {
-			        public void run()
-			        {
-			        	lapse();
-			            System.out.println(1000/rate + " seconds passed");
-			        }
-			    },
-			    0,      // run first occurrence immediately
-			    1000/rate);  // run every three seconds
 	}
-	
-	public int getSimulationRate() {
-		return rate;
+
+	public int getSimulaionRate() {
+		rwLock.readLock().lock();
+		try {
+			return rate;
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
-	
+
 	/**
 	 * add a critter to the arraylist
 	 */
 	public void addCritterToList(Critter c) {
-		order.add(c);
+		rwLock.writeLock().lock();
+		try {
+			order.add(c);
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
-	
 
 
 	/**
@@ -299,47 +293,52 @@ public class World {
 	 * 
 	 */
 	public void lapse() {
-		System.out.println("lapse");
-		turns++;
-		version_number++;
-		logs.add(new Log());
-		ArrayList<Critter> toDelete = new ArrayList<>();
-		// update every critter until it execute a action or has being 
-		// updated for 999 PASS (for the second one, take a wait action)
-		int i = 0;
-		while (i < order.size()) {
-			Critter c = order.get(i++);
-			InterpreterImpl interpret = new InterpreterImpl(this,c);
-			Executor executor = new Executor(this, c);
-			boolean hasAction = false;
-			c.setWantToMate(false);
-			// for each critter, while it hasn't act and hasn't come to MAXPASS
-			// keep interpret it and execute its commands
-			while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
-					hasAction == false) {
-				Outcome outcomes = interpret.interpret(c.getProgram());
+		rwLock.writeLock().lock();
+		try {
+			System.out.println("lapse");
+			turns++;
+			version_number++;
+			logs.add(new Log());
+			ArrayList<Critter> toDelete = new ArrayList<>();
+			// update every critter until it execute a action or has being 
+			// updated for 999 PASS (for the second one, take a wait action)
+			int i = 0;
+			while (i < order.size()) {
+				Critter c = order.get(i++);
+				InterpreterImpl interpret = new InterpreterImpl(this,c);
+				Executor executor = new Executor(this, c);
+				boolean hasAction = false;
+				c.setWantToMate(false);
+				// for each critter, while it hasn't act and hasn't come to MAXPASS
+				// keep interpret it and execute its commands
+				while (c.getMem(IDX.PASS) <= Constant.MAX_PASS && 
+						hasAction == false) {
+					Outcome outcomes = interpret.interpret(c.getProgram());
 
-				c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
-				if (outcomes.hasAction())
-					hasAction = true;
+					c.setMem(IDX.PASS, c.getMem(IDX.PASS) + 1);
+					if (outcomes.hasAction())
+						hasAction = true;
 
-				ResultList tmp = executor.execute(outcomes, logs);
-				toDelete.addAll(tmp.toDelete);
-				// insert the new born critters
-				for (Critter critter : tmp.toInsert)
-					order.add(critter);
+					ResultList tmp = executor.execute(outcomes, logs);
+					toDelete.addAll(tmp.toDelete);
+					// insert the new born critters
+					for (Critter critter : tmp.toInsert)
+						order.add(critter);
+				}
+				c.setMem(IDX.PASS, Constant.INIT_PASS);
+				// if after the loop, the critter still does not take any action
+				if (!hasAction) 
+					executor.execute(new Outcome("wait"), logs);
 			}
-			c.setMem(IDX.PASS, Constant.INIT_PASS);
-			// if after the loop, the critter still does not take any action
-			if (!hasAction) 
-				executor.execute(new Outcome("wait"), logs);
-		}
 
-		// remove the critter need to be delete and insert the critter need 
-		// to be inserted
-		for (Critter critter : toDelete) {
-			order.remove(critter);
-			logs.get(logs.size()-1).deadCritterID.add(critter.ID);
+			// remove the critter need to be delete and insert the critter need 
+			// to be inserted
+			for (Critter critter : toDelete) {
+				order.remove(critter);
+				logs.get(logs.size()-1).deadCritterID.add(critter.ID);
+			}
+		} finally {
+			rwLock.writeLock().unlock();
 		}
 	}
 
@@ -350,7 +349,12 @@ public class World {
 	 *         false otherwise
 	 */
 	public boolean checkPosition(Position position) {
-		return Position.checkPosition(position, column, row);
+		rwLock.readLock().lock();
+		try {
+			return Position.checkPosition(position, column, row);
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -359,9 +363,14 @@ public class World {
 	 * return a rock
 	 */
 	public Element getElemAtPosition(Position pos) {
-		if (checkPosition(pos))
-			return hexes.get(pos);
-		return new Rock();
+		rwLock.readLock().lock();
+		try {
+			if (checkPosition(pos))
+				return hexes.get(pos);
+			return new Rock();
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -372,31 +381,36 @@ public class World {
 	 *         {@code true} otherwise
 	 */
 	public boolean setElemAtPosition(Element elem, Position pos) {
-		if (!checkPosition(pos))
-			return false;
-		if(hexes.get(pos) != null)
-			removeElemAtPosition(pos);
-		Log logTmp;
-		switch (elem.getType()) {
-		case "CRITTER":
-			logTmp = logs.get(logs.size()-1);
-			logTmp.updates.put(pos, elem);
-			break;
-		case "FOOD":
-			logTmp = logs.get(logs.size()-1);
-			logTmp.updates.put(pos, elem);
-			break;
-		case "ROCK":
-			logTmp = logs.get(logs.size()-1);
-			logTmp.updates.put(pos, elem);
-			break;
-		default:
-			System.out.println("can't resolve the type for update");
-			break;
+		rwLock.writeLock().lock();
+		try {
+			if (!checkPosition(pos))
+				return false;
+			if(hexes.get(pos) != null)
+				removeElemAtPosition(pos);
+			Log logTmp;
+			switch (elem.getType()) {
+			case "CRITTER":
+				logTmp = logs.get(logs.size()-1);
+				logTmp.updates.put(pos, elem);
+				break;
+			case "FOOD":
+				logTmp = logs.get(logs.size()-1);
+				logTmp.updates.put(pos, elem);
+				break;
+			case "ROCK":
+				logTmp = logs.get(logs.size()-1);
+				logTmp.updates.put(pos, elem);
+				break;
+			default:
+				System.out.println("can't resolve the type for update");
+				break;
+			}
+			elem.setPosition(pos);
+			hexes.put(pos, elem);
+			return true;
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		elem.setPosition(pos);
-		hexes.put(pos, elem);
-		return true;
 	}
 
 
@@ -411,14 +425,19 @@ public class World {
 	 *
 	 */
 	public boolean removeElemAtPosition(Position pos) {
-		if (!checkPosition(pos))
-			return false;
-		if (!hexes.containsKey(pos))
-			return false;
-		Log logTmp = logs.get(logs.size()-1);
-		logTmp.updates.put(pos, new Nothing());
-		hexes.remove(pos);
-		return true;
+		rwLock.writeLock().lock();
+		try {
+			if (!checkPosition(pos))
+				return false;
+			if (!hexes.containsKey(pos))
+				return false;
+			Log logTmp = logs.get(logs.size()-1);
+			logTmp.updates.put(pos, new Nothing());
+			hexes.remove(pos);
+			return true;
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
 
 	/**
@@ -427,12 +446,17 @@ public class World {
 	 * @return
 	 */
 	public boolean removeCritter(Critter critter) {
-		if (order.contains(critter)) {
-			order.remove(critter);
-			return true;
+		rwLock.writeLock().lock(); 
+		try {
+			if (order.contains(critter)) {
+				order.remove(critter);
+				return true;
+			}
+			else 
+				return false;
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		else 
-			return false;
 	}
 
 	public String getName() {
@@ -520,14 +544,24 @@ public class World {
 	 * @return how many rows in the world
 	 */
 	public int getRow() {
-		return row;
+		rwLock.readLock().lock();
+		try {
+			return row;
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 
 	/**
 	 * @return how many columns in the world
 	 */
 	public int getColumn() {
-		return column;
+		rwLock.readLock().lock();
+		try {
+			return column;
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -568,24 +602,16 @@ public class World {
 	}
 
 	/**
-	 * @return the position that critter exists
-	 */
-	public Position getPositionFromCritter(Critter c) {
-		Set<Map.Entry<Position, Element>> e = hexes.entrySet();
-		for(Map.Entry<Position, Element> m : e) {
-			if(m.getValue() == c) {
-				return m.getKey();
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Get the number of empty slot in this world
 	 * @return
 	 */
 	public int availableSlot() {
-		return size - hexes.size();
+		rwLock.readLock().lock();
+		try {
+			return size - hexes.size();
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -594,12 +620,17 @@ public class World {
 	 * @return
 	 */
 	public String getWorldInfo() {
-		return "The world has step " + turns + " turns.\n" 
-				+ "There are " + order.size() + " critters living "
-				+ "in this world.";
+		rwLock.readLock().lock();
+		try {
+			return "The world has step " + turns + " turns.\n" 
+					+ "There are " + order.size() + " critters living "
+					+ "in this world.";
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
-	
-	
+
+
 	/**
 	 * Get a Hashtable contains updates within the range since {@code 
 	 * update_since}
@@ -612,42 +643,52 @@ public class World {
 	 */
 	public Hashtable<Position, Element> getUpdatesSinceMap(int update_since,
 			int from_col, int from_row, int to_col, int to_row) {
-		Hashtable<Position, Element> result = new Hashtable<>();
-		for (int i = update_since; i < this.version_number; ++i) {
-			Set<Map.Entry<Position, Element>> set = 
-					logs.get(i).updates.entrySet(); 
-			for(Map.Entry<Position, Element> m : set) {
-				Element e = m.getValue();
-				Position p = m.getKey();
-				int x = PositionInterpreter.getX(p.getColumn(), p.getRow());
-				int y = PositionInterpreter.getY(p.getColumn(), p.getRow());
-				int from_x = PositionInterpreter.getX(from_col, from_row);
-				int from_y = PositionInterpreter.getY(from_col, from_row);
-				int to_x = PositionInterpreter.getX(to_col, to_row);
-				int to_y = PositionInterpreter.getY(to_col, to_row);
-				if (x <= to_x && x >= from_x && y <= to_y && y >= from_y) {
-					System.out.println("Col " + from_col + " - " + to_col);
-					System.out.println("Row " + from_row + " - " + to_row);
-					System.out.println("putting " + p + "into log");
-					result.put(p, e);
+		rwLock.readLock().lock();
+		try {
+			Hashtable<Position, Element> result = new Hashtable<>();
+			for (int i = update_since; i < this.version_number; ++i) {
+				Set<Map.Entry<Position, Element>> set = 
+						logs.get(i).updates.entrySet(); 
+				for(Map.Entry<Position, Element> m : set) {
+					Element e = m.getValue();
+					Position p = m.getKey();
+					int x = PositionInterpreter.getX(p.getColumn(), p.getRow());
+					int y = PositionInterpreter.getY(p.getColumn(), p.getRow());
+					int from_x = PositionInterpreter.getX(from_col, from_row);
+					int from_y = PositionInterpreter.getY(from_col, from_row);
+					int to_x = PositionInterpreter.getX(to_col, to_row);
+					int to_y = PositionInterpreter.getY(to_col, to_row);
+					if (x <= to_x && x >= from_x && y <= to_y && y >= from_y) {
+						System.out.println("Col " + from_col + " - " + to_col);
+						System.out.println("Row " + from_row + " - " + to_row);
+						System.out.println("putting " + p + "into log");
+						result.put(p, e);
+					}
 				}
 			}
+			return result;
+		} finally {
+			rwLock.readLock().unlock();
 		}
-		return result;
 	}
-	
+
 	/**
 	 * Get all the critter that died since {@code update_since}
 	 * @param update_since
 	 * @return
 	 */
 	public ArrayList<Integer> getDeadCritterIDSince(int update_since) {
-		ArrayList<Integer> result = new ArrayList<>();
-		for (int i = update_since; i< this.version_number; ++i) {
-			for (Integer id : logs.get(i).deadCritterID)
-				result.add(id);
+		rwLock.readLock().lock();
+		try {
+			ArrayList<Integer> result = new ArrayList<>();
+			for (int i = update_since; i< this.version_number; ++i) {
+				for (Integer id : logs.get(i).deadCritterID)
+					result.add(id);
+			}
+			return result;
+		} finally {
+			rwLock.readLock().unlock();
 		}
-		return result;
 	}
 
 	/**
@@ -661,64 +702,74 @@ public class World {
 	public JsonClasses.WorldState getWorldState(int session_id, 
 			boolean isAdmin, Hashtable<Position, Element> table,
 			ArrayList<Integer> deadCritters) {
-		JsonClasses.WorldState s = new JsonClasses.WorldState();
-		s.col = column;
-		s.current_timestep = turns;
-		s.current_version_number = version_number;
-		s.name = this.name;
-		s.population = order.size();
-		s.row = this.row;
-		s.update_since = 0;
-		s.rate = rate;
-		s.state = new State[table.size()];
-		s.dead_critters = new Integer[deadCritters.size()];
-		for (int i = 0; i < deadCritters.size(); ++i) 
-			s.dead_critters[i] = deadCritters.get(i);
-		int index = 0;
-		Set<Map.Entry<Position, Element>> set = table.entrySet();
-		for(Map.Entry<Position, Element> m : set) {
-			Element e = m.getValue();
-			Position p = m.getKey();
-			// for cleaning up the hex
-			if (e == null) {
-				s.state[index++] = new State(p);
-				continue;
+		rwLock.readLock().lock();
+		try {
+			JsonClasses.WorldState s = new JsonClasses.WorldState();
+			s.col = column;
+			s.current_timestep = turns;
+			s.current_version_number = version_number;
+			s.name = this.name;
+			s.population = order.size();
+			s.row = this.row;
+			s.update_since = 0;
+			s.rate = rate;
+			s.state = new State[table.size()];
+			s.dead_critters = new Integer[deadCritters.size()];
+			for (int i = 0; i < deadCritters.size(); ++i) 
+				s.dead_critters[i] = deadCritters.get(i);
+			int index = 0;
+			Set<Map.Entry<Position, Element>> set = table.entrySet();
+			for(Map.Entry<Position, Element> m : set) {
+				Element e = m.getValue();
+				Position p = m.getKey();
+				// for cleaning up the hex
+				if (e == null) {
+					s.state[index++] = new State(p);
+					continue;
+				}
+				switch(e.getType()) {
+				case Element.ROCK :
+					State rock = new State(p);
+					rock.setRock();
+					s.state[index++] = rock;
+					break;
+				case Element.FOOD :
+					State food = new State(p);
+					food.setFood(((Food)e).getAmount());
+					s.state[index++] = food;
+					break;
+				case Element.CRITTER :
+					Critter c = (Critter)e;
+					State critter = new State(c.getPosition());
+					critter.setCriiter(c, c.session_id == session_id || isAdmin == true);
+					s.state[index++] = critter;
+					break;
+				case Element.NOTHING :
+					State nothing = new State(p);
+					nothing.setNothing();
+					s.state[index++] = nothing;
+					break;
+				}
 			}
-			switch(e.getType()) {
-			case Element.ROCK :
-				State rock = new State(p);
-				rock.setRock();
-				s.state[index++] = rock;
-				break;
-			case Element.FOOD :
-				State food = new State(p);
-				food.setFood(((Food)e).getAmount());
-				s.state[index++] = food;
-				break;
-			case Element.CRITTER :
-				Critter c = (Critter)e;
-				State critter = new State(c.getPosition());
-				critter.setCriiter(c, c.session_id == session_id || isAdmin == true);
-				s.state[index++] = critter;
-				break;
-			case Element.NOTHING :
-				State nothing = new State(p);
-				nothing.setNothing();
-				s.state[index++] = nothing;
-				break;
-			}
+			return s;
+		} finally {
+			rwLock.readLock().unlock();
 		}
-		return s;
 	}
-	
+
 	/**
 	 * add a critter to the world
 	 */
 	public void addCritter(Critter c, Position pos) {
-		this.setElemAtPosition(c, pos);
-		addCritterToList(c);
+		rwLock.writeLock().lock();
+		try {
+			this.setElemAtPosition(c, pos);
+			addCritterToList(c);
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
-	
+
 	/**
 	 * Set {@code c.num} of critters at random position at the world
 	 * @param c
@@ -726,36 +777,46 @@ public class World {
 	 * @return an array of critter {@code ID} just created
 	 */
 	public ArrayList<Integer> 
-		setCritterAtRandomPosition(CreateRandomPositionCritter c, 
-				String species_id, int session_id) {
-		int num = c.num;
-		ArrayList<Integer> idTmp = new ArrayList<>();
-		for(int i = 0; i < num; ++i) {
-			try {
-				String critterName = species_id;
-				idTmp.add(critterIDCount);
-				Critter critter = new Critter(c, critterName,
-						critterIDCount++, session_id);
-				int a = Math.abs(RandomGen.randomNumber(row));
-				int b = Math.abs(RandomGen.randomNumber(column));
-				Position pos = new Position(b,a);
-				while (!checkPosition(pos) || hexes.get(pos) != null) {
-					a = Math.abs(RandomGen.randomNumber(row));
-					b = Math.abs(RandomGen.randomNumber(column));
-					pos = new Position(b,a);
+	setCritterAtRandomPosition(CreateRandomPositionCritter c, 
+			String species_id, int session_id) {
+		rwLock.writeLock().lock();
+		try {
+			int num = c.num;
+			ArrayList<Integer> idTmp = new ArrayList<>();
+			for(int i = 0; i < num; ++i) {
+				try {
+					String critterName = species_id;
+					idTmp.add(critterIDCount);
+					Critter critter = new Critter(c, critterName,
+							critterIDCount++, session_id);
+					int a = Math.abs(RandomGen.randomNumber(row));
+					int b = Math.abs(RandomGen.randomNumber(column));
+					Position pos = new Position(b,a);
+					while (!checkPosition(pos) || hexes.get(pos) != null) {
+						a = Math.abs(RandomGen.randomNumber(row));
+						b = Math.abs(RandomGen.randomNumber(column));
+						pos = new Position(b,a);
+					}
+					critter.setPosition(pos);
+					this.setElemAtPosition(critter, pos);
+					addCritterToList(critter);
+				} catch (SyntaxError e) {
+					e.printStackTrace();
+					return null;
 				}
-				critter.setPosition(pos);
-				this.setElemAtPosition(critter, pos);
-				addCritterToList(critter);
-			} catch (SyntaxError e) {
-				e.printStackTrace();
-				return null;
 			}
+			return idTmp;
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		return idTmp;
 	}
-	
+
 	public void setName(String s) {
-		name = s;
+		rwLock.writeLock().lock();
+		try {
+			name = s;
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
 }
