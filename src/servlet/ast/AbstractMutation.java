@@ -63,7 +63,7 @@ public abstract class AbstractMutation implements Mutation{
 		return false;
 	}
 	
-	public boolean mutate(Smell n) {
+	public boolean mutate(smell n) {
 		return false;
 	}
 	

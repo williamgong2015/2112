@@ -117,7 +117,7 @@ public class GUIMain extends Application {
 	
 	
 
-	private File critterFile = null;  // path to critter file
+	private volatile File critterFile = null;  // path to critter file
 	private ArrayList<GUIHex> selectedHex = new ArrayList<>(); // current selected hex
 	private Parent root;
 	private Pane worldPane; 
@@ -365,9 +365,19 @@ public class GUIMain extends Application {
 				menus.get(MODIFY_MENU_IDX).getItems();
 
 		modify_menuitems.get(INSERT_CRITTER_IDX).setOnAction(e -> { 
-			critterFile = loadFile(primaryStage);
-			insertCritter();
-			refreshGUI();
+			new Thread() { // Create a new background process
+			    public void run() {
+			    	critterFile = loadFile(primaryStage);
+			        Platform.runLater(new Runnable() { // Go back to UI/application thread
+			            public void run() {
+			                // Update UI to reflect changes to the model
+			            	insertCritter();
+			    			refreshGUI();
+			            }
+			        });
+			    }
+			}.start(); // Starts the background thread!
+			
 		});
 
 		modify_menuitems.get(INSERT_FOOD_IDX).setOnAction(e -> { 

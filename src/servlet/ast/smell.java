@@ -10,7 +10,7 @@ import servlet.parser.Tokenizer;
 import servlet.world.Position;
 import servlet.world.World;
 
-public class Smell extends Expr{
+public class smell extends Expr {
 
 	class DetailedPosition{
 		Position pos;
@@ -62,12 +62,7 @@ public class Smell extends Expr{
 
 	@Override
 	public MutableNode parseMyType(Tokenizer t) {
-		try {
-			return servlet.parser.ParserImpl.parseSensor(t);
-		} catch (SyntaxError e) {
-			e.printStackTrace();
-			return null;
-		}
+		return null;
 	}
 
 	@Override
@@ -86,7 +81,7 @@ public class Smell extends Expr{
 
 	@Override
 	public Expr copy() {
-		return new Smell();
+		return new smell();
 	}
 
 	public DetailedPosition BFS(World world, DetailedPosition start) {

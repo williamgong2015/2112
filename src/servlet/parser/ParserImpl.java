@@ -19,7 +19,7 @@ import servlet.ast.Relation;
 import servlet.ast.Rule;
 import servlet.ast.UnaryCommand;
 import servlet.ast.UnaryExpr;
-import servlet.ast.Smell;
+import servlet.ast.smell;
 
 /**
  * the implementation of parser
@@ -280,9 +280,9 @@ public class ParserImpl implements Parser {
         	e.setParent(ep);
         	return ep;
         }
-        //not sure...
+        
         if(temp.getType().equals(TokenType.SMELL)) {
-        	return new Smell();
+        	return new smell();
         	
         }
         throw new SyntaxError();

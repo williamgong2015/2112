@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import game.exceptions.SyntaxError;
-import servlet.ast.Smell;
+import servlet.ast.smell;
 import servlet.element.Critter;
 import servlet.world.Position;
 import servlet.world.World;
@@ -24,7 +24,7 @@ public class smellTests {
 		Critter c = new Critter(f, world.critterIDCount++, session_id);
 		c.setDir(1);
 		c.setPosition(new Position(5,6));
-		Smell s = new Smell();
+		smell s = new smell();
 				
 		//test unreachable food
 		c.setPosition(new Position(11,11));
