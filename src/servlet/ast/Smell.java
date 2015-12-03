@@ -12,6 +12,13 @@ import servlet.world.World;
 
 public class Smell extends Expr{
 
+	/**
+	 * inner class used for BFS,
+	 * {@code pos} denotes the current position when searching
+	 * {@code initialDirection} means the direction that takes initially
+	 * {@code distance} the distance form the starting
+	 *  point to the current position
+	 */
 	class DetailedPosition{
 		Position pos;
 		int direction;
@@ -29,6 +36,7 @@ public class Smell extends Expr{
 			return 313 * direction + pos.hashCode();
 		}
 		
+		@Override
 		public boolean equals(Object o) {
 			if(o instanceof DetailedPosition) {
 				DetailedPosition that = (DetailedPosition)o;
@@ -38,6 +46,7 @@ public class Smell extends Expr{
 			return false;
 		}
 		
+		@Override
 		public String toString() {
 			return ""+ pos.toString() + ":" + direction + ":" + distance;
 		}
@@ -89,6 +98,13 @@ public class Smell extends Expr{
 		return new Smell();
 	}
 
+	/**
+	 * Using breadth-first search to find the nearest position which 
+	 * exists food.
+	 * @return null if there is no food in {@code Constant.MAX_SMELL_DISTANCE}
+	 * steps
+	 * 		   the DetailedPostion for the food
+	 */
 	public DetailedPosition BFS(World world, DetailedPosition start) {
 		HashSet<DetailedPosition> visited = new HashSet<>();
 		visited.add(start);
