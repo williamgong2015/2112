@@ -142,7 +142,7 @@ public class Executor {
 		if (forward) 
 			nextPos = lastPos.getNextStep(dir);
 		else
-			nextPos = lastPos.getNextStep(Math.abs(3 - dir));
+			nextPos = lastPos.getNextStep((3 + dir) % 6);
 		Element e = w.getElemAtPosition(nextPos);
 		// if the nextPos is empty, move the critter forward
 		if (e == null) {
@@ -205,7 +205,7 @@ public class Executor {
 			else {
 				c.setMem(IDX.ENERGY, foodEnergy + currentEnergy);
 				Position foodPos = 
-						c.getPosition().getRelativePos(1, DIR.FRONT);
+						c.getPosition().getRelativePos(1, c.getDir());
 				w.removeElemAtPosition(foodPos);
 			}
 		}
@@ -339,7 +339,7 @@ public class Executor {
 		Critter newCritter = new Critter(mem, name, pro, 
 				w.critterIDCount++, c.session_id);
 		newCritter.setDir(game.utils.RandomGen.randomNumber(6));
-		Position pos = c.getPosition().getRelativePos(1, 3);
+		Position pos = c.getPosition().getRelativePos(-1, c.getDir());
 		w.setElemAtPosition(newCritter, pos);
 		resultList.toInsert.add(newCritter);
 	}

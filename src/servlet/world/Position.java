@@ -64,7 +64,7 @@ public class Position {
 	public Position getRelativePos(int val,int dir) {
 		if (val < 0) {
 			val = -val;
-			dir = Math.abs(dir - 3);
+			dir = (dir + 3) % 6;
 		}
 		Position pos = this;
 		for(int i = 0;i < val;i++)
@@ -74,7 +74,7 @@ public class Position {
 	
 	/**
 	 * return a position which is at direction {@code dir}
-	 * of the position one step away
+	 * of the position one step away (this is absolute direction)
 	 */
 	public Position getNextStep(int dir) {
 		switch(dir) {

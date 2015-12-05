@@ -3,7 +3,8 @@ memsize: 9
 defense: 2
 offense: 3
 size: 1
-energy: 13	
+energy: 17
 posture: 17
+mem[4] > 16 --> right;
 mem[4] <= 4 --> backward;
 1 = 1 --> forward;
