@@ -97,13 +97,13 @@ public class smell extends Expr {
 		HashSet<DetailedPosition> visited = new HashSet<>();
 		visited.add(start);
 		LinkedList<DetailedPosition> queue = new LinkedList<>();
-		DetailedPosition left = new DetailedPosition(start.pos, 5, 5, 1);
-		DetailedPosition right = new DetailedPosition(start.pos, 1, 1, 1);
+		DetailedPosition left = new DetailedPosition(start.pos, (start.direction + 5 ) % 6, 5, 1);
+		DetailedPosition right = new DetailedPosition(start.pos, (start.direction + 1) % 6, 1, 1);
 		queue.add(left);
 		queue.add(right);
-		
+	
 		Position ahead = start.pos.getNextStep(start.direction);
-		DetailedPosition front = new DetailedPosition(ahead, 0, 0, 1);
+		DetailedPosition front = new DetailedPosition(ahead, start.direction, 0, 1);
 		if(world.getElemAtPosition(ahead) == null 
 				|| world.getElemAtPosition(ahead).getType().equals("FOOD"))
 			queue.add(front);
