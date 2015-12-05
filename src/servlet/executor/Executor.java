@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import game.constant.Constant;
-import game.constant.DIR;
 import game.constant.IDX;
 import game.exceptions.SyntaxError;
 import game.utils.Formula;
