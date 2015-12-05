@@ -88,8 +88,8 @@ public class Alerts {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setHeaderText("Welcome to the Critter World");
 		String s ="'New': Generate a new world.\n"
-				+ "'View': Change the range of world to insepect or refresh./n"
-				+ "Choose hexes, then use 'Modify' to insert or delete./n "
+				+ "'View': Change the range of world to insepect or refresh.\n"
+				+ "Choose hexes, then use 'Modify' to insert or delete.\n "
 				+ "'Simulate': Control the world simulation.\n"
 				+ "'More': More information about the world simulation.\n"
 				+ "'Help': For help information.\n";

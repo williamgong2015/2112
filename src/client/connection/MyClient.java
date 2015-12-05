@@ -188,7 +188,7 @@ public class MyClient {
 	 * Create a new world
 	 * @throws IOException 
 	 */
-	public int newWorld(String description) throws IOException {
+	public int newWorld(File file) throws IOException {
 		String tmpURL = url + "CritterWorld/" + "world?session_id=" + 
 				session_id;
 		URL l = new URL(tmpURL);
@@ -197,7 +197,7 @@ public class MyClient {
 		connection.setRequestProperty("Content-Type", "Created" );
 		connection.setRequestMethod("POST");
 		PrintWriter w = new PrintWriter(connection.getOutputStream());
-		String tmp = PackJson.packNewWorld(description);
+		String tmp = PackJson.packNewWorld(file);
 		w.println(tmp);
 		w.flush();
 		w.close();
@@ -216,6 +216,10 @@ public class MyClient {
 	public int getStateOfWorld(int update_since, int from_col, 
 			int from_row, int to_col, int to_row, WorldState state) 
 					throws IOException{
+		// other server may not be using 0 as the starting update since value
+		if (update_since == 0)
+			return getStateOfWorld(from_col, from_row, to_col, 
+					to_row, state);
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since + "&from_row=" + from_row + "&to_row=" + to_row 
 						 + "&from_col=" + from_col + "&to_col=" + to_col
@@ -249,6 +253,9 @@ public class MyClient {
 	 */
 	public int getStateOfWorld(int update_since, WorldState state) 
 			throws IOException {
+		// other server may not be using 0 as the starting update since value
+		if (update_since == 0)
+			return getStateOfWorld(state);
 		String tmpURL = url + "CritterWorld/" + "world?update_since=" + 
 			update_since +"&session_id=" + session_id;
 		return getStateOfWorldHelper(tmpURL, state);

@@ -1,5 +1,7 @@
 package api;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -176,9 +178,10 @@ public class PackJson {
 	 * Create by client: ask the servlet to create a new world
 	 * @param description
 	 * @return
+	 * @throws IOException 
 	 */
-	public static String packNewWorld(String description) {
-		return gson.toJson(new CreateNewWorld(description));
+	public static String packNewWorld(File file) throws IOException {
+		return gson.toJson(new CreateNewWorld(file));
 	}
 	
 	/**

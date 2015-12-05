@@ -30,6 +30,8 @@ public class ClientElement {
 	public int recently_executed_rule = -1;
 
 	public final static String SOMETHING = "something";
+	// actually every rule should be much longer than 3
+	private final static int MINIMUN_LENGTH_OF_RULE = 3;
 
 	/**
 	 * Create a critter with critter file 
@@ -104,7 +106,7 @@ public class ClientElement {
 			break;
 
 		case JsonClasses.FOOD :
-			value = c.food_value;
+			value = c.value;
 			break;
 
 		}
@@ -135,8 +137,11 @@ public class ClientElement {
 			if (program != null) {
 				s.append("Program: \n");
 				String[] tokens = program.split("\n");
-				for (int i = 0; i < tokens.length; ++i)
+				for (int i = 0; i < tokens.length; ++i) {
+					if (tokens[i].length() < MINIMUN_LENGTH_OF_RULE)
+						continue;
 					s.append("  " + (i+1) + ". " + tokens[i] + "\n");
+				}
 				if (recently_executed_rule != -1)
 					s.append("recently_executed_rule: \n  " + 
 							(recently_executed_rule+1) + ". " +

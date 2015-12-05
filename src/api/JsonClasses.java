@@ -1,5 +1,9 @@
 package api;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
@@ -130,7 +134,7 @@ public class JsonClasses {
 		String type;
 		public int row;
 		public int col;
-		public Integer food_value;
+		public Integer value;
 		
 		public Integer id;
 		public String species_id;
@@ -149,7 +153,7 @@ public class JsonClasses {
 		}
 		
 		public void setFood(int v) {
-			food_value = v;
+			value = v;
 			type = FOOD;
 		}
 	
@@ -187,7 +191,7 @@ public class JsonClasses {
 				return "rock   " + "row : "+ row + "col : " + col;
 			}
 			if(type.equals("food")) {
-				return "food   "  + "row : "+ row + "col : " + col + "amount  :" + food_value;
+				return "food   "  + "row : "+ row + "col : " + col + "amount  :" + value;
 			}
 			return type + '\n'
 				+ "row : "	+ row + '\n'
@@ -209,8 +213,8 @@ public class JsonClasses {
 		public double rate;
 		public String name;
 		public int population;
-		public int row;
-		public int col;
+		public int rows;
+		public int cols;
 		public Integer[] dead_critters;
 		public State[] state;
 		
@@ -221,8 +225,8 @@ public class JsonClasses {
 			rate = s.rate;
 			name = s.name;
 			population = s.population;
-			row = s.row;
-			col = s.col;
+			rows = s.rows;
+			cols = s.cols;
 			dead_critters = s.dead_critters;
 			state = s.state;
 		}
@@ -233,8 +237,17 @@ public class JsonClasses {
 	 */
 	public static class CreateNewWorld {
 		public String description;
-		public CreateNewWorld(String s) {
-			description = s;
+		public CreateNewWorld(File f) throws IOException {
+			FileReader r = new FileReader(f);
+			BufferedReader bf = new BufferedReader(r);
+			StringBuilder sb = new StringBuilder();
+			String s = null;
+			while((s = bf.readLine()) != null) {
+				sb.append(s);
+				sb.append('\n');
+			}
+			description = sb.toString();
+			bf.close();
 		}
 	}
 	

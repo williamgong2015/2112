@@ -2,7 +2,6 @@ package client.gui;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -123,7 +122,7 @@ public class GUIMain extends Application {
 	private Pane worldPane; 
 	private Label worldInfoLabel;
 	private Label otherInfoLabel; 
-	public ClientWorld clientWorld;
+	public ClientWorld clientWorld = new ClientWorld();
 	private GraphicsContext gc;
 	private Hashtable<Integer, Color> speciesColor = new Hashtable<>();
 
@@ -140,18 +139,19 @@ public class GUIMain extends Application {
 	private int from_row;
 	private int to_col;
 	private int to_row;
+	// how many column and row last version of the world has. 
+	// if the size of the world has changed, need to redraw the GUI.
+	private int lastWorldCol = -1;
+	private int lastWorldRow = -1;
 
 	private Timeline refreshTimeline;
-
-	private ArrayDeque<WorldState> statesToUpdate = new ArrayDeque<>();
 
 	private static String LOCAL_HOST_URL = 
 			"http://localhost:8080/2112/servlet/servlet.Servlet/";
 
 	private static String PUBLIC_TEST_HOST_URL = 
 			"http://inara.cs.cornell.edu:54345/";
-
-
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -217,7 +217,7 @@ public class GUIMain extends Application {
 				+ "login to Critter World, you session id is " +
 				myClient.getSessionID() + "\nClick help for tutorial");
 
-		initializeWorld();
+//		initializeWorld();
 	}
 
 	/**
@@ -282,6 +282,11 @@ public class GUIMain extends Application {
 	 */
 	synchronized private void refreshGUI() {
 		try {
+//			if (!hasInitializedWorld) {
+//				initializeWorld();
+//				hasInitializedWorld = true;
+//				return;
+//			}
 			WorldState state = new WorldState();
 			int statusCode = myClient.getStateOfWorld(
 					clientWorld.current_version_number, from_col, from_row,
@@ -290,11 +295,20 @@ public class GUIMain extends Application {
 				Alerts.alert406Error("Can't get the world");
 				return;
 			}
-			statesToUpdate.add(state);
 			clientWorld.updateWithWorldState(state);
-			Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
-					clientWorld.getHexToUpdate();
-			executeHexUpdate(hexToUpdate.values());
+			if (clientWorld.col == lastWorldCol &&
+					clientWorld.row == lastWorldRow) {
+				Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
+						clientWorld.getHexToUpdate();
+				executeHexUpdate(hexToUpdate.values());
+			}
+			// need to draw the world again
+			else {
+				lastWorldCol = clientWorld.col;
+				lastWorldRow = clientWorld.row;
+				initializeWorld();
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -306,8 +320,6 @@ public class GUIMain extends Application {
 	 */
 	private void initializeMenuBar(Stage primaryStage) {
 		MenuBar menubar = (MenuBar) root.lookup("#menubar");
-		if (menubar != null) 
-			System.out.println("found");
 
 		ObservableList<Menu> menus = menubar.getMenus();
 
@@ -315,15 +327,16 @@ public class GUIMain extends Application {
 				menus.get(NEW_MENU_IDX).getItems();
 
 		new_menuitems.get(DEFAULT_WORLD_IDX).setOnAction(e -> {
-			stopSimulating();
 			try {
-				int statusCode = myClient.newWorld("New Default World");
+				File worldFile = loadFile(primaryStage);
+				if (worldFile == null)
+					return;
+				int statusCode = myClient.newWorld(worldFile);
 				if (statusCode == 401)
 					Alerts.alert401Error("You have to be an administrator");
 			} catch (Exception e1) {
 				Alerts.alert401Error("You are not an administrator");
 			}
-			initializeWorld();
 		});
 
 
@@ -351,7 +364,6 @@ public class GUIMain extends Application {
 			CheckMenuItem tmp = (CheckMenuItem) 
 					view_menuitems.get(KEEPUPDATE_WORLD_IDX);
 			if (tmp.isSelected()) {
-				System.out.println("timeline should play");
 				refreshTimeline.play();
 			}
 			else
@@ -481,7 +493,8 @@ public class GUIMain extends Application {
 	private void displayDeadCritterInfo() {
 		ArrayList<Integer> critters = clientWorld.dead_critters;
 		StringBuilder s = new StringBuilder();
-
+		if (critters.size() <= 0)
+			return;
 		s.append(critters.size() + "Critters Has Died: \n");
 		for (int i = 0; i < critters.size()-1; ++i)
 			s.append(critters.get(i) + ",");
@@ -525,19 +538,6 @@ public class GUIMain extends Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		//		WorldState state = new WorldState();
-		//		int statusCode = myClient.getStateOfWorld(
-		//				clientWorld.current_version_number, from_col, from_row,
-		//				to_col, to_row, state);
-		//		if (statusCode == 406) {
-		//			Alerts.alert406Error("Can't get the world");
-		//			return;
-		//		}
-		//		statesToUpdate.add(state);
-		//		clientWorld.updateWithWorldState(state);
-		//		Hashtable<ClientPosition, HexToUpdate> hexToUpdate = 
-		//				clientWorld.getHexToUpdate();
-		//		executeHexUpdate(hexToUpdate.values());
 	}
 
 	/**
@@ -1129,10 +1129,6 @@ public class GUIMain extends Application {
 
 		Optional<Integer> result = dialog.showAndWait();
 
-		result.ifPresent(amountNumber -> {
-			System.out.println("amount=" + amountNumber);
-		});
-
 		if (!result.isPresent())
 			return 0;
 		else
@@ -1191,10 +1187,6 @@ public class GUIMain extends Application {
 		});
 
 		Optional<String> result = dialog.showAndWait();
-
-		result.ifPresent(amountNumber -> {
-			System.out.println("amount=" + amountNumber);
-		});
 
 		if (!result.isPresent())
 			return null;
@@ -1262,11 +1254,6 @@ public class GUIMain extends Application {
 		});
 
 		Optional<Pair<String, String>> result = dialog.showAndWait();
-
-		result.ifPresent(usernamePassword -> {
-			System.out.println("Username=" + usernamePassword.getKey() + 
-					", Password=" + usernamePassword.getValue());
-		});
 
 		// if result is present has been handled above
 		if (!result.isPresent())

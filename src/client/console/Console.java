@@ -115,7 +115,11 @@ public class Console {
      * @param filename
      */
     public void loadWorld(String filename) {
-    	world = World.loadWorld(filename, session_id);
+    	try {
+			world = World.loadWorld(filename, session_id);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
     /**

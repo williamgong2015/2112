@@ -194,7 +194,6 @@ public class Executor {
 			int foodEnergy = ((Food) e).getAmount();
 			int currentEnergy = c.getMem(IDX.ENERGY);
 			int maxEnergy = c.maxEnergy();
-			// TODO
 			if (foodEnergy + currentEnergy > maxEnergy) {
 				c.setMem(IDX.ENERGY, maxEnergy);
 				((Food) e).setAmount(foodEnergy + currentEnergy - maxEnergy);

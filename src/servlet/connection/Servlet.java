@@ -1,8 +1,10 @@
 package servlet.connection;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -615,8 +617,9 @@ public class Servlet extends HttpServlet {
 			return;
 		}
 		CreateNewWorld newWorld = UnpackJson.unpackCreateNewWorld(r);
-		world = new World();
-		world.setName(newWorld.description);
+		StringReader sr = new StringReader(newWorld.description);
+		BufferedReader br = new BufferedReader(sr);
+		world = World.loadWorldHelper(br, session_id);
 		response.setStatus(201);
 		w.println("OK");
 		w.flush();

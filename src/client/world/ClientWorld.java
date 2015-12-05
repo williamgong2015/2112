@@ -48,8 +48,8 @@ public class ClientWorld {
 		rate = w.rate;
 		name = w.name;
 		population = w.population;   
-		row = w.row;
-		col = w.col;
+		row = w.rows;
+		col = w.cols;
 	}
 
 	/**
@@ -67,6 +67,18 @@ public class ClientWorld {
 		dead_critters = w.dead_critters;
 		board = w.board;
 		hexToUpdate = w.hexToUpdate;
+	}
+
+	public ClientWorld() {
+		current_timestep = 0;
+		current_version_number = 0;
+		update_since = 0;
+		rate = 0;
+		name = "No Initialized yet";
+		population = 0;
+		// default
+		row = 68;
+		col = 50;
 	}
 
 	/**
@@ -123,8 +135,8 @@ public class ClientWorld {
 		rate = w.rate;
 		name = w.name;
 		population = w.population;   
-		row = w.row;
-		col = w.col;
+		row = w.rows;
+		col = w.cols;
 		if (w.dead_critters != null) 
 			for (int i = 0; i < w.dead_critters.length; ++i)
 				dead_critters.add(w.dead_critters[i]);
@@ -132,7 +144,7 @@ public class ClientWorld {
 		if (w.state != null)
 			for (State s : w.state) {
 				ClientPosition pos = 
-						new ClientPosition(s.col, s.row, w.row, w.col, GUIHex.HEX_SIZE);
+						new ClientPosition(s.col, s.row, w.rows, w.cols, GUIHex.HEX_SIZE);
 				switch (s.getType()) {
 				case JsonClasses.CRITTER:
 					board.put(pos, new ClientElement(s));

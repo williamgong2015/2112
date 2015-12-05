@@ -1,0 +1,11 @@
+species: example
+memsize: 9
+defense: 2
+offense: 3
+size: 1
+energy: 500
+posture: 17
+smell < 1000 --> mem[8] := smell eat;
+smell - (smell / 1000) * 1000 = 5 --> mem[8] := smell left;
+smell - (smell / 1000) * 1000 = 1 --> mem[8] := smell right;
+1 = 1 --> mem[8] := smell forward;

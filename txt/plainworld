@@ -1,0 +1,10 @@
+World with no critter.
+
+size 10 15
+rock 2 2
+rock 3 6
+rock 9 10
+
+// Some food
+food 4 4 500
+food 3 1 1000

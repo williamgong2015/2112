@@ -3,6 +3,7 @@ package servlet.world;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -78,6 +79,9 @@ public class World {
 	// read writer lock for server thread safety
 	private ReentrantReadWriteLock rwLock = 
 			new ReentrantReadWriteLock();
+	
+	// change this path to correctly load critter files
+	private final static String PATH = "/Users/yuxin/Documents/workspace/2112/";
 
 
 	/**
@@ -150,20 +154,29 @@ public class World {
 		}
 	}
 
+	public static World loadWorld(File filename, int session_id)
+			throws IOException {
+		FileReader r = new FileReader(filename);
+		BufferedReader br = new BufferedReader(r);
+		World tmp = loadWorldHelper(br, session_id);
+		r.close();
+		return tmp;
+	}
+
 	/**
 	 * Create and return a world with a world file
 	 * @param session_id - id of user who load the world
 	 * @throws Exception 
 	 */
-	public static World loadWorld(File filename, int session_id) {
+	public static World loadWorldHelper(BufferedReader br, int session_id) {
 		World world;
-		FileReader r;
 		try {
-			r = new FileReader(filename);
-			BufferedReader br = new BufferedReader(r);
 			String s = br.readLine();
 			String name = s.substring(5);
 			s = br.readLine();
+			// skip new line
+			while (s.length() < 3)
+				s = br.readLine();
 			String[] temp = s.split(" ");
 			int column = Integer.parseInt(temp[1]);
 			int row = Integer.parseInt(temp[2]);
@@ -196,7 +209,7 @@ public class World {
 					}
 				}
 				if(temp[0].equals("critter")) {
-					String file = temp[1];
+					String file = PATH + temp[1];
 					pos = new Position(Integer.parseInt(temp[2]), 
 							Integer.parseInt(temp[3]));
 					int dir = Integer.parseInt(temp[4]);
@@ -210,7 +223,6 @@ public class World {
 					}
 				}
 			}
-			r.close();
 			return world;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -222,9 +234,11 @@ public class World {
 	 * @param filename
 	 * @param session_id - id of user who load the world
 	 * @return
+	 * @throws IOException 
 	 * @throws Exception 
 	 */
-	public static World loadWorld(String filename, int session_id) {
+	public static World loadWorld(String filename, 
+			int session_id) throws IOException {
 		return loadWorld(new File(filename), session_id);
 	}
 
@@ -253,7 +267,6 @@ public class World {
 						public void run()
 						{
 							lapse();
-							System.out.println(1000/rate + " seconds passed");
 						}
 					},
 					0,      // run first occurrence immediately
@@ -292,7 +305,6 @@ public class World {
 	public void lapse() {
 		rwLock.writeLock().lock();
 		try {
-			System.out.println("lapse");
 			turns++;
 			version_number++;
 			logs.add(new Log());
@@ -326,6 +338,11 @@ public class World {
 				// if after the loop, the critter still does not take any action
 				if (!hasAction) 
 					executor.execute(new Outcome("wait"), logs);
+				// need to send back the critter final state because
+				// its memory and last rule got executed could be update.
+				// however, if it has dead, a food would replace it
+				if (c.getMem(IDX.ENERGY) > 0)
+					logs.get(logs.size()-1).updates.put(c.getPosition(), c);
 			}
 
 			// remove the critter need to be delete and insert the critter need 
@@ -657,9 +674,6 @@ public class World {
 					int to_x = PositionInterpreter.getX(to_col, to_row);
 					int to_y = PositionInterpreter.getY(to_col, to_row);
 					if (x <= to_x && x >= from_x && y <= to_y && y >= from_y) {
-						System.out.println("Col " + from_col + " - " + to_col);
-						System.out.println("Row " + from_row + " - " + to_row);
-						System.out.println("putting " + p + "into log");
 						result.put(p, e);
 					}
 				}
@@ -703,12 +717,12 @@ public class World {
 		rwLock.readLock().lock();
 		try {
 			JsonClasses.WorldState s = new JsonClasses.WorldState();
-			s.col = column;
+			s.cols = column;
 			s.current_timestep = turns;
 			s.current_version_number = version_number;
 			s.name = this.name;
 			s.population = order.size();
-			s.row = this.row;
+			s.rows = this.row;
 			s.update_since = 0;
 			s.rate = rate;
 			s.state = new State[table.size()];

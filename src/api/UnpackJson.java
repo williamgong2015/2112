@@ -1,6 +1,7 @@
 package api;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
@@ -100,7 +101,7 @@ public class UnpackJson {
 	 */
 	public static ArrayList<ClientElement> unpackListOfCritters(BufferedReader br) {
 		Type t = new TypeToken<ArrayList<State>>(){}.getType();
-		ArrayList<State> tmp = gson.fromJson(br, t);//TODO
+		ArrayList<State> tmp = gson.fromJson(br, t);
 		ArrayList<ClientElement> array = new ArrayList<>();
 		for(State s : tmp) {
 			s.type = JsonClasses.CRITTER;
@@ -109,8 +110,14 @@ public class UnpackJson {
 		return array;
 	}
 	
-	public static WorldState unpackWorldState(BufferedReader br) {
-		WorldState tmp = gson.fromJson(br, WorldState.class);
+	public static WorldState unpackWorldState(BufferedReader br) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = br.readLine()) != null) {
+			sb.append(line);
+		}
+		String toParse = sb.toString();
+		WorldState tmp = gson.fromJson(toParse, WorldState.class);
 		return tmp;
 	}
 
