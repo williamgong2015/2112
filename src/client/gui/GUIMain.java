@@ -690,6 +690,8 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawRockAt(GraphicsContext gc, ClientPosition loc) {
+		// clean up that location before draw any thing
+		drawEmptyAt(gc, loc);
 		GUIHex tmp = new GUIHex(loc.x, loc.y, 
 				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(new ImagePattern(Resource.rockImg));
@@ -708,6 +710,8 @@ public class GUIMain extends Application {
 	 * @param loc
 	 */
 	private void drawFoodAt(GraphicsContext gc, ClientPosition loc) {
+		// clean up that location before draw any thing
+		drawEmptyAt(gc, loc);
 		GUIHex tmp = new GUIHex(loc.x, loc.y,
 				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		gc.setFill(new ImagePattern(Resource.foodImg));
@@ -728,6 +732,8 @@ public class GUIMain extends Application {
 	 */
 	private void drawCritterAt(GraphicsContext gc, ClientPosition loc, 
 			int dir, int size, int species) {
+		// clean up that location before draw any thing
+		drawEmptyAt(gc, loc);
 		GUIHex tmp = new GUIHex(loc.x, loc.y,
 				PositionInterpreter.getY(clientWorld.col, clientWorld.row));
 		double radio = getRadio(size);
@@ -1239,8 +1245,6 @@ public class GUIMain extends Application {
 
 		dialog.getDialogPane().setContent(grid);
 
-		//		Request focus on the username field by default.
-		//		Platform.runLater(() -> username.requestFocus());
 
 		// Convert the result to a username-password-pair when the login button is clicked.
 		dialog.setResultConverter(dialogButton -> {

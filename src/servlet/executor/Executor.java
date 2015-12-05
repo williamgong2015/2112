@@ -194,9 +194,11 @@ public class Executor {
 			int foodEnergy = ((Food) e).getAmount();
 			int currentEnergy = c.getMem(IDX.ENERGY);
 			int maxEnergy = c.maxEnergy();
-			if (foodEnergy + currentEnergy > maxEnergy) {
+			int amountCanToEat = maxEnergy - currentEnergy;
+			// if can't eat all the food
+			if (foodEnergy > amountCanToEat) {
 				c.setMem(IDX.ENERGY, maxEnergy);
-				((Food) e).setAmount(foodEnergy + currentEnergy - maxEnergy);
+				((Food) e).setAmount(foodEnergy - amountCanToEat);
 				Log logTmp = w.logs.get(w.logs.size()-1);
 				logTmp.updates.put(e.getPosition(), e);
 			}

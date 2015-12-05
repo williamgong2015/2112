@@ -1,7 +1,6 @@
 package servlet.connection;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -42,8 +41,8 @@ public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	// define password for different level of user
 	private static final String ADMIN_PW = "admin";
-	private static final String WRITER_PW = "writer";
-	private static final String READER_PW = "reader";
+	private static final String WRITER_PW = "write";
+	private static final String READER_PW = "read";
 	private static final String ADMIN_LV = "admin";
 	private static final String WRITER_LV = "write";
 	private static final String READER_LV = "read";
